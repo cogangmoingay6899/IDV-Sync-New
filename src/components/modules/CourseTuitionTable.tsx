@@ -1639,7 +1639,7 @@ export const CourseTuitionTable: React.FC<CourseTuitionTableProps> = ({
                         </div>
                       )}
 
-                      <div className="mt-0.5">
+                      <div className="mt-0.5 flex flex-col items-end">
                         {k4Info.isK4 ? (
                           k4Info.isUnpaidForCurrentCycle ? (
                             <span className="inline-flex items-center gap-1 text-[10px] font-black text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 animate-pulse shadow-3xs" title="Học viên đã học sang chu kỳ mới nhưng chưa đóng học phí chu kỳ này">
@@ -1661,6 +1661,13 @@ export const CourseTuitionTable: React.FC<CourseTuitionTableProps> = ({
                         ) : (
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200">
                             Chưa đóng
+                          </span>
+                        )}
+
+                        {/* Payment Date Display directly under the status pill */}
+                        {st.tuitionPaidDate && (isPaid || st.tuitionStatus === 'Đã đóng đủ') && (
+                          <span className="text-[9px] font-extrabold text-emerald-800 mt-1 inline-flex items-center gap-0.5 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shadow-3xs">
+                            📅 {formatDateDisplay(st.tuitionPaidDate)}
                           </span>
                         )}
                       </div>
