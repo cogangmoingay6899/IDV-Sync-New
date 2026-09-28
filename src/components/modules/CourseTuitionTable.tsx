@@ -41,6 +41,54 @@ import {
   countSessionsBetweenDates,
 } from '../../utils/courseSchedule';
 
+const getLocalTodayString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const LocalDatePicker: React.FC<{
+  value: string;
+  onChange: (val: string) => void;
+  className?: string;
+  title?: string;
+}> = ({ value, onChange, className, title }) => {
+  const [localVal, setLocalVal] = useState(value);
+
+  useEffect(() => {
+    setLocalVal(value);
+  }, [value]);
+
+  const handleBlur = () => {
+    if (localVal !== value) {
+      onChange(localVal);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (localVal !== value) {
+        onChange(localVal);
+      }
+      e.currentTarget.blur();
+    }
+  };
+
+  return (
+    <input
+      type="date"
+      value={localVal || ''}
+      onChange={(e) => setLocalVal(e.target.value)}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      className={className}
+      title={title}
+    />
+  );
+};
+
 export interface CourseTuitionTableProps {
   courseName: string;
   courseTuitionFee: number; // Học phí gốc theo thiết lập của khóa
@@ -1639,7 +1687,7 @@ export const CourseTuitionTable: React.FC<CourseTuitionTableProps> = ({
                         </div>
                       )}
 
-                      <div className="mt-0.5 flex flex-col items-end">
+                      <div className="mt-1 flex flex-col items-end gap-1.5 w-full">
                         {k4Info.isK4 ? (
                           k4Info.isUnpaidForCurrentCycle ? (
                             <span className="inline-flex items-center gap-1 text-[10px] font-black text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 animate-pulse shadow-3xs" title="Học viên đã học sang chu kỳ mới nhưng chưa đóng học phí chu kỳ này">
@@ -1650,25 +1698,80 @@ export const CourseTuitionTable: React.FC<CourseTuitionTableProps> = ({
                               <Check className="w-3 h-3 text-emerald-600" /> Đủ CK {k4Info.currentCycle}
                             </span>
                           )
-                        ) : isPaid ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200">
-                            <Check className="w-3 h-3" /> Đã đóng đủ
-                          </span>
-                        ) : st.tuitionStatus === 'Còn nợ' ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
-                            Còn nợ
-                          </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200">
-                            Chưa đóng
-                          </span>
-                        )}
+                          <div className="flex flex-col items-end gap-1 w-full max-w-[130px]">
+                            <select
+                              value={st.tuitionStatus || 'Chưa đóng'}
+                              onChange={(e) => {
+                                const val = e.target.value as 'Đã đóng đủ' | 'Còn nợ' | 'Chưa đóng';
+                                const updates: any = { tuitionStatus: val };
+                                if (val === 'Đã đóng đủ' && !st.tuitionPaidDate) {
+                                  updates.tuitionPaidDate = getLocalTodayString();
+                                  updates.balanceOwed = 0;
+                                } else if (val === 'Chưa đóng') {
+                                  updates.tuitionPaidDate = '';
+                                  updates.balanceOwed = proRatedCalc.totalDue;
+                                } else if (val === 'Còn nợ') {
+                                  updates.balanceOwed = st.balanceOwed || Math.round(proRatedCalc.totalDue / 2);
+                                }
+                                handleStudentFieldChange(st, updates);
+                              }}
+                              className={`w-full text-[10px] font-black px-1.5 py-0.5 rounded border focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer transition-all ${
+                                st.tuitionStatus === 'Đã đóng đủ'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                  : st.tuitionStatus === 'Còn nợ'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                              }`}
+                            >
+                              <option value="Đã đóng đủ">Đã đóng đủ</option>
+                              <option value="Còn nợ">Còn nợ</option>
+                              <option value="Chưa đóng">Chưa đóng</option>
+                            </select>
 
-                        {/* Payment Date Display directly under the status pill */}
-                        {st.tuitionPaidDate && (isPaid || st.tuitionStatus === 'Đã đóng đủ') && (
-                          <span className="text-[9px] font-extrabold text-emerald-800 mt-1 inline-flex items-center gap-0.5 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shadow-3xs">
-                            📅 {formatDateDisplay(st.tuitionPaidDate)}
-                          </span>
+                            {/* If status is "Còn nợ", show balanceOwed input directly below */}
+                            {st.tuitionStatus === 'Còn nợ' && (
+                              <div className="w-full flex items-center gap-1 justify-end mt-0.5 bg-amber-50/50 p-1 rounded border border-amber-200">
+                                <span className="text-[9px] font-black text-amber-800 whitespace-nowrap">Nợ:</span>
+                                <input
+                                  type="text"
+                                  value={st.balanceOwed ? st.balanceOwed.toLocaleString('vi-VN') : ''}
+                                  placeholder="Số tiền..."
+                                  onChange={(e) => {
+                                    const digits = e.target.value.replace(/\D/g, '');
+                                    const val = digits ? Number(digits) : 0;
+                                    handleStudentFieldChange(st, { balanceOwed: val });
+                                  }}
+                                  className="w-full text-[10px] font-black bg-white border border-amber-300 rounded px-1 py-0.5 text-right text-amber-950 focus:outline-none"
+                                />
+                                <span className="text-[9px] font-black text-amber-800">đ</span>
+                              </div>
+                            )}
+
+                            {/* If status is "Đã đóng đủ", show date picker input directly below */}
+                            {(st.tuitionStatus === 'Đã đóng đủ' || isPaid) && (
+                              <div className="w-full flex flex-col gap-0.5 mt-0.5 bg-emerald-50/50 p-1 rounded border border-emerald-200">
+                                <div className="flex items-center justify-between text-[9px] font-black text-emerald-800">
+                                  <span>Ngày đóng:</span>
+                                  {st.tuitionPaidDate && (
+                                    <span className="text-[8px] text-emerald-600 font-mono font-normal">
+                                      {formatDateDisplay(st.tuitionPaidDate)}
+                                    </span>
+                                  )}
+                                </div>
+                                <LocalDatePicker
+                                  value={st.tuitionPaidDate || ''}
+                                  onChange={(val) => {
+                                    handleStudentFieldChange(st, {
+                                      tuitionPaidDate: val,
+                                      tuitionStatus: val ? 'Đã đóng đủ' : st.tuitionStatus,
+                                    });
+                                  }}
+                                  className="w-full text-[9px] font-black bg-white border border-emerald-300 rounded px-1 py-0.5 focus:outline-none"
+                                />
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </td>
@@ -1887,11 +1990,9 @@ export const CourseTuitionTable: React.FC<CourseTuitionTableProps> = ({
                           </div>
                         )}
 
-                        <input
-                          type="date"
+                        <LocalDatePicker
                           value={st.tuitionPaidDate || ''}
-                          onChange={(e) => {
-                            const val = e.target.value;
+                          onChange={(val) => {
                             handleStudentFieldChange(st, {
                               tuitionPaidDate: val,
                               tuitionStatus: val ? 'Đã đóng đủ' : st.tuitionStatus,
@@ -1908,7 +2009,7 @@ export const CourseTuitionTable: React.FC<CourseTuitionTableProps> = ({
                           <button
                             type="button"
                             onClick={() => {
-                              const todayStr = new Date().toISOString().split('T')[0];
+                              const todayStr = getLocalTodayString();
                               handleStudentFieldChange(st, {
                                 tuitionPaidDate: todayStr,
                                 tuitionStatus: 'Đã đóng đủ',
