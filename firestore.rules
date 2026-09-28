@@ -1,0 +1,68 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for validation & security
+    function isValidId(docId) {
+      return docId is string && docId.size() > 0 && docId.size() <= 128;
+    }
+
+    // Students collection (Student info & tuition payment tracking)
+    match /students/{studentId} {
+      allow read: if true;
+      allow write: if isValidId(studentId);
+    }
+
+    // Placement Tests collection (Online entrance test results)
+    match /placementTests/{testId} {
+      allow read: if true;
+      allow write: if isValidId(testId);
+    }
+
+    // Vocabulary tests collection
+    match /vocab_tests/{testId} {
+      allow read: if true;
+      allow write: if isValidId(testId);
+    }
+
+    // Vocabulary reviews & periodic test results
+    match /vocab_reviews/{testId} {
+      allow read: if true;
+      allow write: if isValidId(testId);
+    }
+
+    // Classes collection
+    match /classes/{classId} {
+      allow read: if true;
+      allow write: if isValidId(classId);
+    }
+
+    // Teachers collection
+    match /teachers/{teacherId} {
+      allow read: if true;
+      allow write: if isValidId(teacherId);
+    }
+
+    // Periodic test results & score records
+    match /test_results/{resultId} {
+      allow read: if true;
+      allow write: if isValidId(resultId);
+    }
+
+    // Class spreadsheets collection
+    match /class_spreadsheets/{docId} {
+      allow read, write: if true;
+    }
+
+    // Deleted records / Tombstones collection for cross-device deletion sync
+    match /deleted_records/{docId} {
+      allow read, write: if true;
+    }
+
+    // Default catch-all rule
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
