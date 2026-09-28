@@ -284,6 +284,7 @@ export interface AttendanceRecord {
   skillTotalQuestions?: Record<string, string | number>; // e.g. { 'Từ vựng': 30, 'Nghe': 40 }
   homeworkItems?: string[]; // Danh sách đề mục BTVN (Nghe, Nói, Đọc, Viết, Chép phạt, Chữa bài...)
   missingHomeworkItems?: string[]; // Danh sách đề mục học viên bị thiếu
+  exemptHomeworkItems?: string[]; // Danh sách đề mục học viên không cần làm
   homeworkStatus?: 'Đã làm' | 'Chưa làm' | 'Thiếu';
   quizletStatus?: 'Đã học' | 'Chưa học';
 }
@@ -312,6 +313,7 @@ export interface TeachingSession {
     homeworkDone?: boolean;
     homeworkItems?: string[];
     missingHomeworkItems?: string[];
+    exemptHomeworkItems?: string[];
     homeworkStatus?: 'Đã làm' | 'Chưa làm' | 'Thiếu';
     quizletStatus?: 'Đã học' | 'Chưa học';
   }[];

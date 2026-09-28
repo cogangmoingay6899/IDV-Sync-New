@@ -1190,11 +1190,15 @@ export const ClassScoreExportModal: React.FC<ClassScoreExportModalProps> = ({
                                 }
                                 const isMissing =
                                   row?.homeworkStatus === 'Chưa làm' || row?.missingHomeworkItems?.includes(item);
+                                const isExempt = row?.exemptHomeworkItems?.includes(item);
                                 return (
                                   <td key={item} className={`${fontSizeConfig.tableCell} text-center`}>
                                     {isMissing ? (
                                       <span className="inline-flex items-center justify-center font-black text-rose-400 font-mono tracking-tighter">
                                         (✘)
+                                      </span>
+                                    ) : isExempt ? (
+                                      <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-transparent border border-white/20">
                                       </span>
                                     ) : (
                                       <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-emerald-600 text-white font-black text-xs shadow-2xs border border-emerald-500">

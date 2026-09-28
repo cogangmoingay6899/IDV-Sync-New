@@ -139,6 +139,7 @@ export interface StudentRowState {
   feedback: string;
   homeworkStatus: 'Đã làm' | 'Thiếu' | 'Chưa làm';
   missingHomeworkItems?: string[];
+  exemptHomeworkItems?: string[];
   quizletStatus: 'Đã học' | 'Chưa học';
   note: string;
 }
@@ -866,6 +867,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
 
       const initialHw = (existing?.homeworkStatus as 'Đã làm' | 'Thiếu' | 'Chưa làm') || 'Đã làm';
       const initialMissingHw = (existing?.missingHomeworkItems as string[]) || [];
+      const initialExemptHw = (existing?.exemptHomeworkItems as string[]) || [];
       const initialQuizlet = (existing?.quizletStatus as 'Đã học' | 'Chưa học') || 'Đã học';
 
       initial[st.id] = {
@@ -878,6 +880,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
         feedback: existing?.teacherNote || '',
         homeworkStatus: initialHw,
         missingHomeworkItems: initialMissingHw,
+        exemptHomeworkItems: initialExemptHw,
         quizletStatus: initialQuizlet,
         note: existing?.note || '',
       };
@@ -961,21 +964,44 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
     setStudentRows((prev) => {
       const currentRow = prev[studentId];
       if (!currentRow) return prev;
-      let currentMissing = currentRow.missingHomeworkItems || [];
+
+      let currentMissing = [...(currentRow.missingHomeworkItems || [])];
+      let currentExempt = [...(currentRow.exemptHomeworkItems || [])];
+
+      // If they had "Chưa làm" but missing lists were empty, treat all items as missing by default
       if (currentRow.homeworkStatus === 'Chưa làm' && currentMissing.length === 0) {
         currentMissing = [...homeworkItems];
       }
-      let updatedMissing: string[];
-      if (currentMissing.includes(item)) {
-        updatedMissing = currentMissing.filter((i) => i !== item);
-      } else {
+
+      const isMissing = currentMissing.includes(item);
+      const isExempt = currentExempt.includes(item);
+
+      let updatedMissing = currentMissing;
+      let updatedExempt = currentExempt;
+
+      if (!isMissing && !isExempt) {
+        // State 1 (✓) -> Transition to State 2 (✘)
         updatedMissing = [...currentMissing, item];
+        updatedExempt = currentExempt.filter((i) => i !== item);
+      } else if (isMissing) {
+        // State 2 (✘) -> Transition to State 3 (Exempt / White box)
+        updatedMissing = currentMissing.filter((i) => i !== item);
+        updatedExempt = [...currentExempt, item];
+      } else {
+        // State 3 (Exempt) -> Transition to State 1 (✓)
+        updatedMissing = currentMissing.filter((i) => i !== item);
+        updatedExempt = currentExempt.filter((i) => i !== item);
       }
 
+      // Re-evaluate overall student homeworkStatus
+      const missingCount = updatedMissing.length;
+      const exemptCount = updatedExempt.length;
+      const activeRequiredCount = homeworkItems.length - exemptCount;
+
       let updatedStatus: 'Đã làm' | 'Thiếu' | 'Chưa làm' = 'Đã làm';
-      if (updatedMissing.length === 0) {
+      if (missingCount === 0) {
         updatedStatus = 'Đã làm';
-      } else if (updatedMissing.length >= homeworkItems.length && homeworkItems.length > 0) {
+      } else if (missingCount >= activeRequiredCount && activeRequiredCount > 0) {
         updatedStatus = 'Chưa làm';
       } else {
         updatedStatus = 'Thiếu';
@@ -986,6 +1012,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
         [studentId]: {
           ...currentRow,
           missingHomeworkItems: updatedMissing,
+          exemptHomeworkItems: updatedExempt,
           homeworkStatus: updatedStatus,
         },
       };
@@ -997,15 +1024,19 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       const currentRow = prev[studentId];
       if (!currentRow) return prev;
       let missing: string[] = [];
+      let exempt: string[] = [];
       if (status === 'Đã làm') {
         missing = [];
+        exempt = [];
       } else if (status === 'Chưa làm') {
         missing = [...homeworkItems];
+        exempt = [];
       } else if (status === 'Thiếu') {
         missing =
           currentRow.missingHomeworkItems && currentRow.missingHomeworkItems.length > 0
             ? currentRow.missingHomeworkItems
             : [homeworkItems[0] || 'Chữa bài'];
+        exempt = currentRow.exemptHomeworkItems || [];
       }
       return {
         ...prev,
@@ -1013,6 +1044,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
           ...currentRow,
           homeworkStatus: status,
           missingHomeworkItems: missing,
+          exemptHomeworkItems: exempt,
         },
       };
     });
@@ -1024,17 +1056,22 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       classStudents.forEach((st) => {
         if (next[st.id]) {
           let missing: string[] = [];
+          let exempt: string[] = [];
           if (status === 'Đã làm') {
             missing = [];
+            exempt = [];
           } else if (status === 'Chưa làm') {
             missing = [...homeworkItems];
+            exempt = [];
           } else if (status === 'Thiếu') {
             missing = [homeworkItems[0] || 'Chữa bài'];
+            exempt = [];
           }
           next[st.id] = {
             ...next[st.id],
             homeworkStatus: status,
             missingHomeworkItems: missing,
+            exemptHomeworkItems: exempt,
           };
         }
       });
@@ -1252,6 +1289,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
         penaltyBankAccount: row?.penaltyBankAccount || '',
         homeworkItems: homeworkItems,
         missingHomeworkItems: row?.missingHomeworkItems || [],
+        exemptHomeworkItems: row?.exemptHomeworkItems || [],
         homeworkStatus: row?.homeworkStatus || 'Đã làm',
         quizletStatus: row?.quizletStatus || 'Đã học',
       };
@@ -2782,6 +2820,15 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                         {homeworkItems.length > 0 ? (
                           homeworkItems.map((item) => {
                             const isMissing = row.homeworkStatus === 'Chưa làm' || row.missingHomeworkItems?.includes(item);
+                            const isExempt = row.exemptHomeworkItems?.includes(item);
+                            
+                            let titleText = `Đã làm: ${item} (Bấm để báo THIẾU)`;
+                            if (isMissing) {
+                              titleText = `Đang thiếu: ${item} (Bấm để chuyển KHÔNG CẦN LÀM)`;
+                            } else if (isExempt) {
+                              titleText = `Miễn trừ: ${item} (Bấm để chuyển ĐÃ LÀM)`;
+                            }
+
                             return (
                               <td
                                 key={item}
@@ -2790,16 +2837,15 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                                 <button
                                   type="button"
                                   onClick={() => handleToggleMissingHwItem(st.id, item)}
-                                  title={
-                                    isMissing
-                                      ? `Đang thiếu: ${item} (Bấm để chuyển sang ĐỦ)`
-                                      : `Đã làm: ${item} (Bấm để đánh dấu THIẾU)`
-                                  }
-                                  className="inline-flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                                  title={titleText}
+                                  className="inline-flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer"
                                 >
                                   {isMissing ? (
-                                    <span className="inline-flex items-center justify-center text-rose-600 font-bold font-mono tracking-tighter text-sm">
-                                      (✘)
+                                    <span className="inline-flex items-center justify-center text-rose-600 font-bold font-mono tracking-tighter text-sm w-5 h-5 bg-rose-50 rounded border border-rose-200">
+                                      ✘
+                                    </span>
+                                  ) : isExempt ? (
+                                    <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-white border border-slate-300 shadow-2xs">
                                     </span>
                                   ) : (
                                     <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-emerald-600 text-white font-black text-[11px] shadow-2xs border border-emerald-500">
