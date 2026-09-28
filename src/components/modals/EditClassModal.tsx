@@ -1110,7 +1110,7 @@ export const EditClassModal: React.FC<EditClassModalProps> = ({
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-800 focus:outline-none"
                     >
                       <option value="Cơ sở 1 - Tô Hiệu (Hải Phòng)">Cơ sở 1 - Tô Hiệu (HP)</option>
-                      <option value="Cơ sở 2 - Lạch Tray (Hải Phòng)">Cơ sở 2 - Lạch Tray (HP)</option>
+                      <option value="Cơ sở 2 - Kiến An (Hải Phòng)">Cơ sở 2 - Kiến An (HP)</option>
                       <option value="Online Zoom VIP">Online Zoom VIP</option>
                     </select>
                   </div>
