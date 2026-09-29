@@ -31,6 +31,38 @@ export type ModuleId =
   | 'inventory'
   | 'speaking_practice';
 
+export interface ClassTransferRecord {
+  id: string;
+  fromClassId: string;
+  fromClassName: string;
+  fromCourseName?: string;
+  toClassId: string;
+  toClassName: string;
+  toCourseName?: string;
+  transferDate: string;
+  reason?: string;
+  transferredBy?: string;
+  completedSessionsInOldClass?: number; // Số buổi đã học ở lớp cũ
+  attendedSessionsInOldClass?: number;  // Số buổi có mặt ở lớp cũ
+  avgScoreInOldClass?: number;          // Điểm TB ở lớp cũ
+  tuitionCarriedOver?: number;          // Tiền học phí chuyển tiếp
+  notes?: string;
+}
+
+export interface StudentPreviousClass {
+  classId: string;
+  className: string;
+  courseName?: string;
+  startDate?: string;
+  endDate?: string;
+  completedSessions?: number;
+  attendedSessions?: number;
+  avgScore?: number;
+  status?: string;
+  transferDate?: string;
+  transferReason?: string;
+}
+
 export interface Student {
   id: string;
   code: string; // e.g. HV-2026-001
@@ -60,6 +92,9 @@ export interface Student {
   droppedReason?: string;
   waitingForClassId?: string;
   waitingNote?: string;
+  // Lịch sử chuyển lớp & các lớp đã học trước đây
+  classTransferHistory?: ClassTransferRecord[];
+  previousClasses?: StudentPreviousClass[];
   // Quản lý ngày học riêng từng học viên & Học phí khóa học
   startDate?: string; // Ngày bắt đầu học riêng từng bạn (nếu khác ngày khai giảng chung của lớp)
   endDate?: string; // Ngày kết thúc khóa riêng từng bạn (dự kiến hoặc thực tế)

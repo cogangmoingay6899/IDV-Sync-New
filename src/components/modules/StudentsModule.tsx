@@ -6,7 +6,7 @@ import {
   CalendarDays, CalendarCheck2, PenLine, CheckCircle2,
   FileSpreadsheet, ArrowRight, ExternalLink, Building2,
   AlertCircle, Bell, Sparkles, Trash2, Search, Check, UserX,
-  Plus
+  Plus, History, ArrowLeftRight
 } from "lucide-react";
 import { Student, ClassGroup, Teacher, CurriculumCourse, AttendanceRecord, TuitionTransaction, ExamScore, AuthUser } from "../../types";
 import { EditClassModal } from "../modals/EditClassModal";
@@ -15,6 +15,7 @@ import { ClassVocabTestModule } from "./ClassVocabTestModule";
 import { CourseTuitionTable } from "./CourseTuitionTable";
 import { ClassFullScheduleModal } from "../modals/ClassFullScheduleModal";
 import { CourseScheduleRemindersModal } from "../modals/CourseScheduleRemindersModal";
+import { StudentLearningHistoryModal } from "../modals/StudentLearningHistoryModal";
 import { calculateCourseSchedule, detectCourseLevel, calculateClassEndInfo, formatDateVN } from "../../utils/courseSchedule";
 
 import { ClassSpreadsheetGradebookModule } from "./ClassSpreadsheetGradebookModule";
@@ -66,6 +67,9 @@ export interface StudentsModuleProps {
   courses?: CurriculumCourse[];
   attendanceRecords?: AttendanceRecord[];
   transactions?: TuitionTransaction[];
+  exams?: ExamScore[];
+  contactNotes?: any[];
+  milestoneReports?: any[];
   onSaveAttendance?: any;
   onAddTeacher?: any;
   onAddExamScore?: any;
@@ -75,6 +79,7 @@ export interface StudentsModuleProps {
   onOpenImportSheet?: any;
   onSelectStudentDetail?: any;
   onEnrollStudentToClass?: any;
+  onTransferStudent?: any;
   onRemoveStudentFromClass?: any;
   onRestoreStudentFromClass?: any;
   onUpdateStudent?: any;
@@ -92,6 +97,9 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
   courses: a = [],
   attendanceRecords: l = [],
   transactions: o = [],
+  exams: exList = [],
+  contactNotes: cnList = [],
+  milestoneReports: mrList = [],
   onSaveAttendance: d,
   onAddTeacher: u,
   onAddExamScore: m,
@@ -101,6 +109,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
   onOpenImportSheet: w,
   onSelectStudentDetail: D,
   onEnrollStudentToClass: _,
+  onTransferStudent: transferHandler,
   onRemoveStudentFromClass: O,
   onRestoreStudentFromClass: G,
   onUpdateStudent: M,
@@ -127,6 +136,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
     [Ue, St] = y.useState(!1),
     [Tt, de] = y.useState(null),
     [ze, dt] = y.useState(null),
+    [selectedStudentForHistory, setSelectedStudentForHistory] = y.useState<Student | null>(null),
     We = (B) => {
       var As, nn, dn, $n, ls, Ds;
       if (!(
@@ -300,6 +310,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
     return e.jsx(CP, {
       classGroup: B,
       allStudents: n,
+      allClasses: t,
       teachers: s,
       courses: a,
       attendanceRecords: l,
@@ -317,6 +328,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
         k("sheet_gradebook");
       },
       onEnrollStudent: (fe, xe) => _ && _(fe, xe),
+      onTransferStudent: transferHandler,
       onRemoveStudent: (fe, xe) => O && O(fe, xe),
       onRestoreStudent: (fe, xe) => G && G(fe, xe),
       onUpdateStudent: M,
@@ -1373,6 +1385,17 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                             e.jsx("span", { children: "HV" }),
                                           ],
                                         }),
+                                        e.jsx("button", {
+                                          type: "button",
+                                          onClick: () => setSelectedStudentForHistory(B),
+                                          className:
+                                            "px-1.5 py-1 text-[10px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-md transition-all flex items-center gap-1 cursor-pointer shrink-0",
+                                          title: "Xem Hồ sơ & Lịch sử học tập / Chuyển lớp",
+                                          children: [
+                                            e.jsx(History, { className: "w-3 h-3 text-purple-700" }),
+                                            e.jsx("span", { children: "Lịch sử" }),
+                                          ],
+                                        }),
                                         B.classId &&
                                           e.jsx("button", {
                                             onClick: () => {
@@ -1760,6 +1783,10 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                 e.jsx("th", {
                                   className: "py-3 px-4 text-center",
                                   children: "Đòi Phí Qua Zalo",
+                                }),
+                                e.jsx("th", {
+                                  className: "py-3 px-4 text-center min-w-[130px]",
+                                  children: "📜 Lịch sử & Chuyển lớp",
                                 }),
                                 e.jsx("th", {
                                   className: "py-3 px-4",
@@ -2260,6 +2287,30 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                             }),
                                       }),
                                       e.jsx("td", {
+                                        className: "py-3.5 px-4 text-center",
+                                        children: e.jsxs("div", {
+                                          className: "flex items-center justify-center gap-1.5",
+                                          children: [
+                                            e.jsxs("button", {
+                                              type: "button",
+                                              onClick: () => setSelectedStudentForHistory(B),
+                                              className: "px-2.5 py-1.5 text-[11px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl transition-all inline-flex items-center gap-1 cursor-pointer shadow-2xs",
+                                              title: "Xem Hồ sơ & Lịch sử học tập / Chuyển lớp",
+                                              children: [
+                                                e.jsx(History, { className: "w-3.5 h-3.5" }),
+                                                e.jsx("span", { children: "Lịch sử" }),
+                                              ],
+                                            }),
+                                            (B.classTransferHistory && B.classTransferHistory.length > 0) &&
+                                              e.jsx("span", {
+                                                className: "px-1.5 py-0.2 text-[9px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 rounded-full",
+                                                title: "Đã chuyển lớp " + B.classTransferHistory.length + " lần",
+                                                children: "Chuyển " + B.classTransferHistory.length + "L",
+                                              }),
+                                          ],
+                                        }),
+                                      }),
+                                      e.jsx("td", {
                                         className: "py-3.5 px-4",
                                         children: e.jsx("span", {
                                           className: `px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${B.status === "Đang học" ? "bg-purple-50 text-purple-700 border border-purple-200" : B.status === "Bảo lưu" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-slate-100 text-slate-600"}`,
@@ -2666,6 +2717,22 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
               }),
             ],
           }),
+        }),
+      selectedStudentForHistory &&
+        e.jsx(StudentLearningHistoryModal, {
+          isOpen: selectedStudentForHistory !== null,
+          onClose: () => setSelectedStudentForHistory(null),
+          student: selectedStudentForHistory,
+          classes: t,
+          attendanceRecords: l,
+          examScores: exList,
+          contactBookNotes: cnList,
+          milestoneReports: mrList,
+          transactions: o,
+          onTransferClass: transferHandler || ((sid, fromC, toC) => _ && _(toC, sid)),
+          currentUser: Q,
+          onUpdateStudent: M,
+          onOpenQuickTuition: le,
         }),
       ze &&
         e.jsx("div", {

@@ -54,6 +54,7 @@ import {
   Trash2,
   ListChecks,
   Settings,
+  ArrowLeftRight,
 } from 'lucide-react';
 import { Student, ClassGroup, Teacher, AttendanceRecord, ExamScore, CurriculumCourse, AuthUser, SpeakingLog } from '../../types';
 import { ClassVocabTestModule } from './ClassVocabTestModule';
@@ -70,6 +71,7 @@ import { EditClassModal } from '../modals/EditClassModal';
 import { ClassScoreExportModal } from '../modals/ClassScoreExportModal';
 import { HomeworkConfigModal } from '../modals/HomeworkConfigModal';
 import { ClassFullScheduleModal } from '../modals/ClassFullScheduleModal';
+import { StudentLearningHistoryModal } from '../modals/StudentLearningHistoryModal';
 import { CourseTuitionTable } from './CourseTuitionTable';
 import {
   calculateCourseSchedule,
@@ -82,6 +84,7 @@ import {
 interface ClassDetailViewProps {
   classGroup: ClassGroup;
   allStudents: Student[];
+  allClasses?: ClassGroup[];
   teachers?: Teacher[];
   courses?: CurriculumCourse[];
   attendanceRecords?: AttendanceRecord[];
@@ -95,6 +98,7 @@ interface ClassDetailViewProps {
   ) => void;
   onBack: () => void;
   onEnrollStudent: (classId: string, studentIdOrData: string | Student) => void;
+  onTransferStudent?: (studentId: string, fromClassId: string, toClassId: string, options: any) => void;
   onRemoveStudent: (classId: string, studentId: string) => void;
   onRestoreStudent?: (classId: string, studentId: string) => void;
   onUpdateStudent?: (updatedStudent: Student) => void;
@@ -147,6 +151,7 @@ export interface StudentRowState {
 export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   classGroup,
   allStudents,
+  allClasses = [],
   teachers = [],
   courses = [],
   attendanceRecords = [],
@@ -156,6 +161,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   onUpdateClass,
   onBack,
   onEnrollStudent,
+  onTransferStudent,
   onRemoveStudent,
   onRestoreStudent,
   onUpdateStudent,
@@ -172,6 +178,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   const isTeacherUser = currentUser?.role === 'teacher';
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeletingClass, setIsDeletingClass] = useState(false);
+  const [selectedStudentForHistory, setSelectedStudentForHistory] = useState<Student | null>(null);
 
   // Default directly to grading log as requested by user
   const [activeTab, setActiveTab] = useState<'daily_log' | 'students' | 'vocab_tests' | 'pronunciation' | 'speaking'>('daily_log');
@@ -3523,6 +3530,15 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 type="button"
+                                onClick={() => setSelectedStudentForHistory(st)}
+                                className="p-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors border border-purple-200 cursor-pointer"
+                                title="Xem Lịch sử học tập & Chuyển lớp (Toàn bộ dữ liệu các lớp đã học)"
+                              >
+                                <History className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
                                 onClick={() => setSelectedStudentForZalo(st)}
                                 className="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg transition-colors border border-indigo-200"
                                 title="Báo Zalo Phụ huynh"
@@ -5204,6 +5220,20 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
             </div>
           </div>
         </div>
+      )}
+
+      {/* Student Learning & Class Transfer History Modal */}
+      {selectedStudentForHistory && (
+        <StudentLearningHistoryModal
+          isOpen={selectedStudentForHistory !== null}
+          onClose={() => setSelectedStudentForHistory(null)}
+          student={selectedStudentForHistory}
+          classes={allClasses && allClasses.length > 0 ? allClasses : [classGroup]}
+          attendanceRecords={attendanceRecords}
+          onTransferClass={onTransferStudent || ((sid, fromC, toC) => onEnrollStudent(toC, sid))}
+          currentUser={currentUser}
+          onUpdateStudent={onUpdateStudent}
+        />
       )}
     </div>
   );

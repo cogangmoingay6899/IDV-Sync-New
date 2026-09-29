@@ -1209,6 +1209,103 @@ export default function App() {
     });
   };
 
+  // Handler: Transfer student between classes with full historical data preservation
+  const handleTransferStudent = (
+    studentId: string,
+    fromClassId: string,
+    toClassId: string,
+    options?: {
+      reason?: string;
+      transferDate?: string;
+      tuitionCarriedOver?: number;
+      notes?: string;
+    }
+  ) => {
+    const oldClass = classes.find((c) => c.id === fromClassId);
+    const targetClass = classes.find((c) => c.id === toClassId);
+    if (!targetClass) return;
+
+    const transferDate = options?.transferDate || new Date().toISOString().split('T')[0];
+    const oldAttendance = attendance.filter((a) => a.studentId === studentId && a.classId === fromClassId);
+    const attendedSessions = oldAttendance.filter(
+      (a) => a.status === 'Có mặt' || a.status === 'Đi muộn' || a.status === 'Đi trễ'
+    ).length;
+
+    const transferRecord: ClassTransferRecord = {
+      id: `tr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      fromClassId: fromClassId || oldClass?.id || '',
+      fromClassName: oldClass?.name || 'Lớp cũ',
+      fromCourseName: oldClass?.courseName,
+      toClassId: targetClass.id,
+      toClassName: targetClass.name,
+      toCourseName: targetClass.courseName,
+      transferDate: transferDate,
+      reason: options?.reason || 'Chuyển lớp',
+      transferredBy: currentUser?.name || 'Quản lý',
+      completedSessionsInOldClass: oldAttendance.length,
+      attendedSessionsInOldClass: attendedSessions,
+      tuitionCarriedOver: options?.tuitionCarriedOver,
+      notes: options?.notes,
+    };
+
+    const prevEntry: StudentPreviousClass = {
+      classId: fromClassId || oldClass?.id || '',
+      className: oldClass?.name || 'Lớp cũ',
+      courseName: oldClass?.courseName,
+      startDate: oldClass?.startDate,
+      endDate: transferDate,
+      completedSessions: oldAttendance.length,
+      attendedSessions: attendedSessions,
+      status: 'Đã chuyển lớp',
+      transferDate: transferDate,
+      transferReason: options?.reason || 'Chuyển lớp',
+    };
+
+    setStudents((prev) => {
+      const updated = prev.map((s) => {
+        if (s.id === studentId) {
+          return {
+            ...s,
+            classId: targetClass.id,
+            className: targetClass.name,
+            courseName: targetClass.courseName,
+            status: 'Đang học' as const,
+            startDate: transferDate,
+            classTransferHistory: [transferRecord, ...(s.classTransferHistory || [])],
+            previousClasses: [
+              prevEntry,
+              ...(s.previousClasses || []).filter((p) => p.classId !== fromClassId),
+            ],
+          };
+        }
+        return s;
+      });
+      const transferred = updated.find((s) => s.id === studentId);
+      if (transferred) saveDocument('students', transferred);
+      return updated;
+    });
+
+    // Update student counts for both old and new classes
+    setClasses((prev) => {
+      const updated = prev.map((c) => {
+        if (fromClassId && c.id === fromClassId) {
+          const dec = { ...c, currentStudents: Math.max(0, c.currentStudents - 1) };
+          saveDocument('classes', dec);
+          return dec;
+        }
+        if (c.id === toClassId) {
+          const inc = { ...c, currentStudents: c.currentStudents + 1 };
+          saveDocument('classes', inc);
+          return inc;
+        }
+        return c;
+      });
+      return updated;
+    });
+
+    showToast(`Đã chuyển học viên sang lớp "${targetClass.name}" thành công! Dữ liệu cũ được bảo toàn.`);
+  };
+
   // Handler: Enroll or transfer student to a class
   const handleEnrollStudentToClass = (classId: string, studentIdOrData: string | Student) => {
     const targetClass = classes.find((c) => c.id === classId);
@@ -1220,15 +1317,51 @@ export default function App() {
         const updated = prev.map((s) => {
           if (s.id === studentId) {
             const oldClassId = s.classId;
+            let transferHistory = s.classTransferHistory || [];
+            let previousClasses = s.previousClasses || [];
+
             if (oldClassId && oldClassId !== classId) {
+              const oldCls = classes.find((c) => c.id === oldClassId);
+              const oldAttendance = attendance.filter((a) => a.studentId === studentId && a.classId === oldClassId);
+              const attendedCount = oldAttendance.filter((a) => a.status === 'Có mặt' || a.status === 'Đi muộn' || a.status === 'Đi trễ').length;
+
+              const transferRec: ClassTransferRecord = {
+                id: `tr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                fromClassId: oldClassId,
+                fromClassName: oldCls?.name || s.className || 'Lớp cũ',
+                fromCourseName: oldCls?.courseName || s.courseName,
+                toClassId: targetClass.id,
+                toClassName: targetClass.name,
+                toCourseName: targetClass.courseName,
+                transferDate: new Date().toISOString().split('T')[0],
+                reason: 'Xếp / Chuyển sang lớp mới',
+                transferredBy: currentUser?.name || 'Quản lý',
+                completedSessionsInOldClass: oldAttendance.length,
+                attendedSessionsInOldClass: attendedCount,
+              };
+              transferHistory = [transferRec, ...transferHistory];
+
+              const prevEntry: StudentPreviousClass = {
+                classId: oldClassId,
+                className: oldCls?.name || s.className || 'Lớp cũ',
+                courseName: oldCls?.courseName || s.courseName,
+                startDate: s.startDate || s.joinDate || oldCls?.startDate,
+                endDate: new Date().toISOString().split('T')[0],
+                completedSessions: oldAttendance.length,
+                attendedSessions: attendedCount,
+                status: 'Đã chuyển lớp',
+                transferDate: new Date().toISOString().split('T')[0],
+              };
+              previousClasses = [prevEntry, ...previousClasses.filter((p) => p.classId !== oldClassId)];
+
               setClasses((clsList) => {
                 const updatedCls = clsList.map((c) =>
                   c.id === oldClassId
                     ? { ...c, currentStudents: Math.max(0, c.currentStudents - 1) }
                     : c
                 );
-                const oldCls = updatedCls.find((c) => c.id === oldClassId);
-                if (oldCls) saveDocument('classes', oldCls);
+                const decremented = updatedCls.find((c) => c.id === oldClassId);
+                if (decremented) saveDocument('classes', decremented);
                 return updatedCls;
               });
             }
@@ -1237,6 +1370,9 @@ export default function App() {
               classId: targetClass.id,
               className: targetClass.name,
               courseName: targetClass.courseName,
+              status: 'Đang học' as const,
+              classTransferHistory: transferHistory,
+              previousClasses: previousClasses,
             };
           }
           return s;
@@ -1269,7 +1405,7 @@ export default function App() {
               return updatedCls;
             });
           }
-          return prev.map((s) => s.id === studentData.id ? studentData : s);
+          return prev.map((s) => (s.id === studentData.id ? studentData : s));
         } else {
           return [studentData, ...prev];
         }
@@ -2355,6 +2491,9 @@ export default function App() {
             courses={courses}
             attendanceRecords={attendance}
             transactions={transactions}
+            exams={exams}
+            contactNotes={contactNotes}
+            milestoneReports={milestoneEvaluations}
             onSaveAttendance={handleSaveAttendance}
             onAddTeacher={handleAddTeacher}
             onAddExamScore={handleAddExamScore}
@@ -2363,6 +2502,7 @@ export default function App() {
             onUpdateClass={handleUpdateClass}
             onOpenImportSheet={() => setIsImportSheetOpen(true)}
             onEnrollStudentToClass={handleEnrollStudentToClass}
+            onTransferStudent={handleTransferStudent}
             onRemoveStudentFromClass={handleRemoveStudentFromClass}
             onRestoreStudentFromClass={handleRestoreStudentToClass}
             onUpdateStudent={handleUpdateStudent}
