@@ -359,6 +359,79 @@ async function startServer() {
     }
   });
 
+  // 8. DYNAMIC DATABASE MIGRATION (From old free named database to unlimited (default) Blaze database)
+  app.post('/api/migrate-database', async (req, res) => {
+    try {
+      const { initializeApp: oldInitializeApp } = await import('firebase/app');
+      const { getFirestore: oldGetFirestore, collection: oldCollection, getDocs: oldGetDocs } = await import('firebase/firestore');
+
+      const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+      const firebaseConfig = {
+        apiKey: config.apiKey,
+        authDomain: config.authDomain,
+        projectId: config.projectId,
+        storageBucket: config.storageBucket,
+        messagingSenderId: config.messagingSenderId,
+        appId: config.appId,
+      };
+
+      const oldAppId = 'old-app-migration-' + Date.now();
+      const oldApp = oldInitializeApp(firebaseConfig, oldAppId);
+      const oldDb = oldGetFirestore(oldApp, "ai-studio-idvqunltrungtmng-4bba5018-931c-4911-aaad-99e4724036e0");
+
+      const newAppId = 'new-app-migration-' + Date.now();
+      const newApp = oldInitializeApp(firebaseConfig, newAppId);
+      const newDb = oldGetFirestore(newApp, "(default)");
+
+      const collectionsToMigrate = ['classes', 'students', 'placementTests', 'class_spreadsheets'];
+      const results: Record<string, { found: number; copied: number; errors: string[] }> = {};
+
+      for (const colName of collectionsToMigrate) {
+        results[colName] = { found: 0, copied: 0, errors: [] };
+        try {
+          const oldRef = oldCollection(oldDb, colName);
+          const snapshot = await oldGetDocs(oldRef);
+          results[colName].found = snapshot.size;
+
+          const { doc: newDoc, setDoc: newSetDoc } = await import('firebase/firestore');
+
+          for (const docSnap of snapshot.docs) {
+            try {
+              const docRef = newDoc(newDb, colName, docSnap.id);
+              await newSetDoc(docRef, docSnap.data(), { merge: true });
+              results[colName].copied++;
+            } catch (e: any) {
+              results[colName].errors.push(`${docSnap.id}: ${e.message}`);
+            }
+          }
+        } catch (colErr: any) {
+          results[colName].errors.push(`Collection error: ${colErr.message}`);
+        }
+      }
+
+      // Check if we successfully migrated any data
+      const totalCopied = Object.values(results).reduce((sum, r) => sum + r.copied, 0);
+      if (totalCopied > 0) {
+        // Migration was successful! Permanently update the local server configuration file to use "(default)"
+        config.firestoreDatabaseId = '(default)';
+        fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+        console.log('[Migration] Updated firebase-applet-config.json to permanently use (default)');
+      }
+
+      res.json({
+        success: true,
+        message: 'Database migration process executed.',
+        totalCopied,
+        results
+      });
+    } catch (err: any) {
+      console.error('[Migration Error]:', err);
+      res.status(500).json({ error: err.message || 'Migration failed' });
+    }
+  });
+
   // --- BACKWARDS COMPATIBILITY ROUTES FOR PLACEMENT TESTS ---
   app.get('/api/placement-tests', (req, res) => {
     try {
