@@ -1,0 +1,5363 @@
+[
+  {
+    "id": "sheet-class-ielts-73",
+    "updatedAt": "2026-09-28T11:32:04.331Z",
+    "rows": [
+      {
+        "hpHighlightColor": "default",
+        "id": "row-student-vocab-1790595123705",
+        "email": "",
+        "hpStatus": "Đã học",
+        "no": 1,
+        "studentId": "student-vocab-1790595123705",
+        "fullName": "Nptham",
+        "scores": {
+          "col_sess_1_1790595124329": "6.7"
+        },
+        "scoresHighlight": {
+          "col_sess_1_1790595124329": "default"
+        }
+      }
+    ],
+    "columns": [
+      {
+        "subSkill": "Từ vựng",
+        "maxScore": 10,
+        "date": "2026-09-28",
+        "teacherAndDate": "09-28 GV",
+        "id": "col_sess_1_1790595124329",
+        "lessonLabel": "L1",
+        "sessionNumber": 1
+      }
+    ],
+    "classId": "class-ielts-73",
+    "courseTuitionTag": "5tr2",
+    "classBanner": "Bảng điểm Lớp class-ielts-73",
+    "tagText": "INSPI",
+    "branch": "Cơ sở 1 - Tô Hiệu"
+  },
+  {
+    "id": "sheet-class-ielts-78",
+    "rows": [
+      {
+        "hpStatus": "Đã học",
+        "email": "",
+        "no": 1,
+        "fullName": "Đỗ Ngọc Hiếu",
+        "id": "row-student-vocab-1790604498048",
+        "studentId": "student-vocab-1790604498048",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_1_1790604498597": "default"
+        },
+        "scores": {
+          "col_sess_1_1790604498597": "0"
+        }
+      }
+    ],
+    "tagText": "INSPI",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "courseTuitionTag": "5tr2",
+    "columns": [
+      {
+        "maxScore": 10,
+        "teacherAndDate": "09-28 GV",
+        "subSkill": "Từ vựng",
+        "date": "2026-09-28",
+        "id": "col_sess_1_1790604498597",
+        "lessonLabel": "L1",
+        "sessionNumber": 1
+      }
+    ],
+    "classId": "class-ielts-78",
+    "classBanner": "Bảng điểm Lớp class-ielts-78",
+    "updatedAt": "2026-09-28T14:08:18.600Z"
+  },
+  {
+    "id": "sheet-class-ielts-89",
+    "rows": [
+      {
+        "hpStatus": "Đã học",
+        "no": 1,
+        "email": "",
+        "hpHighlightColor": "default",
+        "id": "row-student-vocab-1790602452462",
+        "fullName": "Tạ Quỳnh Anh",
+        "scores": {
+          "col_sess_1_1790602453361": "0"
+        },
+        "studentId": "student-vocab-1790602452462",
+        "scoresHighlight": {
+          "col_sess_1_1790602453361": "default"
+        }
+      }
+    ],
+    "tagText": "INSPI",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "courseTuitionTag": "5tr2",
+    "classId": "class-ielts-89",
+    "columns": [
+      {
+        "subSkill": "Từ vựng",
+        "maxScore": 10,
+        "teacherAndDate": "09-28 GV",
+        "sessionNumber": 1,
+        "date": "2026-09-28",
+        "lessonLabel": "L1",
+        "id": "col_sess_1_1790602453361"
+      }
+    ],
+    "classBanner": "Bảng điểm Lớp class-ielts-89",
+    "updatedAt": "2026-09-28T13:34:13.363Z"
+  },
+  {
+    "id": "sheet-class-ielts-92",
+    "updatedAt": "2026-09-28T12:05:35.323Z",
+    "tagText": "INSPI",
+    "columns": [
+      {
+        "subSkill": "Từ vựng",
+        "lessonLabel": "L1",
+        "maxScore": 10,
+        "teacherAndDate": "09-28 GV",
+        "sessionNumber": 1,
+        "id": "col_sess_1_1790597135322",
+        "date": "2026-09-28"
+      }
+    ],
+    "classId": "class-ielts-92",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "classBanner": "Bảng điểm Lớp class-ielts-92",
+    "rows": [
+      {
+        "scores": {
+          "col_sess_1_1790597135322": "0"
+        },
+        "no": 1,
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_1_1790597135322": "default"
+        },
+        "studentId": "student-vocab-1790597134953",
+        "fullName": "Trần Thanh Thúy",
+        "id": "row-student-vocab-1790597134953",
+        "email": ""
+      }
+    ],
+    "courseTuitionTag": "5tr2"
+  },
+  {
+    "id": "sheet-cls-1789995110040",
+    "rows": [
+      {
+        "no": 1,
+        "hpHighlightColor": "yellow",
+        "fullName": "Phạm Bảo Phương 47",
+        "email": "phmbophng47122",
+        "id": "row-st-1789995110041-0-bi5p",
+        "scoresHighlight": {},
+        "scores": {},
+        "studentId": "st-1789995110041-0-bi5p",
+        "hpStatus": "Nợ 3.2tr"
+      },
+      {
+        "scores": {},
+        "studentId": "st-1789995110041-1-zji5",
+        "id": "row-st-1789995110041-1-zji5",
+        "hpHighlightColor": "yellow",
+        "fullName": "Mỹ Liên 56 10/1",
+        "email": "mlin56101123",
+        "hpStatus": "Nợ 3.2tr",
+        "no": 2,
+        "scoresHighlight": {}
+      },
+      {
+        "id": "row-st-1789995110041-10-c0ay",
+        "studentId": "st-1789995110041-10-c0ay",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 3.2tr",
+        "hpHighlightColor": "yellow",
+        "email": "ngch61132",
+        "fullName": "Ngọc Hà 61",
+        "scores": {},
+        "no": 3
+      },
+      {
+        "scores": {},
+        "no": 4,
+        "hpStatus": "Nợ 3.2tr",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "studentId": "st-1789995110041-11-se98",
+        "fullName": "Nguyễn Vũ Hà Thu 74",
+        "id": "row-st-1789995110041-11-se98",
+        "email": "nguynvhthu74133"
+      },
+      {
+        "hpStatus": "Nợ 3.2tr",
+        "email": "nguynththuthy55100k134",
+        "no": 5,
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1789995110041-12-rkeg",
+        "fullName": "Nguyễn Thị Thu Thủy 55 (100k)",
+        "scores": {},
+        "studentId": "st-1789995110041-12-rkeg",
+        "scoresHighlight": {}
+      },
+      {
+        "hpStatus": "Nợ 3.2tr",
+        "email": "nguynhuyn56quaylit198135",
+        "no": 6,
+        "fullName": "Nguyễn Huyền 56 quay lại từ 19.8",
+        "id": "row-st-1789995110041-13-c537",
+        "studentId": "st-1789995110041-13-c537",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "scores": {}
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "email": "nguynthnhdnghsngoichhct7136",
+        "id": "row-st-1789995110041-14-fp3q",
+        "hpStatus": "Nợ 3.2tr",
+        "no": 7,
+        "studentId": "st-1789995110041-14-fp3q",
+        "fullName": "Nguyễn Thành Dũng hsngoài chỉ hc t7",
+        "scores": {},
+        "scoresHighlight": {}
+      },
+      {
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 3.2tr",
+        "scores": {},
+        "no": 8,
+        "email": "phmhnggiangchhct7137",
+        "id": "row-st-1789995110041-15-o6hi",
+        "studentId": "st-1789995110041-15-o6hi",
+        "fullName": "Phạm Hương Giang chỉ hc t7",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1789995110041-2-sef1",
+        "fullName": "Minh Tuấn 56",
+        "no": 9,
+        "hpStatus": "Nợ 3.2tr",
+        "scoresHighlight": {},
+        "scores": {},
+        "email": "minhtun56124",
+        "id": "row-st-1789995110041-2-sef1"
+      },
+      {
+        "scores": {},
+        "no": 10,
+        "fullName": "Thanh Nhàn 56",
+        "hpStatus": "Nợ 3.2tr",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "studentId": "st-1789995110041-3-awyk",
+        "email": "thanhnhn56125",
+        "id": "row-st-1789995110041-3-awyk"
+      },
+      {
+        "email": "bihnggiang58t254126",
+        "studentId": "st-1789995110041-4-b12n",
+        "hpStatus": "Nợ 3.2tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1789995110041-4-b12n",
+        "scores": {},
+        "scoresHighlight": {},
+        "fullName": "Bùi Hương Giang 58 từ 25/4",
+        "no": 11
+      },
+      {
+        "email": "ngngclinh59127",
+        "hpStatus": "Nợ 3.2tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1789995110041-5-97bq",
+        "scores": {},
+        "no": 12,
+        "scoresHighlight": {},
+        "studentId": "st-1789995110041-5-97bq",
+        "fullName": "Đặng Ngọc Linh 59"
+      },
+      {
+        "email": "tthkimngn59128",
+        "hpHighlightColor": "yellow",
+        "no": 13,
+        "fullName": "Tô Thị Kim Ngân 59",
+        "scores": {},
+        "id": "row-st-1789995110041-6-zbxz",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 3.2tr",
+        "studentId": "st-1789995110041-6-zbxz"
+      },
+      {
+        "scoresHighlight": {},
+        "scores": {},
+        "fullName": "Minh Anh 70",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1789995110041-7-27we",
+        "hpStatus": "Nợ 3.2tr",
+        "email": "minhanh70129",
+        "no": 14,
+        "studentId": "st-1789995110041-7-27we"
+      },
+      {
+        "studentId": "st-1789995110041-8-2sxz",
+        "id": "row-st-1789995110041-8-2sxz",
+        "fullName": "Hà My 61",
+        "email": "hmy61130",
+        "scores": {},
+        "hpStatus": "Nợ 3.2tr",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "no": 15
+      },
+      {
+        "no": 16,
+        "studentId": "st-1789995110041-9-plw2",
+        "hpStatus": "Nợ 3.2tr",
+        "scoresHighlight": {},
+        "email": "ngkhnh61131",
+        "hpHighlightColor": "yellow",
+        "fullName": "Đăng Khánh 61",
+        "id": "row-st-1789995110041-9-plw2",
+        "scores": {}
+      }
+    ],
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)",
+    "updatedAt": "2026-09-23T07:43:06.830Z",
+    "courseTuitionTag": "3.2tr",
+    "classBanner": "DRILL 47 S2 (Thứ 4 + Thứ 7 (Ca 2: 19:45 - 21:30)) 3",
+    "tagText": "INSPI",
+    "columns": [
+      {
+        "lessonLabel": "L1",
+        "teacherAndDate": "L1 Ngọc",
+        "maxScore": 10,
+        "id": "c1",
+        "subSkill": "Từ vựng & Viết"
+      },
+      {
+        "id": "c2",
+        "teacherAndDate": "L2 Ngọc",
+        "subSkill": "Viết & Nghe",
+        "lessonLabel": "L2",
+        "maxScore": 10
+      },
+      {
+        "subSkill": "Nghe 10",
+        "maxScore": 10,
+        "lessonLabel": "L3",
+        "id": "c3",
+        "teacherAndDate": "L3 Ngọc"
+      },
+      {
+        "id": "c4",
+        "lessonLabel": "L4",
+        "teacherAndDate": "L4 Ngọc",
+        "subSkill": "Đọc 13",
+        "maxScore": 13
+      }
+    ],
+    "classId": "cls-1789995110040"
+  },
+  {
+    "id": "sheet-cls-1789996334766",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "classBanner": "Bảng điểm Lớp cls-1789996334766",
+    "tagText": "INSPI",
+    "courseTuitionTag": "5tr2",
+    "updatedAt": "2026-09-27T16:21:28.932Z",
+    "columns": [
+      {
+        "teacherAndDate": "09-27 GV",
+        "id": "col_sess_1_1790526088932",
+        "maxScore": 10,
+        "lessonLabel": "L1",
+        "sessionNumber": 1,
+        "subSkill": "Từ vựng",
+        "date": "2026-09-27"
+      }
+    ],
+    "classId": "cls-1789996334766",
+    "rows": [
+      {
+        "fullName": "Diep",
+        "scoresHighlight": {
+          "col_sess_1_1790526088932": "default"
+        },
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_1_1790526088932": "10"
+        },
+        "id": "row-student-vocab-1790526088382",
+        "email": "",
+        "hpStatus": "Đã học",
+        "no": 1,
+        "studentId": "student-vocab-1790526088382"
+      }
+    ]
+  },
+  {
+    "id": "sheet-cls-1789998154836",
+    "classId": "cls-1789998154836",
+    "columns": [
+      {
+        "subSkill": "Từ vựng, Nghe, Đọc",
+        "date": "2026-09-28",
+        "lessonLabel": "L1",
+        "maxScore": 10,
+        "teacherAndDate": "09-28 Ngọc",
+        "id": "col_sess_1_1790603296548",
+        "sessionNumber": 1
+      }
+    ],
+    "rows": [
+      {
+        "email": "",
+        "studentId": "st-1789998154861-0-odz6",
+        "fullName": "Hoàng Trung Hải 53",
+        "id": "row-st-1789998154861-0-odz6",
+        "hpHighlightColor": "default",
+        "no": 1,
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_1_1790603296548": "10"
+        }
+      },
+      {
+        "studentId": "st-1789998154862-1-1bum",
+        "fullName": "Quang Phúc 53",
+        "no": 2,
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_1_1790603296548": "9"
+        },
+        "id": "row-st-1789998154862-1-1bum",
+        "hpHighlightColor": "default"
+      },
+      {
+        "hpStatus": "Đã học",
+        "id": "row-st-1789998154862-2-bbk7",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_1_1790603296548": "11"
+        },
+        "fullName": "Gia Khoa 53",
+        "no": 3,
+        "studentId": "st-1789998154862-2-bbk7",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "email": ""
+      },
+      {
+        "fullName": "Tuấn Anh 53",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_1_1790603296548": "9"
+        },
+        "id": "row-st-1789998154862-3-myes",
+        "email": "",
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998154862-3-myes",
+        "no": 4
+      },
+      {
+        "hpStatus": "Đã học",
+        "email": "",
+        "id": "row-st-1789998154862-4-hk48",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "fullName": "Thanh Tú 52 t11 thi",
+        "studentId": "st-1789998154862-4-hk48",
+        "no": 5,
+        "scores": {
+          "col_sess_1_1790603296548": "9"
+        },
+        "hpHighlightColor": "default"
+      },
+      {
+        "scores": {
+          "col_sess_1_1790603296548": "vắng"
+        },
+        "no": 6,
+        "fullName": "Vũ Phương Anh 65",
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "email": "",
+        "studentId": "st-1789998154862-5-upyd",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "red"
+        },
+        "id": "row-st-1789998154862-5-upyd"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "hpStatus": "Đã học",
+        "id": "row-st-1789998154862-6-exc6",
+        "email": "",
+        "fullName": "Nguyễn Vân Khánh 65 (55 cũ)",
+        "no": 7,
+        "studentId": "st-1789998154862-6-exc6",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_1_1790603296548": "19"
+        }
+      },
+      {
+        "email": "",
+        "studentId": "st-1789998154862-7-af22",
+        "hpHighlightColor": "default",
+        "fullName": "Hương Giang 65",
+        "id": "row-st-1789998154862-7-af22",
+        "no": 8,
+        "scores": {
+          "col_sess_1_1790603296548": "7"
+        },
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "hpStatus": "Đã học"
+      },
+      {
+        "no": 9,
+        "fullName": "Mai Chi 65",
+        "hpHighlightColor": "default",
+        "studentId": "st-1789998154862-8-j393",
+        "scores": {
+          "col_sess_1_1790603296548": "9"
+        },
+        "email": "",
+        "hpStatus": "Đã học",
+        "id": "row-st-1789998154862-8-j393",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        }
+      },
+      {
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "fullName": "Trần Thủy 65",
+        "studentId": "st-1789998154862-9-j9i8",
+        "scores": {
+          "col_sess_1_1790603296548": "10"
+        },
+        "id": "row-st-1789998154862-9-j9i8",
+        "no": 10,
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "scores": {
+          "col_sess_1_1790603296548": "6"
+        },
+        "no": 11,
+        "studentId": "st-1789998154863-10-wg21",
+        "fullName": "Phạm Uyên Nhi 65",
+        "email": "",
+        "id": "row-st-1789998154863-10-wg21",
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học"
+      },
+      {
+        "fullName": "Trần Duy Bách 65",
+        "id": "row-st-1789998154863-11-4x01",
+        "hpHighlightColor": "default",
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "studentId": "st-1789998154863-11-4x01",
+        "no": 12,
+        "scores": {
+          "col_sess_1_1790603296548": "13"
+        },
+        "hpStatus": "Đã học"
+      },
+      {
+        "no": 13,
+        "studentId": "st-1789998154863-12-ywt2",
+        "scores": {
+          "col_sess_1_1790603296548": "vắng"
+        },
+        "email": "",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "red"
+        },
+        "hpHighlightColor": "default",
+        "fullName": "Khánh Linh 59",
+        "id": "row-st-1789998154863-12-ywt2"
+      },
+      {
+        "email": "",
+        "no": 14,
+        "fullName": "Thanh Lam 63",
+        "hpHighlightColor": "default",
+        "id": "row-st-1789998154863-13-imxi",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "red"
+        },
+        "scores": {
+          "col_sess_1_1790603296548": "vắng"
+        },
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998154863-13-imxi"
+      },
+      {
+        "scores": {
+          "col_sess_1_1790603296548": "11"
+        },
+        "hpHighlightColor": "default",
+        "fullName": "Hà Phương 63",
+        "no": 15,
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998154863-14-bi1h",
+        "email": "",
+        "id": "row-st-1789998154863-14-bi1h"
+      },
+      {
+        "fullName": "Sơn Tùng 55",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "no": 16,
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_1_1790603296548": "7"
+        },
+        "hpStatus": "Đã học",
+        "email": "",
+        "studentId": "st-1789998154863-15-ud8i",
+        "id": "row-st-1789998154863-15-ud8i"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "fullName": "Gia Linh 63 từ 7/9",
+        "scores": {
+          "col_sess_1_1790603296548": "16"
+        },
+        "no": 17,
+        "hpHighlightColor": "default",
+        "id": "row-st-1789998154863-16-vr7y",
+        "email": "",
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998154863-16-vr7y"
+      },
+      {
+        "scores": {
+          "col_sess_1_1790603296548": "11"
+        },
+        "hpStatus": "Đã học",
+        "id": "row-st-1789998154863-17-2oyu",
+        "studentId": "st-1789998154863-17-2oyu",
+        "no": 18,
+        "fullName": "Trần Đức Nguyên 52 chỉ hc thứ 2",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "email": ""
+      },
+      {
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "red"
+        },
+        "no": 19,
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998154863-18-ls1b",
+        "id": "row-st-1789998154863-18-ls1b",
+        "fullName": "Cao Đức Bình 29 chỉ hc t5 từ 6/10",
+        "scores": {
+          "col_sess_1_1790603296548": "vắng"
+        }
+      },
+      {
+        "studentId": "st-1789998154863-19-gl5w",
+        "no": 20,
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "hpStatus": "Đã học",
+        "email": "",
+        "hpHighlightColor": "default",
+        "fullName": "Gia Minh 53 chỉ onl vào thứ 2",
+        "id": "row-st-1789998154863-19-gl5w",
+        "scores": {
+          "col_sess_1_1790603296548": "16"
+        }
+      },
+      {
+        "studentId": "st-1789998154863-20-5imj",
+        "fullName": "Vũ Thanh Phương (sp A kiến An) onl",
+        "id": "row-st-1789998154863-20-5imj",
+        "email": "",
+        "scores": {
+          "col_sess_1_1790603296548": "15"
+        },
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "no": 21
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "scores": {
+          "col_sess_1_1790603296548": "12"
+        },
+        "fullName": "Nguyễn Phương Anh 59 hay onl",
+        "hpHighlightColor": "default",
+        "id": "row-st-1789998154863-21-kscp",
+        "hpStatus": "Đã học",
+        "email": "",
+        "no": 22,
+        "studentId": "st-1789998154863-21-kscp"
+      },
+      {
+        "hpHighlightColor": "default",
+        "email": "",
+        "no": 23,
+        "fullName": "Phạm Đức Sơn Hải 64",
+        "scores": {
+          "col_sess_1_1790603296548": "10"
+        },
+        "id": "row-st-1790132157026-0-f2hg",
+        "scoresHighlight": {
+          "col_sess_1_1790603296548": "default"
+        },
+        "hpStatus": "Đã học",
+        "studentId": "st-1790132157026-0-f2hg"
+      }
+    ],
+    "classBanner": "Bảng điểm Lớp cls-1789998154836",
+    "tagText": "INSPI",
+    "updatedAt": "2026-09-28T13:48:25.508Z",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "courseTuitionTag": "5tr2"
+  },
+  {
+    "id": "sheet-cls-1789998217889",
+    "columns": [
+      {
+        "id": "col_sess_2_1790603836651",
+        "teacherAndDate": "09-28 Ngọc",
+        "lessonLabel": "L2",
+        "maxScore": 10,
+        "sessionNumber": 2,
+        "date": "2026-09-28",
+        "subSkill": "Từ vựng, Nghe, Đọc"
+      }
+    ],
+    "classId": "cls-1789998217889",
+    "updatedAt": "2026-09-28T13:57:26.618Z",
+    "tagText": "INSPI",
+    "rows": [
+      {
+        "scores": {
+          "col_sess_2_1790603836651": "15"
+        },
+        "no": 1,
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998217889-0-i099",
+        "hpHighlightColor": "default",
+        "fullName": "Ngọc Linh 50",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "email": "",
+        "id": "row-st-1789998217889-0-i099"
+      },
+      {
+        "email": "",
+        "fullName": "Phạm Đức Hiếu 54",
+        "id": "row-st-1789998217889-1-qvbr",
+        "studentId": "st-1789998217889-1-qvbr",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "scores": {
+          "col_sess_2_1790603836651": "11.5"
+        },
+        "no": 2
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "no": 3,
+        "email": "",
+        "hpHighlightColor": "default",
+        "fullName": "Khánh Linh 59",
+        "id": "row-st-1789998217889-10-cdly",
+        "studentId": "st-1789998217889-10-cdly",
+        "scores": {
+          "col_sess_2_1790603836651": "13"
+        },
+        "hpStatus": "Đã học"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "no": 4,
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_2_1790603836651": "12"
+        },
+        "hpHighlightColor": "default",
+        "id": "row-st-1789998217889-11-sh84",
+        "studentId": "st-1789998217889-11-sh84",
+        "email": "",
+        "fullName": "Bùi Thanh Trúc 59"
+      },
+      {
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "scores": {
+          "col_sess_2_1790603836651": "12.5"
+        },
+        "id": "row-st-1789998217889-12-uq82",
+        "fullName": "Thu Phương 59",
+        "email": "",
+        "no": 5,
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998217889-12-uq82"
+      },
+      {
+        "id": "row-st-1789998217889-13-k1jc",
+        "email": "",
+        "fullName": "Đức Anh 61",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "no": 6,
+        "studentId": "st-1789998217889-13-k1jc",
+        "scores": {
+          "col_sess_2_1790603836651": "13.5"
+        }
+      },
+      {
+        "id": "row-st-1789998217889-14-fftr",
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_2_1790603836651": "13"
+        },
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "studentId": "st-1789998217889-14-fftr",
+        "fullName": "Khánh Chi 54",
+        "hpHighlightColor": "default",
+        "no": 7
+      },
+      {
+        "studentId": "st-1789998217889-15-6z69",
+        "hpStatus": "Đã học",
+        "no": 8,
+        "email": "",
+        "id": "row-st-1789998217889-15-6z69",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_2_1790603836651": "14"
+        },
+        "fullName": "Thảo Chi 63",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        }
+      },
+      {
+        "fullName": "Vũ Anh Hải Nam new 100k t9 thi",
+        "studentId": "st-1789998217889-16-ox0q",
+        "email": "",
+        "hpHighlightColor": "default",
+        "no": 9,
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "id": "row-st-1789998217889-16-ox0q",
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_2_1790603836651": "12"
+        }
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "email": "",
+        "id": "row-st-1789998217889-17-es45",
+        "hpStatus": "Đã học",
+        "no": 10,
+        "studentId": "st-1789998217889-17-es45",
+        "fullName": "Phạm Hương Giang chỉ hc t2 hs ngoài từ 12/9",
+        "scores": {
+          "col_sess_2_1790603836651": "11.5"
+        },
+        "hpHighlightColor": "default"
+      },
+      {
+        "studentId": "st-1789998217889-2-xpdt",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "fullName": "Hoài Thương 55",
+        "id": "row-st-1789998217889-2-xpdt",
+        "email": "",
+        "scores": {
+          "col_sess_2_1790603836651": "10.5"
+        },
+        "no": 11,
+        "hpStatus": "Đã học"
+      },
+      {
+        "studentId": "st-1789998217889-3-5mvc",
+        "hpStatus": "Đã học",
+        "id": "row-st-1789998217889-3-5mvc",
+        "scores": {
+          "col_sess_2_1790603836651": "12"
+        },
+        "hpHighlightColor": "default",
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "fullName": "Nguyễn Bảo Ngọc 57",
+        "no": 12
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "studentId": "st-1789998217889-4-sram",
+        "no": 13,
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_2_1790603836651": "13.5"
+        },
+        "email": "",
+        "fullName": "Trần Đức Trung 100k",
+        "id": "row-st-1789998217889-4-sram"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "no": 14,
+        "email": "",
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998217889-5-q4kt",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_2_1790603836651": "12"
+        },
+        "id": "row-st-1789998217889-5-q4kt",
+        "fullName": "Hà Anh 59"
+      },
+      {
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "email": "",
+        "fullName": "Phương Nhi 59",
+        "id": "row-st-1789998217889-6-niaz",
+        "studentId": "st-1789998217889-6-niaz",
+        "no": 15,
+        "scores": {
+          "col_sess_2_1790603836651": "15"
+        },
+        "hpStatus": "Đã học"
+      },
+      {
+        "scores": {
+          "col_sess_2_1790603836651": "10"
+        },
+        "no": 16,
+        "fullName": "Thùy Dương 59 fb: Anh Phong",
+        "hpHighlightColor": "default",
+        "id": "row-st-1789998217889-7-tfu8",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "hpStatus": "Đã học",
+        "email": "",
+        "studentId": "st-1789998217889-7-tfu8"
+      },
+      {
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "hpStatus": "Đã học",
+        "no": 17,
+        "email": "",
+        "id": "row-st-1789998217889-8-lhj9",
+        "scores": {
+          "col_sess_2_1790603836651": "14.5"
+        },
+        "studentId": "st-1789998217889-8-lhj9",
+        "fullName": "Hoàng Minh Ngọc 59"
+      },
+      {
+        "hpHighlightColor": "default",
+        "id": "row-st-1789998217889-9-pd1t",
+        "hpStatus": "Đã học",
+        "studentId": "st-1789998217889-9-pd1t",
+        "no": 18,
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_2_1790603836651": "default"
+        },
+        "scores": {
+          "col_sess_2_1790603836651": "14"
+        },
+        "fullName": "Thanh Tùng 59"
+      }
+    ],
+    "classBanner": "Bảng điểm Lớp cls-1789998217889",
+    "courseTuitionTag": "5tr2",
+    "branch": "Cơ sở 1 - Tô Hiệu"
+  },
+  {
+    "id": "sheet-cls-1790001829880",
+    "columns": [
+      {
+        "teacherAndDate": "L1 Vũ",
+        "lessonLabel": "L1",
+        "subSkill": "Từ vựng & Viết",
+        "id": "c1",
+        "maxScore": 10
+      },
+      {
+        "subSkill": "Viết & Nghe",
+        "maxScore": 10,
+        "lessonLabel": "L2",
+        "teacherAndDate": "L2 Vũ",
+        "id": "c2"
+      },
+      {
+        "id": "c3",
+        "subSkill": "Nghe 10",
+        "maxScore": 10,
+        "teacherAndDate": "L3 Vũ",
+        "lessonLabel": "L3"
+      },
+      {
+        "subSkill": "Đọc 13",
+        "lessonLabel": "L4",
+        "teacherAndDate": "L4 Vũ",
+        "maxScore": 13,
+        "id": "c4"
+      }
+    ],
+    "classId": "cls-1790001829880",
+    "updatedAt": "2026-09-24T09:38:28.430Z",
+    "tagText": "INSPI",
+    "rows": [
+      {
+        "scoresHighlight": {},
+        "studentId": "st-1790001829880-0-63bo",
+        "email": "nguynkhnhhuyn134",
+        "fullName": "Nguyễn Khánh Huyền",
+        "id": "row-st-1790001829880-0-63bo",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 1,
+        "hpHighlightColor": "yellow",
+        "scores": {}
+      },
+      {
+        "scores": {},
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 2,
+        "id": "row-st-1790001829880-1-wgpj",
+        "studentId": "st-1790001829880-1-wgpj",
+        "fullName": "Hoàng Thiện Bách",
+        "email": "hongthinbch135"
+      },
+      {
+        "fullName": "Lê Bảo Lâm",
+        "no": 3,
+        "scoresHighlight": {},
+        "email": "lbolm144",
+        "id": "row-st-1790001829880-10-1fws",
+        "studentId": "st-1790001829880-10-1fws",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "scores": {},
+        "fullName": "Nguyễn Khánh Linh",
+        "studentId": "st-1790001829880-11-1v11",
+        "id": "row-st-1790001829880-11-1v11",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 4,
+        "scoresHighlight": {},
+        "email": "nguynkhnhlinh145"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "no": 5,
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "studentId": "st-1790001829880-12-04c6",
+        "email": "nguynvhthu146",
+        "id": "row-st-1790001829880-12-04c6",
+        "scoresHighlight": {},
+        "fullName": "Nguyễn Vũ Hà Thu"
+      },
+      {
+        "fullName": "Lê Thanh Toàn",
+        "email": "lthanhton147",
+        "scoresHighlight": {},
+        "id": "row-st-1790001829880-13-4ekj",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790001829880-13-4ekj",
+        "no": 6,
+        "scores": {}
+      },
+      {
+        "scores": {},
+        "id": "row-st-1790001829880-14-r10e",
+        "fullName": "Nguyễn Hải Yến",
+        "no": 7,
+        "scoresHighlight": {},
+        "email": "nguynhiyn148",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790001829880-14-r10e"
+      },
+      {
+        "email": "thanhhuyn149",
+        "id": "row-st-1790001829880-15-b4lu",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790001829880-15-b4lu",
+        "scoresHighlight": {},
+        "scores": {},
+        "fullName": "Thanh Huyền",
+        "no": 8
+      },
+      {
+        "studentId": "st-1790001829880-16-3m3t",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "id": "row-st-1790001829880-16-3m3t",
+        "scoresHighlight": {},
+        "email": "vngcanh150",
+        "fullName": "Vũ Ngọc Anh",
+        "no": 9,
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "id": "row-st-1790001829880-17-4fdu",
+        "fullName": "Đặng Đại Hải",
+        "studentId": "st-1790001829880-17-4fdu",
+        "scores": {},
+        "email": "ngihi151",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "no": 10
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790001829880-2-mu8r",
+        "scoresHighlight": {},
+        "studentId": "st-1790001829880-2-mu8r",
+        "fullName": "Trần Ngọc Bảo Trân",
+        "email": "trnngcbotrn136",
+        "no": 11
+      },
+      {
+        "id": "row-st-1790001829880-3-c54a",
+        "fullName": "Nguyễn Thị Linh",
+        "email": "nguynthlinh137",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "no": 12,
+        "scores": {},
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790001829880-3-c54a"
+      },
+      {
+        "scoresHighlight": {},
+        "scores": {},
+        "no": 13,
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790001829880-4-kwkk",
+        "fullName": "Bùi Ngọc Đức",
+        "id": "row-st-1790001829880-4-kwkk",
+        "email": "bingcc138"
+      },
+      {
+        "studentId": "st-1790001829880-5-j4yv",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790001829880-5-j4yv",
+        "scores": {},
+        "email": "vcthng139",
+        "fullName": "Vũ Đức Thắng",
+        "no": 14,
+        "scoresHighlight": {}
+      },
+      {
+        "scoresHighlight": {},
+        "no": 15,
+        "fullName": "Nguyễn Đăng Khánh",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "nguynngkhnh140",
+        "hpHighlightColor": "yellow",
+        "scores": {
+          "c1": "10"
+        },
+        "studentId": "st-1790001829880-6-esx3",
+        "id": "row-st-1790001829880-6-esx3"
+      },
+      {
+        "id": "row-st-1790001829880-7-iqjw",
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790001829880-7-iqjw",
+        "scoresHighlight": {},
+        "fullName": "Nguyễn Ngọc Linh",
+        "scores": {},
+        "no": 16,
+        "hpHighlightColor": "yellow",
+        "email": "nguynngclinh141"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790001829880-8-8h9s",
+        "scoresHighlight": {},
+        "no": 17,
+        "fullName": "Trần Hà Anh",
+        "scores": {},
+        "id": "row-st-1790001829880-8-8h9s",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "trnhanh142"
+      },
+      {
+        "no": 18,
+        "scores": {},
+        "scoresHighlight": {},
+        "email": "dngthylinh143",
+        "hpHighlightColor": "yellow",
+        "fullName": "Dương Thùy Linh",
+        "studentId": "st-1790001829880-9-di4q",
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790001829880-9-di4q"
+      },
+      {
+        "email": "trnthngcan152",
+        "fullName": "Trần Thị Ngọc An",
+        "id": "row-st-1790001829881-18-qr19",
+        "studentId": "st-1790001829881-18-qr19",
+        "hpStatus": "Nợ 5.6tr",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "no": 19,
+        "scores": {}
+      }
+    ],
+    "classBanner": "Lớp 74 (Thứ 3 + Thứ 6 (Ca 2: 19:45 - 21:30)) 5",
+    "courseTuitionTag": "5.6tr",
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)"
+  },
+  {
+    "id": "sheet-cls-1790001890225",
+    "courseTuitionTag": "5tr2",
+    "classBanner": "Bảng điểm Lớp cls-1790001890225",
+    "columns": [
+      {
+        "sessionNumber": 1,
+        "date": "2026-09-28",
+        "maxScore": 10,
+        "teacherAndDate": "09-28 GV",
+        "subSkill": "Từ vựng",
+        "id": "col_sess_1_1790594910848",
+        "lessonLabel": "L1"
+      }
+    ],
+    "classId": "cls-1790001890225",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "rows": [
+      {
+        "no": 1,
+        "email": "",
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "studentId": "student-vocab-1790594910257",
+        "scores": {
+          "col_sess_1_1790594910848": "8.5"
+        },
+        "scoresHighlight": {
+          "col_sess_1_1790594910848": "default"
+        },
+        "id": "row-student-vocab-1790594910257",
+        "fullName": "bảo ngọc"
+      },
+      {
+        "fullName": "ngô hà phượng",
+        "scores": {
+          "col_sess_1_1790594910848": "7.5"
+        },
+        "studentId": "st-1790001890226-11-6etm",
+        "no": 2,
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "id": "row-st-1790001890226-11-6etm",
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_1_1790594910848": "default"
+        }
+      }
+    ],
+    "updatedAt": "2026-09-28T11:32:01.412Z",
+    "tagText": "INSPI"
+  },
+  {
+    "id": "sheet-cls-1790001971742",
+    "classBanner": "Lớp 71 (Thứ 4 + Thứ 7 (Ca 1: 18:00 - 19:45)) 5",
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)",
+    "columns": [],
+    "classId": "cls-1790001971742",
+    "tagText": "INSPI",
+    "rows": [
+      {
+        "id": "row-st-1790001971742-0-wnxf",
+        "studentId": "st-1790001971742-0-wnxf",
+        "scoresHighlight": {},
+        "fullName": "Nguyễn Thị Khánh Ngọc",
+        "scores": {},
+        "email": "nguynthkhnhngc175",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 1,
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "no": 2,
+        "studentId": "st-1790001971742-1-a16g",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "scoresHighlight": {},
+        "id": "row-st-1790001971742-1-a16g",
+        "fullName": "Bùi Ngọc Diệu Linh",
+        "email": "bingcdiulinh176"
+      },
+      {
+        "studentId": "st-1790001971742-10-osa1",
+        "fullName": "Lê Thanh Dương",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "email": "lthanhdng185",
+        "id": "row-st-1790001971742-10-osa1",
+        "scoresHighlight": {},
+        "no": 3,
+        "hpStatus": "Nợ 5.6tr"
+      },
+      {
+        "scores": {},
+        "scoresHighlight": {},
+        "id": "row-st-1790001971742-11-5zrp",
+        "fullName": "Phạm Gia Khải",
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790001971742-11-5zrp",
+        "email": "phmgiakhi186",
+        "hpHighlightColor": "yellow",
+        "no": 4
+      },
+      {
+        "fullName": "Nguyễn Ngọc Kim Ngân",
+        "scores": {},
+        "studentId": "st-1790001971742-12-saxm",
+        "no": 5,
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790001971742-12-saxm",
+        "email": "nguynngckimngn187",
+        "scoresHighlight": {}
+      },
+      {
+        "email": "trnthudng188",
+        "no": 6,
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "studentId": "st-1790001971742-13-ncrh",
+        "scoresHighlight": {},
+        "id": "row-st-1790001971742-13-ncrh",
+        "fullName": "Trần Thuỳ Dương"
+      },
+      {
+        "id": "row-st-1790001971742-14-i7vq",
+        "scoresHighlight": {},
+        "studentId": "st-1790001971742-14-i7vq",
+        "email": "nguynhonghi189",
+        "hpStatus": "Nợ 5.6tr",
+        "fullName": "Nguyễn Hoàng Hải",
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "no": 7
+      },
+      {
+        "fullName": "Mãn Khánh Linh 61",
+        "no": 8,
+        "scores": {},
+        "scoresHighlight": {},
+        "studentId": "st-1790001971742-15-pw5l",
+        "id": "row-st-1790001971742-15-pw5l",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "email": "mnkhnhlinh61190"
+      },
+      {
+        "no": 9,
+        "fullName": "Thúy Ngân",
+        "email": "thyngn191",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790001971742-16-iu4o",
+        "id": "row-st-1790001971742-16-iu4o",
+        "hpHighlightColor": "yellow",
+        "scores": {}
+      },
+      {
+        "email": "vhinam192",
+        "no": 10,
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "studentId": "st-1790001971742-17-i28a",
+        "id": "row-st-1790001971742-17-i28a",
+        "fullName": "Võ Hải Nam"
+      },
+      {
+        "studentId": "st-1790001971742-18-jp9y",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790001971742-18-jp9y",
+        "scores": {},
+        "hpStatus": "Nợ 5.6tr",
+        "email": "nguynthytuyn193",
+        "scoresHighlight": {},
+        "no": 11,
+        "fullName": "Nguyễn Thúy Tuyên"
+      },
+      {
+        "id": "row-st-1790001971742-19-yauq",
+        "scores": {},
+        "studentId": "st-1790001971742-19-yauq",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "fullName": "Vũ Đức Mạnh",
+        "no": 12,
+        "hpStatus": "Nợ 5.6tr",
+        "email": "vcmnh194"
+      },
+      {
+        "scores": {},
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790001971742-2-yrqp",
+        "id": "row-st-1790001971742-2-yrqp",
+        "fullName": "Phạm Thùy Dương",
+        "email": "phmthydng177",
+        "no": 13,
+        "hpStatus": "Nợ 5.6tr"
+      },
+      {
+        "studentId": "st-1790001971742-3-j2pw",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "nguyngiabo178",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "no": 14,
+        "id": "row-st-1790001971742-3-j2pw",
+        "fullName": "Nguyễn Gia Bảo"
+      },
+      {
+        "no": 15,
+        "email": "trnphnglinh179",
+        "fullName": "Trần Phương Linh",
+        "scores": {},
+        "studentId": "st-1790001971742-4-lgjf",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790001971742-4-lgjf",
+        "scoresHighlight": {}
+      },
+      {
+        "scoresHighlight": {},
+        "id": "row-st-1790001971742-5-r4wt",
+        "scores": {},
+        "email": "vuthianhth180",
+        "studentId": "st-1790001971742-5-r4wt",
+        "fullName": "Vũ Thị Anh Thư",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 16
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "no": 17,
+        "scores": {},
+        "scoresHighlight": {},
+        "email": "bikhnhbng181",
+        "id": "row-st-1790001971742-6-3r2h",
+        "fullName": "Bùi Khánh Băng",
+        "studentId": "st-1790001971742-6-3r2h",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790001971742-7-leg0",
+        "scoresHighlight": {},
+        "studentId": "st-1790001971742-7-leg0",
+        "fullName": "Lê Phương Vy",
+        "email": "lphngvy182",
+        "no": 18
+      },
+      {
+        "hpStatus": "CK 17/5",
+        "id": "row-st-1790001971742-8-p0i4",
+        "studentId": "st-1790001971742-8-p0i4",
+        "hpHighlightColor": "default",
+        "email": "nguynkhnhlinh183",
+        "no": 19,
+        "scores": {},
+        "scoresHighlight": {},
+        "fullName": "Nguyễn Khánh Linh"
+      },
+      {
+        "scoresHighlight": {},
+        "studentId": "st-1790001971742-9-btay",
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790001971742-9-btay",
+        "hpHighlightColor": "yellow",
+        "fullName": "Trần Ngọc Hoàng Nam",
+        "scores": {},
+        "no": 20,
+        "email": "trnngchongnam184"
+      },
+      {
+        "fullName": "Nguyễn Thị Khánh Ngọc",
+        "no": 21,
+        "email": "nguynthkhnhngc393",
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "studentId": "st-1790392962345-0-4owu",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790392962345-0-4owu"
+      },
+      {
+        "email": "bingcdiulinh394",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 22,
+        "studentId": "st-1790392962345-1-3l4x",
+        "fullName": "Bùi Ngọc Diệu Linh",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "scores": {},
+        "id": "row-st-1790392962345-1-3l4x"
+      },
+      {
+        "fullName": "Lê Thanh Dương",
+        "hpHighlightColor": "yellow",
+        "email": "lthanhdng403",
+        "scores": {},
+        "studentId": "st-1790392962345-10-ytfg",
+        "id": "row-st-1790392962345-10-ytfg",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 23,
+        "scoresHighlight": {}
+      },
+      {
+        "email": "phmgiakhi404",
+        "fullName": "Phạm Gia Khải",
+        "id": "row-st-1790392962345-11-hzzy",
+        "studentId": "st-1790392962345-11-hzzy",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "no": 24,
+        "scores": {}
+      },
+      {
+        "no": 25,
+        "scoresHighlight": {},
+        "scores": {},
+        "email": "nguynngckimngn405",
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Ngọc Kim Ngân",
+        "studentId": "st-1790392962345-12-cnht",
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790392962345-12-cnht"
+      },
+      {
+        "studentId": "st-1790392962345-13-37gi",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "no": 26,
+        "fullName": "Trần Thuỳ Dương",
+        "scores": {},
+        "id": "row-st-1790392962345-13-37gi",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "trnthudng406"
+      },
+      {
+        "id": "row-st-1790392962345-14-1ugy",
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790392962345-14-1ugy",
+        "scoresHighlight": {},
+        "scores": {},
+        "fullName": "Nguyễn Hoàng Hải",
+        "hpHighlightColor": "yellow",
+        "no": 27,
+        "email": "nguynhonghi407"
+      },
+      {
+        "scoresHighlight": {},
+        "no": 28,
+        "fullName": "Mãn Khánh Linh 61",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "mnkhnhlinh61408",
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "studentId": "st-1790392962345-15-l3t7",
+        "id": "row-st-1790392962345-15-l3t7"
+      },
+      {
+        "studentId": "st-1790392962345-16-amn0",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790392962345-16-amn0",
+        "scores": {},
+        "email": "thyngn409",
+        "fullName": "Thúy Ngân",
+        "scoresHighlight": {},
+        "no": 29
+      },
+      {
+        "scores": {},
+        "scoresHighlight": {},
+        "no": 30,
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790392962345-17-yk95",
+        "fullName": "Võ Hải Nam",
+        "id": "row-st-1790392962345-17-yk95",
+        "email": "vhinam410"
+      },
+      {
+        "id": "row-st-1790392962345-18-tdxm",
+        "fullName": "Nguyễn Thúy Tuyên",
+        "email": "nguynthytuyn411",
+        "scoresHighlight": {},
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "no": 31,
+        "studentId": "st-1790392962345-18-tdxm",
+        "hpStatus": "Nợ 5.6tr"
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790392962345-19-rd0z",
+        "scoresHighlight": {},
+        "studentId": "st-1790392962345-19-rd0z",
+        "fullName": "Vũ Đức Mạnh",
+        "email": "vcmnh412",
+        "no": 32
+      },
+      {
+        "id": "row-st-1790392962345-2-eri2",
+        "fullName": "Phạm Thùy Dương",
+        "email": "phmthydng395",
+        "studentId": "st-1790392962345-2-eri2",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "no": 33
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790392962345-3-8pkv",
+        "scores": {},
+        "id": "row-st-1790392962345-3-8pkv",
+        "scoresHighlight": {},
+        "email": "nguyngiabo396",
+        "fullName": "Nguyễn Gia Bảo",
+        "no": 34,
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "email": "trnphnglinh397",
+        "id": "row-st-1790392962345-4-1cch",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790392962345-4-1cch",
+        "scoresHighlight": {},
+        "scores": {},
+        "fullName": "Trần Phương Linh",
+        "no": 35
+      },
+      {
+        "scores": {},
+        "id": "row-st-1790392962345-5-ynaz",
+        "fullName": "Vũ Thị Anh Thư",
+        "no": 36,
+        "scoresHighlight": {},
+        "email": "vuthianhth398",
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790392962345-5-ynaz"
+      },
+      {
+        "fullName": "Bùi Khánh Băng",
+        "email": "bikhnhbng399",
+        "id": "row-st-1790392962345-6-n72e",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790392962345-6-n72e",
+        "no": 37,
+        "scores": {}
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 38,
+        "scores": {},
+        "studentId": "st-1790392962345-7-g9pa",
+        "email": "lphngvy400",
+        "id": "row-st-1790392962345-7-g9pa",
+        "scoresHighlight": {},
+        "fullName": "Lê Phương Vy"
+      },
+      {
+        "scores": {},
+        "fullName": "Nguyễn Khánh Linh",
+        "studentId": "st-1790392962345-8-p738",
+        "id": "row-st-1790392962345-8-p738",
+        "hpHighlightColor": "default",
+        "no": 39,
+        "hpStatus": "CK 17/5",
+        "scoresHighlight": {},
+        "email": "nguynkhnhlinh401"
+      },
+      {
+        "fullName": "Trần Ngọc Hoàng Nam",
+        "no": 40,
+        "scoresHighlight": {},
+        "email": "trnngchongnam402",
+        "studentId": "st-1790392962345-9-tnkf",
+        "id": "row-st-1790392962345-9-tnkf",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "hpHighlightColor": "yellow"
+      }
+    ],
+    "courseTuitionTag": "5.6tr",
+    "updatedAt": "2026-09-26T18:26:01.800Z"
+  },
+  {
+    "id": "sheet-cls-1790002180971",
+    "classBanner": "Lớp 75 (Thứ 2 + Thứ 5 (Ca 1: 18:00 - 19:45)) 2",
+    "columns": [
+      {
+        "lessonLabel": "L1",
+        "id": "c1",
+        "maxScore": 10,
+        "teacherAndDate": "L1 Nguyễn",
+        "subSkill": "Từ vựng & Viết"
+      },
+      {
+        "lessonLabel": "L2",
+        "maxScore": 10,
+        "subSkill": "Viết & Nghe",
+        "teacherAndDate": "L2 Nguyễn",
+        "id": "c2"
+      },
+      {
+        "lessonLabel": "L3",
+        "teacherAndDate": "L3 Nguyễn",
+        "id": "c3",
+        "maxScore": 10,
+        "subSkill": "Nghe 10"
+      },
+      {
+        "teacherAndDate": "L4 Nguyễn",
+        "id": "c4",
+        "subSkill": "Đọc 13",
+        "lessonLabel": "L4",
+        "maxScore": 13
+      }
+    ],
+    "classId": "cls-1790002180971",
+    "tagText": "INSPI",
+    "rows": [
+      {
+        "email": "inhlmphong195",
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790002180972-0-d8a1",
+        "fullName": "Đinh Lâm Phong",
+        "studentId": "st-1790002180972-0-d8a1",
+        "no": 1,
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "scores": {}
+      },
+      {
+        "fullName": "Đoàn Anh Việt",
+        "no": 2,
+        "studentId": "st-1790002180972-1-jz0b",
+        "email": "onanhvit196",
+        "id": "row-st-1790002180972-1-jz0b",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {}
+      },
+      {
+        "email": "nguynthhuyntrang205",
+        "id": "row-st-1790002180972-10-5oab",
+        "fullName": "Nguyễn Thị Huyền Trang",
+        "scores": {},
+        "studentId": "st-1790002180972-10-5oab",
+        "scoresHighlight": {},
+        "no": 3,
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "scores": {},
+        "no": 4,
+        "studentId": "st-1790002180972-11-32t1",
+        "hpStatus": "Nợ 5.6tr",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "email": "lanhc206",
+        "fullName": "Lê Anh Đức",
+        "id": "row-st-1790002180972-11-32t1"
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "no": 5,
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "fullName": "Đào Thị Thơm",
+        "scoresHighlight": {},
+        "studentId": "st-1790002180972-12-byw8",
+        "email": "oththm207",
+        "id": "row-st-1790002180972-12-byw8"
+      },
+      {
+        "studentId": "st-1790002180972-13-6q6f",
+        "hpHighlightColor": "yellow",
+        "email": "phngthanh208",
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790002180972-13-6q6f",
+        "scoresHighlight": {},
+        "no": 6,
+        "scores": {},
+        "fullName": "Phương Thanh"
+      },
+      {
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790002180972-14-gt2f",
+        "scores": {},
+        "id": "row-st-1790002180972-14-gt2f",
+        "email": "vlminhkhang209",
+        "fullName": "Vũ Lê Minh Khang",
+        "no": 7,
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "fullName": "Bùi Trần Thảo Nguyên",
+        "scores": {},
+        "hpHighlightColor": "default",
+        "id": "row-st-1790002180972-15-opru",
+        "email": "bitrnthonguyn210",
+        "studentId": "st-1790002180972-15-opru",
+        "hpStatus": "CK 17/5",
+        "no": 8,
+        "scoresHighlight": {}
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "no": 9,
+        "hpStatus": "Nợ 5.6tr",
+        "scoresHighlight": {},
+        "email": "phmthylm211",
+        "fullName": "Phạm Thùy Lâm",
+        "studentId": "st-1790002180972-16-o1js",
+        "scores": {},
+        "id": "row-st-1790002180972-16-o1js"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "no": 10,
+        "email": "phmththanhmai212",
+        "fullName": "Phạm Thị Thanh Mai",
+        "scores": {},
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790002180972-17-ax34",
+        "id": "row-st-1790002180972-17-ax34",
+        "scoresHighlight": {}
+      },
+      {
+        "fullName": "Mai Hoàng Bách",
+        "email": "maihongbch213",
+        "id": "row-st-1790002180972-18-wchz",
+        "scoresHighlight": {},
+        "no": 11,
+        "hpStatus": "Nợ 5.6tr",
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "studentId": "st-1790002180972-18-wchz"
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "email": "hnggiang61197",
+        "id": "row-st-1790002180972-2-ejqf",
+        "studentId": "st-1790002180972-2-ejqf",
+        "fullName": "Hương Giang 61",
+        "scoresHighlight": {},
+        "no": 12,
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "no": 13,
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "studentId": "st-1790002180972-3-44hf",
+        "fullName": "Nguyễn Thụy Khang",
+        "email": "nguynthykhang198",
+        "scoresHighlight": {},
+        "id": "row-st-1790002180972-3-44hf"
+      },
+      {
+        "fullName": "Võ Minh Thu",
+        "hpHighlightColor": "yellow",
+        "email": "vminhthu199",
+        "studentId": "st-1790002180972-4-j0qw",
+        "no": 14,
+        "scoresHighlight": {},
+        "id": "row-st-1790002180972-4-j0qw",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {}
+      },
+      {
+        "studentId": "st-1790002180972-5-1w54",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "nguynthanhuyn200",
+        "no": 15,
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Thanh Uyên",
+        "scoresHighlight": {},
+        "id": "row-st-1790002180972-5-1w54",
+        "scores": {}
+      },
+      {
+        "fullName": "Hoàng Mạnh Dũng",
+        "email": "hongmnhdng201",
+        "no": 16,
+        "id": "row-st-1790002180972-6-nmvn",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790002180972-6-nmvn"
+      },
+      {
+        "no": 17,
+        "fullName": "Thuỳ Dung",
+        "email": "thudung202",
+        "studentId": "st-1790002180972-7-26ml",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "id": "row-st-1790002180972-7-26ml",
+        "scoresHighlight": {}
+      },
+      {
+        "scores": {},
+        "scoresHighlight": {},
+        "hpHighlightColor": "default",
+        "id": "row-st-1790002180972-8-amhj",
+        "fullName": "Ngọc Diệp",
+        "no": 18,
+        "hpStatus": "CK 17/5",
+        "studentId": "st-1790002180972-8-amhj",
+        "email": "ngcdip203"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 19,
+        "scores": {},
+        "fullName": "Nguyễn Đắc Việt Anh",
+        "scoresHighlight": {},
+        "studentId": "st-1790002180972-9-ysdi",
+        "email": "nguyncvitanh204",
+        "id": "row-st-1790002180972-9-ysdi"
+      }
+    ],
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)",
+    "updatedAt": "2026-09-23T04:53:45.989Z",
+    "courseTuitionTag": "5.6tr"
+  },
+  {
+    "id": "sheet-cls-1790328298831",
+    "classBanner": "Lớp 80 (Thứ 4 + Thứ 7 (Ca 1: 18:00 - 19:45)) 1",
+    "columns": [
+      {
+        "maxScore": 10,
+        "sessionNumber": 1,
+        "lessonLabel": "L1",
+        "teacherAndDate": "L1 Chi",
+        "subSkill": "Từ vựng & Viết",
+        "id": "c1"
+      },
+      {
+        "maxScore": 10,
+        "lessonLabel": "L2",
+        "sessionNumber": 2,
+        "subSkill": "Viết & Nghe",
+        "id": "c2",
+        "teacherAndDate": "L2 Chi"
+      },
+      {
+        "sessionNumber": 3,
+        "teacherAndDate": "L3 Chi",
+        "maxScore": 10,
+        "id": "c3",
+        "subSkill": "Nghe 10",
+        "lessonLabel": "L3"
+      },
+      {
+        "teacherAndDate": "L4 Chi",
+        "maxScore": 13,
+        "lessonLabel": "L4",
+        "id": "c4",
+        "subSkill": "Đọc 13",
+        "sessionNumber": 4
+      },
+      {
+        "lessonLabel": "L23",
+        "sessionNumber": 23,
+        "maxScore": 10,
+        "id": "col_sess_23_1790569769546",
+        "teacherAndDate": "09-26 Chi",
+        "subSkill": "Đọc",
+        "date": "2026-09-26"
+      }
+    ],
+    "classId": "cls-1790328298831",
+    "tagText": "INSPI",
+    "rows": [
+      {
+        "id": "row-st-1790328298834-0-vwk0",
+        "fullName": "Trần Đức Phúc",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790328298834-0-vwk0",
+        "hpStatus": "Nợ 5.0tr",
+        "email": "trncphc306",
+        "scores": {
+          "col_sess_23_1790569769546": "8"
+        },
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "no": 1
+      },
+      {
+        "studentId": "st-1790328298834-1-sepp",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 2,
+        "hpHighlightColor": "yellow",
+        "fullName": "Dương Tuấn Anh",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "id": "row-st-1790328298834-1-sepp",
+        "scores": {
+          "col_sess_23_1790569769546": "9"
+        },
+        "email": "dngtunanh307"
+      },
+      {
+        "id": "row-st-1790328298835-2-axk9",
+        "fullName": "Phương Thảo",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "red"
+        },
+        "scores": {
+          "col_sess_23_1790569769546": "vắng"
+        },
+        "email": "phngtho308",
+        "studentId": "st-1790328298835-2-axk9",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 3,
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790328298835-3-70z0",
+        "id": "row-st-1790328298835-3-70z0",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "fullName": "Trịnh Thị Phương Nhung",
+        "scores": {
+          "col_sess_23_1790569769546": "8"
+        },
+        "no": 4,
+        "email": "trnhthphngnhung309",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "fullName": "Vũ Thị Mai Anh",
+        "email": "vthmaianh310",
+        "no": 5,
+        "studentId": "st-1790328298835-4-6arv",
+        "id": "row-st-1790328298835-4-6arv",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "hpStatus": "CK 17/5",
+        "scores": {
+          "col_sess_23_1790569769546": "10"
+        },
+        "hpHighlightColor": "default"
+      },
+      {
+        "studentId": "st-1790328298835-5-i0ku",
+        "hpStatus": "Nợ 5.0tr",
+        "email": "aonnghun311",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "id": "row-st-1790328298835-5-i0ku",
+        "scores": {
+          "col_sess_23_1790569769546": "7"
+        },
+        "hpHighlightColor": "yellow",
+        "fullName": "Đào Năng Huân",
+        "no": 6
+      },
+      {
+        "studentId": "st-1790328298835-6-1atb",
+        "no": 7,
+        "scores": {
+          "col_sess_23_1790569769546": "12"
+        },
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "fullName": "Bùi Huy Phong",
+        "email": "bihuyphong312",
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790328298835-6-1atb"
+      },
+      {
+        "fullName": "Đào Hương Trà",
+        "no": 8,
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "hpHighlightColor": "yellow",
+        "scores": {
+          "col_sess_23_1790569769546": "12"
+        },
+        "studentId": "st-1790328298836-10-yt9j",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790328298836-10-yt9j",
+        "email": "ohngtr316"
+      },
+      {
+        "fullName": "Phạm Bảo Sơn",
+        "studentId": "st-1790328298836-11-hwds",
+        "no": 9,
+        "email": "phmbosn317",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790328298836-11-hwds",
+        "scores": {
+          "col_sess_23_1790569769546": "9"
+        }
+      },
+      {
+        "email": "phmthomy313",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 10,
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "scores": {
+          "col_sess_23_1790569769546": "11"
+        },
+        "studentId": "st-1790328298836-7-kc4v",
+        "id": "row-st-1790328298836-7-kc4v",
+        "fullName": "Phạm Thảo My",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "studentId": "st-1790328298836-8-3me7",
+        "fullName": "Vũ Kiều Trang",
+        "hpHighlightColor": "yellow",
+        "email": "vkiutrang314",
+        "no": 11,
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "id": "row-st-1790328298836-8-3me7",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_23_1790569769546": "10"
+        }
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "email": "lngynnhi315",
+        "no": 12,
+        "hpStatus": "Nợ 5.0tr",
+        "fullName": "Lương Yến Nhi",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "studentId": "st-1790328298836-9-oyw0",
+        "scores": {
+          "col_sess_23_1790569769546": "11"
+        },
+        "id": "row-st-1790328298836-9-oyw0"
+      },
+      {
+        "studentId": "st-1790328298837-12-nznj",
+        "no": 13,
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_23_1790569769546": "10"
+        },
+        "email": "nguynhlinh318",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "fullName": "Nguyễn Hà Linh",
+        "id": "row-st-1790328298837-12-nznj"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "scores": {
+          "col_sess_23_1790569769546": "9"
+        },
+        "id": "row-st-1790328298837-13-bakr",
+        "hpHighlightColor": "yellow",
+        "fullName": "Lê Thị Nhung",
+        "email": "lthnhung319",
+        "studentId": "st-1790328298837-13-bakr",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 14
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790328298837-14-68q6",
+        "scores": {
+          "col_sess_23_1790569769546": "5"
+        },
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "yellow"
+        },
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Dương Hương Quỳnh",
+        "no": 15,
+        "studentId": "st-1790328298837-14-68q6",
+        "email": "nguyndnghngqunh320"
+      },
+      {
+        "email": "bixunsn321",
+        "fullName": "Bùi Xuân Sơn",
+        "no": 16,
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "id": "row-st-1790328298837-15-3o7i",
+        "scores": {
+          "col_sess_23_1790569769546": "6"
+        },
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790328298837-15-3o7i",
+        "hpStatus": "Nợ 5.0tr"
+      },
+      {
+        "fullName": "Vũ Việt Hoàng",
+        "id": "row-st-1790328298837-16-09k4",
+        "email": "vvithong322",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "studentId": "st-1790328298837-16-09k4",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_23_1790569769546": "8"
+        },
+        "no": 17
+      },
+      {
+        "studentId": "st-1790328298837-17-4uh0",
+        "email": "nguynquangtinminh323",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_23_1790569769546": "8"
+        },
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790328298837-17-4uh0",
+        "no": 18,
+        "fullName": "Nguyễn Quang Tiến Minh"
+      },
+      {
+        "studentId": "st-1790328298837-18-uiwn",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_23_1790569769546": "9"
+        },
+        "id": "row-st-1790328298837-18-uiwn",
+        "hpHighlightColor": "yellow",
+        "email": "mckhnhphng324",
+        "fullName": "Mạc Khánh Phượng",
+        "no": 19,
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        }
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {
+          "col_sess_23_1790569769546": "default"
+        },
+        "no": 20,
+        "scores": {
+          "col_sess_23_1790569769546": "10"
+        },
+        "hpHighlightColor": "yellow",
+        "email": "caophngthy325",
+        "fullName": "Cao Phương Thùy",
+        "studentId": "st-1790328298837-19-navl",
+        "id": "row-st-1790328298837-19-navl"
+      }
+    ],
+    "branch": "Cơ sở 2 - Kiến An (Hải Phòng)",
+    "updatedAt": "2026-09-28T04:29:31.687Z",
+    "courseTuitionTag": "5.0tr"
+  },
+  {
+    "id": "sheet-cls-1790328434476",
+    "columns": [
+      {
+        "date": "2026-09-26",
+        "sessionNumber": 17,
+        "subSkill": "Từ vựng, Nghe, Đọc",
+        "teacherAndDate": "09-26 Chi",
+        "id": "col_sess_17_1790407970277",
+        "lessonLabel": "L17",
+        "maxScore": 10
+      }
+    ],
+    "classId": "cls-1790328434476",
+    "courseTuitionTag": "5tr2",
+    "rows": [
+      {
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "id": "row-st-1790328434476-0-wgee",
+        "hpStatus": "Đã học",
+        "studentId": "st-1790328434476-0-wgee",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "fullName": "Vũ Minh Nhi",
+        "email": "",
+        "no": 1,
+        "hpHighlightColor": "default"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "fullName": "Cao Thị Phương Thảo",
+        "no": 2,
+        "email": "",
+        "studentId": "st-1790328434476-1-7luo",
+        "id": "row-st-1790328434476-1-7luo",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học"
+      },
+      {
+        "no": 3,
+        "studentId": "st-1790328434476-10-7za3",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "email": "",
+        "fullName": "Lê Thị Ánh Hồng",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "id": "row-st-1790328434476-10-7za3"
+      },
+      {
+        "id": "row-st-1790328434476-11-8xap",
+        "fullName": "Nguyễn Kiều Trinh",
+        "studentId": "st-1790328434476-11-8xap",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "email": "",
+        "hpStatus": "Đã học",
+        "no": 4
+      },
+      {
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "id": "row-st-1790328434476-12-3ljv",
+        "fullName": "Nguyễn Minh Phúc",
+        "studentId": "st-1790328434476-12-3ljv",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "email": "",
+        "no": 5,
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        }
+      },
+      {
+        "hpHighlightColor": "default",
+        "no": 6,
+        "fullName": "Lương Minh Thắng",
+        "id": "row-st-1790328434476-13-41vk",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "email": "",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "hpStatus": "Đã học",
+        "studentId": "st-1790328434476-13-41vk"
+      },
+      {
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "hpStatus": "Đã học",
+        "no": 7,
+        "id": "row-st-1790328434476-14-m0qu",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "fullName": "Phạm Đức Duy",
+        "studentId": "st-1790328434476-14-m0qu",
+        "email": ""
+      },
+      {
+        "fullName": "Nguyễn Duy Hải",
+        "hpHighlightColor": "default",
+        "email": "",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "no": 8,
+        "hpStatus": "Đã học",
+        "id": "row-st-1790328434476-15-gg00",
+        "studentId": "st-1790328434476-15-gg00",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        }
+      },
+      {
+        "scores": {
+          "col_sess_17_1790407970277": "vắng"
+        },
+        "id": "row-st-1790328434476-16-j1yy",
+        "hpHighlightColor": "default",
+        "studentId": "st-1790328434476-16-j1yy",
+        "fullName": "Đỗ Tiến Lộc",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "red"
+        },
+        "email": "",
+        "no": 9
+      },
+      {
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "red"
+        },
+        "id": "row-st-1790328434476-17-dvqx",
+        "email": "",
+        "scores": {
+          "col_sess_17_1790407970277": "vắng"
+        },
+        "hpHighlightColor": "default",
+        "fullName": "Phạm Nguyễn Lan Phương",
+        "studentId": "st-1790328434476-17-dvqx",
+        "no": 10
+      },
+      {
+        "fullName": "Phạm Quang Minh",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "id": "row-st-1790328434476-18-o3qb",
+        "email": "",
+        "no": 11,
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "hpHighlightColor": "default",
+        "studentId": "st-1790328434476-18-o3qb"
+      },
+      {
+        "hpHighlightColor": "default",
+        "no": 12,
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "email": "",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "fullName": "Vũ Thị Thanh Dung",
+        "studentId": "st-1790328434476-2-xkct",
+        "id": "row-st-1790328434476-2-xkct"
+      },
+      {
+        "hpHighlightColor": "default",
+        "id": "row-st-1790328434476-3-1oui",
+        "fullName": "Đặng Minh Anh",
+        "studentId": "st-1790328434476-3-1oui",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "email": "",
+        "no": 13,
+        "hpStatus": "Đã học"
+      },
+      {
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "no": 14,
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "studentId": "st-1790328434476-4-5a9q",
+        "email": "",
+        "fullName": "Vũ Hải Anh",
+        "id": "row-st-1790328434476-4-5a9q"
+      },
+      {
+        "email": "",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "studentId": "st-1790328434476-5-ii3m",
+        "id": "row-st-1790328434476-5-ii3m",
+        "no": 15,
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "fullName": "Bùi Thu Hương 86"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "no": 16,
+        "fullName": "Nguyễn Trường Phúc",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "email": "",
+        "studentId": "st-1790328434476-6-l95a",
+        "id": "row-st-1790328434476-6-l95a"
+      },
+      {
+        "id": "row-st-1790328434476-7-yjmn",
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "email": "",
+        "fullName": "Nguyễn Minh Hạnh",
+        "hpHighlightColor": "default",
+        "studentId": "st-1790328434476-7-yjmn",
+        "no": 17,
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        }
+      },
+      {
+        "studentId": "st-1790328434476-8-59w7",
+        "no": 18,
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "fullName": "Nguyễn Thị Vân Nhi",
+        "id": "row-st-1790328434476-8-59w7",
+        "email": "",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_17_1790407970277": "default"
+        },
+        "no": 19,
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_17_1790407970277": "x"
+        },
+        "studentId": "st-1790328434476-9-todd",
+        "fullName": "Vũ Hải Yến",
+        "email": "",
+        "id": "row-st-1790328434476-9-todd"
+      }
+    ],
+    "tagText": "INSPI",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "updatedAt": "2026-09-26T07:33:00.872Z",
+    "classBanner": "Bảng điểm Lớp cls-1790328434476"
+  },
+  {
+    "id": "sheet-cls-1790328477276",
+    "rows": [
+      {
+        "no": 1,
+        "studentId": "st-1790328477276-2-rxe6",
+        "scoresHighlight": {
+          "col_sess_1_1790600483538": "default"
+        },
+        "hpStatus": "Đã học",
+        "email": "",
+        "scores": {
+          "col_sess_1_1790600483538": "0"
+        },
+        "hpHighlightColor": "default",
+        "fullName": "Bùi Thế Hải Anh",
+        "id": "row-st-1790328477276-2-rxe6"
+      }
+    ],
+    "classBanner": "Bảng điểm Lớp cls-1790328477276",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "classId": "cls-1790328477276",
+    "columns": [
+      {
+        "sessionNumber": 1,
+        "lessonLabel": "L1",
+        "date": "2026-09-28",
+        "maxScore": 10,
+        "subSkill": "Từ vựng",
+        "id": "col_sess_1_1790600483538",
+        "teacherAndDate": "09-28 GV"
+      }
+    ],
+    "courseTuitionTag": "5tr2",
+    "tagText": "INSPI",
+    "updatedAt": "2026-09-28T13:03:14.095Z"
+  },
+  {
+    "id": "sheet-cls-1790390511388",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "updatedAt": "2026-09-28T15:14:37.243Z",
+    "tagText": "INSPI",
+    "classBanner": "Bảng điểm Lớp cls-1790390511388",
+    "rows": [
+      {
+        "no": 1,
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_1_1790603773599": "9.3"
+        },
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "email": "",
+        "fullName": "Tester",
+        "id": "row-student-vocab-1790603772414",
+        "studentId": "student-vocab-1790603772414"
+      },
+      {
+        "no": 2,
+        "email": "",
+        "hpStatus": "Đã học",
+        "studentId": "st-1790390511388-0-fl1x",
+        "fullName": "Vũ Anh Khoa",
+        "hpHighlightColor": "default",
+        "id": "row-st-1790390511388-0-fl1x",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "scores": {
+          "col_sess_1_1790603773599": "13"
+        }
+      },
+      {
+        "no": 3,
+        "scores": {
+          "col_sess_1_1790603773599": "14"
+        },
+        "fullName": "Phùng Tuấn Kiệt",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "hpHighlightColor": "default",
+        "email": "",
+        "id": "row-st-1790390511388-1-4n2p",
+        "studentId": "st-1790390511388-1-4n2p",
+        "hpStatus": "Đã học"
+      },
+      {
+        "no": 4,
+        "studentId": "st-1790390511388-10-6g53",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "hpStatus": "Đã học",
+        "email": "",
+        "scores": {
+          "col_sess_1_1790603773599": "17"
+        },
+        "hpHighlightColor": "default",
+        "fullName": "Nguyễn Ngọc Thùy Chi",
+        "id": "row-st-1790390511388-10-6g53"
+      },
+      {
+        "id": "row-st-1790390511388-11-zh7z",
+        "email": "",
+        "hpStatus": "Đã học",
+        "fullName": "Đỗ Trâm Anh",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "hpHighlightColor": "default",
+        "studentId": "st-1790390511388-11-zh7z",
+        "no": 5,
+        "scores": {
+          "col_sess_1_1790603773599": "21"
+        }
+      },
+      {
+        "studentId": "st-1790390511388-12-6ly4",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "hpStatus": "Đã học",
+        "id": "row-st-1790390511388-12-6ly4",
+        "scores": {
+          "col_sess_1_1790603773599": "11"
+        },
+        "hpHighlightColor": "default",
+        "no": 6,
+        "fullName": "Phạm Bảo Lâm Tùng",
+        "email": ""
+      },
+      {
+        "no": 7,
+        "scores": {
+          "col_sess_1_1790603773599": "24"
+        },
+        "fullName": "Trần Bảo Anh",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "hpHighlightColor": "default",
+        "email": "",
+        "id": "row-st-1790390511388-13-ut2s",
+        "hpStatus": "Đã học",
+        "studentId": "st-1790390511388-13-ut2s"
+      },
+      {
+        "id": "row-st-1790390511388-14-zm8t",
+        "hpHighlightColor": "default",
+        "fullName": "Phạm Trần Thảo Nguyên 72",
+        "studentId": "st-1790390511388-14-zm8t",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "red"
+        },
+        "scores": {
+          "col_sess_1_1790603773599": "vắng"
+        },
+        "hpStatus": "Đã học",
+        "no": 8,
+        "email": ""
+      },
+      {
+        "email": "",
+        "id": "row-st-1790390511388-2-2nu9",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_1_1790603773599": "9"
+        },
+        "no": 9,
+        "fullName": "Trịnh Duy Khang",
+        "studentId": "st-1790390511388-2-2nu9",
+        "hpHighlightColor": "default"
+      },
+      {
+        "no": 10,
+        "fullName": "Trần Thị Thanh Hằng",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "scores": {
+          "col_sess_1_1790603773599": "11"
+        },
+        "email": "",
+        "hpStatus": "Đã học",
+        "studentId": "st-1790390511388-3-xwb0",
+        "hpHighlightColor": "default",
+        "id": "row-st-1790390511388-3-xwb0"
+      },
+      {
+        "email": "",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_1_1790603773599": "15"
+        },
+        "no": 11,
+        "hpStatus": "Đã học",
+        "studentId": "st-1790390511388-4-bbw7",
+        "id": "row-st-1790390511388-4-bbw7",
+        "fullName": "Trịnh Thiên Phú",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        }
+      },
+      {
+        "no": 12,
+        "email": "",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_1_1790603773599": "vắng"
+        },
+        "fullName": "Phạm Quỳnh Anh",
+        "id": "row-st-1790390511388-5-0luu",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "red"
+        },
+        "studentId": "st-1790390511388-5-0luu"
+      },
+      {
+        "no": 13,
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_1_1790603773599": "11"
+        },
+        "id": "row-st-1790390511388-6-9nzm",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "fullName": "Đặng Thị Thu Trang",
+        "studentId": "st-1790390511388-6-9nzm",
+        "email": ""
+      },
+      {
+        "fullName": "Phạm Thị Minh",
+        "no": 14,
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "id": "row-st-1790390511388-7-0um6",
+        "scores": {
+          "col_sess_1_1790603773599": "12"
+        },
+        "studentId": "st-1790390511388-7-0um6"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "hpHighlightColor": "default",
+        "id": "row-st-1790390511388-8-1z2x",
+        "fullName": "Nguyễn Hà Anh Tú",
+        "email": "",
+        "no": 15,
+        "scores": {
+          "col_sess_1_1790603773599": "17"
+        },
+        "studentId": "st-1790390511388-8-1z2x",
+        "hpStatus": "Đã học"
+      },
+      {
+        "email": "",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_1_1790603773599": "default"
+        },
+        "id": "row-st-1790390511388-9-vbjn",
+        "scores": {
+          "col_sess_1_1790603773599": "13"
+        },
+        "studentId": "st-1790390511388-9-vbjn",
+        "fullName": "Đỗ Anh Thư",
+        "no": 16,
+        "hpHighlightColor": "default"
+      }
+    ],
+    "columns": [
+      {
+        "lessonLabel": "L1",
+        "subSkill": "Từ vựng",
+        "id": "col_sess_1_1790603773599",
+        "teacherAndDate": "09-28 GV",
+        "date": "2026-09-28",
+        "sessionNumber": 1,
+        "maxScore": 10
+      }
+    ],
+    "classId": "cls-1790390511388",
+    "courseTuitionTag": "5tr2"
+  },
+  {
+    "id": "sheet-cls-1790392962345",
+    "classBanner": "Lớp 71 (Thứ 4 + Thứ 7 (Ca 1: 18:00 - 19:45)) 5",
+    "rows": [
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "studentId": "st-1790001971742-0-wnxf",
+        "no": 1,
+        "scoresHighlight": {},
+        "id": "row-st-1790001971742-0-wnxf",
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Thị Khánh Ngọc",
+        "email": "nguynthkhnhngc175"
+      },
+      {
+        "no": 2,
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "bingcdiulinh176",
+        "scores": {},
+        "fullName": "Bùi Ngọc Diệu Linh",
+        "id": "row-st-1790001971742-1-a16g",
+        "studentId": "st-1790001971742-1-a16g"
+      },
+      {
+        "scoresHighlight": {},
+        "no": 3,
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "fullName": "Lê Thanh Dương",
+        "email": "lthanhdng185",
+        "id": "row-st-1790001971742-10-osa1",
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790001971742-10-osa1"
+      },
+      {
+        "email": "phmgiakhi186",
+        "id": "row-st-1790001971742-11-5zrp",
+        "studentId": "st-1790001971742-11-5zrp",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "fullName": "Phạm Gia Khải",
+        "no": 4,
+        "scores": {}
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "no": 5,
+        "hpStatus": "Nợ 5.6tr",
+        "email": "nguynngckimngn187",
+        "fullName": "Nguyễn Ngọc Kim Ngân",
+        "studentId": "st-1790001971742-12-saxm",
+        "scoresHighlight": {},
+        "scores": {},
+        "id": "row-st-1790001971742-12-saxm"
+      },
+      {
+        "scoresHighlight": {},
+        "no": 6,
+        "fullName": "Trần Thuỳ Dương",
+        "scores": {},
+        "studentId": "st-1790001971742-13-ncrh",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "trnthudng188",
+        "id": "row-st-1790001971742-13-ncrh"
+      },
+      {
+        "no": 7,
+        "fullName": "Nguyễn Hoàng Hải",
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "email": "nguynhonghi189",
+        "hpStatus": "Nợ 5.6tr",
+        "scoresHighlight": {},
+        "studentId": "st-1790001971742-14-i7vq",
+        "id": "row-st-1790001971742-14-i7vq"
+      },
+      {
+        "scores": {},
+        "fullName": "Mãn Khánh Linh 61",
+        "no": 8,
+        "email": "mnkhnhlinh61190",
+        "id": "row-st-1790001971742-15-pw5l",
+        "hpStatus": "Nợ 5.6tr",
+        "scoresHighlight": {},
+        "studentId": "st-1790001971742-15-pw5l",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "studentId": "st-1790001971742-16-iu4o",
+        "id": "row-st-1790001971742-16-iu4o",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "fullName": "Thúy Ngân",
+        "no": 9,
+        "email": "thyngn191"
+      },
+      {
+        "scores": {},
+        "studentId": "st-1790001971742-17-i28a",
+        "hpHighlightColor": "yellow",
+        "no": 10,
+        "scoresHighlight": {},
+        "fullName": "Võ Hải Nam",
+        "id": "row-st-1790001971742-17-i28a",
+        "email": "vhinam192",
+        "hpStatus": "Nợ 5.6tr"
+      },
+      {
+        "scoresHighlight": {},
+        "id": "row-st-1790001971742-18-jp9y",
+        "fullName": "Nguyễn Thúy Tuyên",
+        "email": "nguynthytuyn193",
+        "no": 11,
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790001971742-18-jp9y"
+      },
+      {
+        "studentId": "st-1790001971742-19-yauq",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "vcmnh194",
+        "scoresHighlight": {},
+        "no": 12,
+        "scores": {},
+        "fullName": "Vũ Đức Mạnh",
+        "id": "row-st-1790001971742-19-yauq",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "scores": {},
+        "fullName": "Phạm Thùy Dương",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "no": 13,
+        "studentId": "st-1790001971742-2-yrqp",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "phmthydng177",
+        "id": "row-st-1790001971742-2-yrqp"
+      },
+      {
+        "id": "row-st-1790001971742-3-j2pw",
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Gia Bảo",
+        "scoresHighlight": {},
+        "email": "nguyngiabo178",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "no": 14,
+        "studentId": "st-1790001971742-3-j2pw"
+      },
+      {
+        "scoresHighlight": {},
+        "id": "row-st-1790001971742-4-lgjf",
+        "scores": {},
+        "fullName": "Trần Phương Linh",
+        "hpHighlightColor": "yellow",
+        "email": "trnphnglinh179",
+        "studentId": "st-1790001971742-4-lgjf",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 15
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790001971742-5-r4wt",
+        "scoresHighlight": {},
+        "scores": {},
+        "email": "vuthianhth180",
+        "hpHighlightColor": "yellow",
+        "fullName": "Vũ Thị Anh Thư",
+        "studentId": "st-1790001971742-5-r4wt",
+        "no": 16
+      },
+      {
+        "scores": {},
+        "id": "row-st-1790001971742-6-3r2h",
+        "hpHighlightColor": "yellow",
+        "fullName": "Bùi Khánh Băng",
+        "studentId": "st-1790001971742-6-3r2h",
+        "hpStatus": "Nợ 5.6tr",
+        "scoresHighlight": {},
+        "email": "bikhnhbng181",
+        "no": 17
+      },
+      {
+        "fullName": "Lê Phương Vy",
+        "email": "lphngvy182",
+        "hpHighlightColor": "yellow",
+        "no": 18,
+        "scores": {},
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790001971742-7-leg0",
+        "studentId": "st-1790001971742-7-leg0",
+        "scoresHighlight": {}
+      },
+      {
+        "scores": {},
+        "hpStatus": "CK 17/5",
+        "no": 19,
+        "id": "row-st-1790001971742-8-p0i4",
+        "scoresHighlight": {},
+        "hpHighlightColor": "default",
+        "fullName": "Nguyễn Khánh Linh",
+        "email": "nguynkhnhlinh183",
+        "studentId": "st-1790001971742-8-p0i4"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "no": 20,
+        "fullName": "Trần Ngọc Hoàng Nam",
+        "scoresHighlight": {},
+        "id": "row-st-1790001971742-9-btay",
+        "email": "trnngchongnam184",
+        "scores": {},
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790001971742-9-btay"
+      },
+      {
+        "scores": {},
+        "id": "row-st-1790392962345-0-4owu",
+        "fullName": "Nguyễn Thị Khánh Ngọc",
+        "studentId": "st-1790392962345-0-4owu",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "nguynthkhnhngc393",
+        "no": 21,
+        "scoresHighlight": {}
+      },
+      {
+        "id": "row-st-1790392962345-1-3l4x",
+        "fullName": "Bùi Ngọc Diệu Linh",
+        "studentId": "st-1790392962345-1-3l4x",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "email": "bingcdiulinh394",
+        "no": 22,
+        "hpStatus": "Nợ 5.6tr"
+      },
+      {
+        "no": 23,
+        "studentId": "st-1790392962345-10-ytfg",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "email": "lthanhdng403",
+        "fullName": "Lê Thanh Dương",
+        "scoresHighlight": {},
+        "scores": {},
+        "id": "row-st-1790392962345-10-ytfg"
+      },
+      {
+        "scoresHighlight": {},
+        "no": 24,
+        "fullName": "Phạm Gia Khải",
+        "email": "phmgiakhi404",
+        "studentId": "st-1790392962345-11-hzzy",
+        "id": "row-st-1790392962345-11-hzzy",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr"
+      },
+      {
+        "scoresHighlight": {},
+        "id": "row-st-1790392962345-12-cnht",
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790392962345-12-cnht",
+        "scores": {},
+        "fullName": "Nguyễn Ngọc Kim Ngân",
+        "no": 25,
+        "email": "nguynngckimngn405",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "no": 26,
+        "scores": {},
+        "fullName": "Trần Thuỳ Dương",
+        "scoresHighlight": {},
+        "email": "trnthudng406",
+        "id": "row-st-1790392962345-13-37gi",
+        "hpStatus": "Nợ 5.6tr",
+        "studentId": "st-1790392962345-13-37gi"
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "scoresHighlight": {},
+        "no": 27,
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "email": "nguynhonghi407",
+        "fullName": "Nguyễn Hoàng Hải",
+        "studentId": "st-1790392962345-14-1ugy",
+        "id": "row-st-1790392962345-14-1ugy"
+      },
+      {
+        "studentId": "st-1790392962345-15-l3t7",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790392962345-15-l3t7",
+        "email": "mnkhnhlinh61408",
+        "fullName": "Mãn Khánh Linh 61",
+        "no": 28,
+        "scoresHighlight": {}
+      },
+      {
+        "studentId": "st-1790392962345-16-amn0",
+        "email": "thyngn409",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790392962345-16-amn0",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "no": 29,
+        "fullName": "Thúy Ngân"
+      },
+      {
+        "fullName": "Võ Hải Nam",
+        "id": "row-st-1790392962345-17-yk95",
+        "email": "vhinam410",
+        "scoresHighlight": {},
+        "studentId": "st-1790392962345-17-yk95",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 30,
+        "scores": {}
+      },
+      {
+        "email": "nguynthytuyn411",
+        "fullName": "Nguyễn Thúy Tuyên",
+        "scoresHighlight": {},
+        "no": 31,
+        "id": "row-st-1790392962345-18-tdxm",
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "studentId": "st-1790392962345-18-tdxm",
+        "hpStatus": "Nợ 5.6tr"
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790392962345-19-rd0z",
+        "scoresHighlight": {},
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "fullName": "Vũ Đức Mạnh",
+        "no": 32,
+        "studentId": "st-1790392962345-19-rd0z",
+        "email": "vcmnh412"
+      },
+      {
+        "scoresHighlight": {},
+        "id": "row-st-1790392962345-2-eri2",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "fullName": "Phạm Thùy Dương",
+        "email": "phmthydng395",
+        "studentId": "st-1790392962345-2-eri2",
+        "hpStatus": "Nợ 5.6tr",
+        "no": 33
+      },
+      {
+        "studentId": "st-1790392962345-3-8pkv",
+        "no": 34,
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {},
+        "email": "nguyngiabo396",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "fullName": "Nguyễn Gia Bảo",
+        "id": "row-st-1790392962345-3-8pkv"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "email": "trnphnglinh397",
+        "no": 35,
+        "hpStatus": "Nợ 5.6tr",
+        "fullName": "Trần Phương Linh",
+        "scoresHighlight": {},
+        "studentId": "st-1790392962345-4-1cch",
+        "scores": {},
+        "id": "row-st-1790392962345-4-1cch"
+      },
+      {
+        "studentId": "st-1790392962345-5-ynaz",
+        "fullName": "Vũ Thị Anh Thư",
+        "hpHighlightColor": "yellow",
+        "email": "vuthianhth398",
+        "no": 36,
+        "scoresHighlight": {},
+        "id": "row-st-1790392962345-5-ynaz",
+        "hpStatus": "Nợ 5.6tr",
+        "scores": {}
+      },
+      {
+        "hpStatus": "Nợ 5.6tr",
+        "email": "bikhnhbng399",
+        "no": 37,
+        "scoresHighlight": {},
+        "scores": {},
+        "studentId": "st-1790392962345-6-n72e",
+        "id": "row-st-1790392962345-6-n72e",
+        "fullName": "Bùi Khánh Băng",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "fullName": "Lê Phương Vy",
+        "no": 38,
+        "studentId": "st-1790392962345-7-g9pa",
+        "email": "lphngvy400",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790392962345-7-g9pa",
+        "scores": {}
+      },
+      {
+        "fullName": "Nguyễn Khánh Linh",
+        "no": 39,
+        "scoresHighlight": {},
+        "hpHighlightColor": "default",
+        "studentId": "st-1790392962345-8-p738",
+        "scores": {},
+        "hpStatus": "CK 17/5",
+        "email": "nguynkhnhlinh401",
+        "id": "row-st-1790392962345-8-p738"
+      },
+      {
+        "studentId": "st-1790392962345-9-tnkf",
+        "no": 40,
+        "scores": {},
+        "scoresHighlight": {},
+        "fullName": "Trần Ngọc Hoàng Nam",
+        "email": "trnngchongnam402",
+        "hpStatus": "Nợ 5.6tr",
+        "id": "row-st-1790392962345-9-tnkf",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "studentId": "student-vocab-1790525080477",
+        "hpStatus": "Đã học",
+        "email": "",
+        "scoresHighlight": {
+          "c1": "default"
+        },
+        "id": "row-student-vocab-1790525080477",
+        "scores": {
+          "c1": "8.8"
+        },
+        "hpHighlightColor": "default",
+        "fullName": "Diep",
+        "no": 41
+      }
+    ],
+    "courseTuitionTag": "5.6tr",
+    "updatedAt": "2026-09-27T16:04:40.610Z",
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)",
+    "tagText": "INSPI",
+    "classId": "cls-1790392962345",
+    "columns": [
+      {
+        "maxScore": 10,
+        "lessonLabel": "L1",
+        "id": "c1",
+        "subSkill": "Ôn tập",
+        "sessionNumber": 1,
+        "teacherAndDate": "L1 Nguyễn"
+      },
+      {
+        "teacherAndDate": "L2 Nguyễn",
+        "lessonLabel": "L2",
+        "sessionNumber": 2,
+        "subSkill": "Viết & Nghe",
+        "id": "c2",
+        "maxScore": 10
+      },
+      {
+        "id": "c3",
+        "sessionNumber": 3,
+        "maxScore": 10,
+        "teacherAndDate": "L3 Nguyễn",
+        "subSkill": "Nghe 10",
+        "lessonLabel": "L3"
+      },
+      {
+        "subSkill": "Đọc 13",
+        "sessionNumber": 4,
+        "id": "c4",
+        "maxScore": 13,
+        "teacherAndDate": "L4 Nguyễn",
+        "lessonLabel": "L4"
+      }
+    ]
+  },
+  {
+    "id": "sheet-cls-1790393249249",
+    "updatedAt": "2026-09-28T10:09:13.877Z",
+    "classBanner": "Bảng điểm Lớp cls-1790393249249",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "rows": [
+      {
+        "scoresHighlight": {
+          "col_sess_1_1790590153876": "yellow"
+        },
+        "no": 1,
+        "email": "",
+        "studentId": "student-vocab-1790590153513",
+        "fullName": "nguyễn văn a",
+        "scores": {
+          "col_sess_1_1790590153876": "2"
+        },
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "id": "row-student-vocab-1790590153513"
+      }
+    ],
+    "tagText": "INSPI",
+    "classId": "cls-1790393249249",
+    "columns": [
+      {
+        "sessionNumber": 1,
+        "lessonLabel": "L1",
+        "teacherAndDate": "09-28 GV",
+        "subSkill": "Từ vựng",
+        "maxScore": 10,
+        "date": "2026-09-28",
+        "id": "col_sess_1_1790590153876"
+      }
+    ],
+    "courseTuitionTag": "5tr2"
+  },
+  {
+    "id": "sheet-cls-1790393568684",
+    "tagText": "INSPI",
+    "updatedAt": "2026-09-26T12:08:30.930Z",
+    "columns": [
+      {
+        "teacherAndDate": "09-26 Nguyễn",
+        "sessionNumber": 22,
+        "subSkill": "Từ vựng, Nghe, Đọc",
+        "maxScore": 10,
+        "id": "col_sess_22_1790424209302",
+        "lessonLabel": "L22",
+        "date": "2026-09-26"
+      }
+    ],
+    "classId": "cls-1790393568684",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "classBanner": "Bảng điểm Lớp cls-1790393568684",
+    "rows": [
+      {
+        "no": 1,
+        "scores": {
+          "col_sess_22_1790424209302": "5"
+        },
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "yellow"
+        },
+        "fullName": "Nguyễn Đào Linh Ngọc",
+        "hpStatus": "Đã học",
+        "email": "",
+        "hpHighlightColor": "default",
+        "studentId": "st-1790393568684-0-ljk6",
+        "id": "row-st-1790393568684-0-ljk6"
+      },
+      {
+        "hpStatus": "Đã học",
+        "studentId": "st-1790393568684-1-44fr",
+        "scores": {
+          "col_sess_22_1790424209302": "8"
+        },
+        "id": "row-st-1790393568684-1-44fr",
+        "hpHighlightColor": "default",
+        "fullName": "Nguyễn Hoàng Sơn",
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "no": 2
+      },
+      {
+        "studentId": "st-1790393568684-10-9k2y",
+        "hpHighlightColor": "default",
+        "no": 3,
+        "fullName": "Nguyễn Đức Phú",
+        "email": "",
+        "scores": {
+          "col_sess_22_1790424209302": "7"
+        },
+        "id": "row-st-1790393568684-10-9k2y",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "hpStatus": "Đã học"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "email": "",
+        "no": 4,
+        "fullName": "Đào Minh Khánh",
+        "studentId": "st-1790393568684-11-yh5u",
+        "scores": {
+          "col_sess_22_1790424209302": "9"
+        },
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "id": "row-st-1790393568684-11-yh5u"
+      },
+      {
+        "studentId": "st-1790393568684-12-l0eq",
+        "email": "",
+        "fullName": "Trần Yến Nhi",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "id": "row-st-1790393568684-12-l0eq",
+        "scores": {
+          "col_sess_22_1790424209302": "10"
+        },
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "no": 5
+      },
+      {
+        "fullName": "Phạm Diệp Anh",
+        "scores": {
+          "col_sess_22_1790424209302": "7"
+        },
+        "hpHighlightColor": "default",
+        "studentId": "st-1790393568684-13-agv0",
+        "id": "row-st-1790393568684-13-agv0",
+        "hpStatus": "Đã học",
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "no": 6
+      },
+      {
+        "studentId": "st-1790393568684-14-nscg",
+        "scores": {
+          "col_sess_22_1790424209302": "9"
+        },
+        "email": "",
+        "fullName": "Thanh Hiền",
+        "no": 7,
+        "id": "row-st-1790393568684-14-nscg",
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        }
+      },
+      {
+        "id": "row-st-1790393568684-15-mqw4",
+        "fullName": "Hoàng Minh Ngọc",
+        "studentId": "st-1790393568684-15-mqw4",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_22_1790424209302": "8"
+        },
+        "no": 8,
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "email": "",
+        "hpStatus": "Đã học"
+      },
+      {
+        "id": "row-st-1790393568684-16-62w1",
+        "scores": {
+          "col_sess_22_1790424209302": "9"
+        },
+        "fullName": "Phạm Thị Phương Thảo",
+        "email": "",
+        "studentId": "st-1790393568684-16-62w1",
+        "no": 9,
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        }
+      },
+      {
+        "fullName": "Nguyễn Thị Nguyệt Hà",
+        "id": "row-st-1790393568684-17-fjgo",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "hpHighlightColor": "default",
+        "studentId": "st-1790393568684-17-fjgo",
+        "email": "",
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_22_1790424209302": "9"
+        },
+        "no": 10
+      },
+      {
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "id": "row-st-1790393568684-18-vite",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_22_1790424209302": "9"
+        },
+        "studentId": "st-1790393568684-18-vite",
+        "no": 11,
+        "fullName": "Phạm Khánh Linh"
+      },
+      {
+        "studentId": "st-1790393568684-19-v9e4",
+        "fullName": "Nguyễn Khánh Phương",
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "id": "row-st-1790393568684-19-v9e4",
+        "scores": {
+          "col_sess_22_1790424209302": "8"
+        },
+        "hpStatus": "Đã học",
+        "no": 12,
+        "hpHighlightColor": "default"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "hpStatus": "Đã học",
+        "no": 13,
+        "id": "row-st-1790393568684-2-mt6c",
+        "fullName": "Đỗ Vũ Bá Tùng",
+        "studentId": "st-1790393568684-2-mt6c",
+        "scores": {
+          "col_sess_22_1790424209302": "8"
+        },
+        "email": "",
+        "hpHighlightColor": "default"
+      },
+      {
+        "id": "row-st-1790393568684-20-1ozq",
+        "studentId": "st-1790393568684-20-1ozq",
+        "scores": {
+          "col_sess_22_1790424209302": "6"
+        },
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "email": "",
+        "hpHighlightColor": "default",
+        "no": 14,
+        "fullName": "Lê Văn Tùng"
+      },
+      {
+        "hpHighlightColor": "default",
+        "id": "row-st-1790393568684-21-qkta",
+        "hpStatus": "Đã học",
+        "email": "",
+        "scores": {
+          "col_sess_22_1790424209302": "8"
+        },
+        "studentId": "st-1790393568684-21-qkta",
+        "fullName": "Nguyễn Mạnh Hưng",
+        "no": 15,
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        }
+      },
+      {
+        "fullName": "Phạm Hồng Hà",
+        "email": "",
+        "studentId": "st-1790393568684-3-iwoz",
+        "no": 16,
+        "scores": {
+          "col_sess_22_1790424209302": "8"
+        },
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "id": "row-st-1790393568684-3-iwoz",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default"
+      },
+      {
+        "studentId": "st-1790393568684-4-4oip",
+        "hpHighlightColor": "default",
+        "no": 17,
+        "fullName": "Lưu Khánh Phong",
+        "scores": {
+          "col_sess_22_1790424209302": "9"
+        },
+        "id": "row-st-1790393568684-4-4oip",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "email": ""
+      },
+      {
+        "no": 18,
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "studentId": "st-1790393568684-5-1yqi",
+        "fullName": "Đỗ Thị Minh Tâm",
+        "scores": {
+          "col_sess_22_1790424209302": "8"
+        },
+        "id": "row-st-1790393568684-5-1yqi"
+      },
+      {
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        },
+        "no": 19,
+        "scores": {
+          "col_sess_22_1790424209302": "9"
+        },
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "id": "row-st-1790393568684-6-k2m9",
+        "fullName": "An Vũ Ngọc Mai",
+        "studentId": "st-1790393568684-6-k2m9"
+      },
+      {
+        "id": "row-st-1790393568684-7-hqbh",
+        "studentId": "st-1790393568684-7-hqbh",
+        "fullName": "Nguyễn Minh Sáng",
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "email": "",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "yellow"
+        },
+        "scores": {
+          "col_sess_22_1790424209302": "5"
+        },
+        "no": 20
+      },
+      {
+        "studentId": "st-1790393568684-8-ubkn",
+        "hpStatus": "Đã học",
+        "no": 21,
+        "email": "",
+        "fullName": "Hà Vân Ly",
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_22_1790424209302": "6"
+        },
+        "id": "row-st-1790393568684-8-ubkn",
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        }
+      },
+      {
+        "studentId": "st-1790393568684-9-izip",
+        "scores": {
+          "col_sess_22_1790424209302": "8"
+        },
+        "fullName": "Hà An Ly",
+        "id": "row-st-1790393568684-9-izip",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "email": "",
+        "no": 22,
+        "scoresHighlight": {
+          "col_sess_22_1790424209302": "default"
+        }
+      }
+    ],
+    "courseTuitionTag": "5tr2"
+  },
+  {
+    "id": "sheet-cls-1790393769306",
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)",
+    "rows": [
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "email": "ngngcdip608",
+        "id": "row-st-1790393769306-0-q7in",
+        "hpHighlightColor": "yellow",
+        "fullName": "Đồng Ngọc Diệp",
+        "studentId": "st-1790393769306-0-q7in",
+        "scoresHighlight": {},
+        "scores": {
+          "col_sess_18_session_18": "7"
+        },
+        "no": 1
+      },
+      {
+        "fullName": "Phạm Ngọc Quang",
+        "hpHighlightColor": "yellow",
+        "no": 2,
+        "scoresHighlight": {},
+        "scores": {
+          "col_sess_18_session_18": "7"
+        },
+        "studentId": "st-1790393769307-1-40zz",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790393769307-1-40zz",
+        "email": "phmngcquang609"
+      },
+      {
+        "scores": {
+          "col_sess_18_session_18": "9"
+        },
+        "id": "row-st-1790393769307-10-f28p",
+        "fullName": "Phạm Thị Hải Yến",
+        "no": 3,
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "studentId": "st-1790393769307-10-f28p",
+        "email": "phmthhiyn618"
+      },
+      {
+        "email": "nguynnhtqun619",
+        "id": "row-st-1790393769307-11-fh04",
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Nhật Quân",
+        "scoresHighlight": {},
+        "no": 4,
+        "studentId": "st-1790393769307-11-fh04",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_18_session_18": "11"
+        }
+      },
+      {
+        "email": "nguynanhc620",
+        "id": "row-st-1790393769307-12-2fx7",
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Anh Đức",
+        "studentId": "st-1790393769307-12-2fx7",
+        "scores": {
+          "col_sess_18_session_18": "11"
+        },
+        "no": 5
+      },
+      {
+        "fullName": "Phí Mạnh Hải",
+        "scoresHighlight": {},
+        "studentId": "st-1790393769307-13-11ku",
+        "id": "row-st-1790393769307-13-11ku",
+        "hpHighlightColor": "yellow",
+        "no": 6,
+        "email": "phmnhhi621",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_18_session_18": "6"
+        }
+      },
+      {
+        "id": "row-st-1790393769307-14-lpex",
+        "hpStatus": "CK 17/5",
+        "hpHighlightColor": "default",
+        "email": "phmhonghanh622",
+        "scoresHighlight": {},
+        "fullName": "Phạm Hoàng Hà Anh",
+        "studentId": "st-1790393769307-14-lpex",
+        "no": 7,
+        "scores": {
+          "col_sess_18_session_18": "10"
+        }
+      },
+      {
+        "scoresHighlight": {},
+        "studentId": "st-1790393769307-15-6cd5",
+        "fullName": "Tống Phú Khánh",
+        "scores": {
+          "col_sess_18_session_18": "10"
+        },
+        "email": "tngphkhnh623",
+        "id": "row-st-1790393769307-15-6cd5",
+        "no": 8,
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr"
+      },
+      {
+        "email": "trnngclinh624",
+        "scoresHighlight": {},
+        "fullName": "Trần Ngọc Linh",
+        "id": "row-st-1790393769307-16-ncab",
+        "studentId": "st-1790393769307-16-ncab",
+        "scores": {
+          "col_sess_18_session_18": "7"
+        },
+        "hpStatus": "Nợ 5.0tr",
+        "no": 9,
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "scores": {
+          "col_sess_18_session_18": "8"
+        },
+        "no": 10,
+        "email": "bitrmy625",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790393769307-17-8gab",
+        "fullName": "Bùi Trà My",
+        "studentId": "st-1790393769307-17-8gab"
+      },
+      {
+        "id": "row-st-1790393769307-18-3dt9",
+        "email": "nguynmaivy626",
+        "fullName": "Nguyễn Mai Vy",
+        "studentId": "st-1790393769307-18-3dt9",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "no": 11,
+        "scores": {
+          "col_sess_18_session_18": "8"
+        },
+        "hpStatus": "Nợ 5.0tr"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "scores": {
+          "col_sess_18_session_18": "12"
+        },
+        "no": 12,
+        "email": "lubnhminh627",
+        "fullName": "Lưu Đỗ Bình Minh",
+        "id": "row-st-1790393769307-19-fqfy",
+        "studentId": "st-1790393769307-19-fqfy"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790393769307-2-p8vs",
+        "scores": {
+          "col_sess_18_session_18": "10"
+        },
+        "id": "row-st-1790393769307-2-p8vs",
+        "scoresHighlight": {},
+        "fullName": "Mai Tuấn Minh",
+        "email": "maitunminh610",
+        "hpHighlightColor": "yellow",
+        "no": 13
+      },
+      {
+        "id": "row-st-1790393769307-20-6a5z",
+        "email": "chuthcuyn628",
+        "fullName": "Chu Thục Uyên",
+        "studentId": "st-1790393769307-20-6a5z",
+        "scoresHighlight": {
+          "col_sess_18_session_18": "yellow"
+        },
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 14,
+        "scores": {
+          "col_sess_18_session_18": "4"
+        }
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "no": 15,
+        "email": "nguynbolm629",
+        "id": "row-st-1790393769307-21-vbky",
+        "fullName": "Nguyễn Bảo Lâm",
+        "studentId": "st-1790393769307-21-vbky",
+        "scores": {
+          "col_sess_18_session_18": "7"
+        },
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {}
+      },
+      {
+        "fullName": "Trần Công Thành",
+        "studentId": "st-1790393769307-3-cy3k",
+        "email": "trncngthnh611",
+        "scoresHighlight": {},
+        "id": "row-st-1790393769307-3-cy3k",
+        "no": 16,
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "scores": {
+          "col_sess_18_session_18": "10"
+        }
+      },
+      {
+        "scores": {
+          "col_sess_18_session_18": "vắng"
+        },
+        "studentId": "st-1790393769307-4-8kew",
+        "no": 17,
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "email": "nguynthuh612",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790393769307-4-8kew",
+        "fullName": "Nguyễn Thu Hà"
+      },
+      {
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790393769307-5-s7r4",
+        "hpHighlightColor": "yellow",
+        "email": "caoxunlong613",
+        "scores": {
+          "col_sess_18_session_18": "11"
+        },
+        "no": 18,
+        "studentId": "st-1790393769307-5-s7r4",
+        "fullName": "Cao Xuân Long"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790393769307-6-s54e",
+        "scores": {
+          "col_sess_18_session_18": "vắng"
+        },
+        "no": 19,
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Hoàng Mai",
+        "email": "nguynhongmai614",
+        "id": "row-st-1790393769307-6-s54e"
+      },
+      {
+        "email": "trncanh615",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790393769307-7-8gmn",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_18_session_18": "8"
+        },
+        "scoresHighlight": {},
+        "no": 20,
+        "studentId": "st-1790393769307-7-8gmn",
+        "fullName": "Trần Đức Anh"
+      },
+      {
+        "scoresHighlight": {},
+        "scores": {
+          "col_sess_18_session_18": "6"
+        },
+        "id": "row-st-1790393769307-8-wvam",
+        "fullName": "Vũ Nhật Anh",
+        "email": "vnhtanh616",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790393769307-8-wvam",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 21
+      },
+      {
+        "no": 22,
+        "email": "bingkhoa617",
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790393769307-9-8719",
+        "fullName": "Bùi Đăng Khoa",
+        "scores": {
+          "col_sess_18_session_18": "vắng"
+        },
+        "scoresHighlight": {},
+        "id": "row-st-1790393769307-9-8719",
+        "hpHighlightColor": "yellow"
+      }
+    ],
+    "updatedAt": "2026-09-26T19:11:30.303Z",
+    "tagText": "INSPI",
+    "courseTuitionTag": "5.0tr",
+    "classBanner": "Lớp 85 (Thứ 4 + Thứ 7 (Ca 1: 18:00 - 19:45)) 4",
+    "columns": [],
+    "classId": "cls-1790393769306"
+  },
+  {
+    "id": "sheet-cls-1790394128571",
+    "updatedAt": "2026-09-28T16:21:25.318Z",
+    "rows": [
+      {
+        "scores": {
+          "col_sess_6_1790612484882": "7.5"
+        },
+        "no": 1,
+        "fullName": "Đào Diệu Anh",
+        "studentId": "st-1790514635929-0-qkyo",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "id": "row-st-1790514635929-0-qkyo",
+        "hpHighlightColor": "default",
+        "email": ""
+      },
+      {
+        "no": 2,
+        "fullName": "Nguyễn Thanh Thuận",
+        "hpHighlightColor": "default",
+        "studentId": "st-1790514635929-1-ob7g",
+        "email": "",
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_6_1790612484882": "7"
+        },
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "id": "row-st-1790514635929-1-ob7g"
+      },
+      {
+        "fullName": "Tô Tuấn Thành",
+        "hpHighlightColor": "default",
+        "email": "",
+        "id": "row-st-1790514635929-10-rwc4",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "yellow"
+        },
+        "no": 3,
+        "studentId": "st-1790514635929-10-rwc4",
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_6_1790612484882": "5"
+        }
+      },
+      {
+        "no": 4,
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "email": "",
+        "studentId": "st-1790514635929-2-pdy0",
+        "fullName": "Vương Hà Trang 92",
+        "scores": {
+          "col_sess_6_1790612484882": "8"
+        },
+        "id": "row-st-1790514635929-2-pdy0"
+      },
+      {
+        "no": 5,
+        "hpHighlightColor": "default",
+        "fullName": "Vũ Ngọc Phú 92",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "studentId": "st-1790514635929-3-2u2b",
+        "email": "",
+        "scores": {
+          "col_sess_6_1790612484882": "8"
+        },
+        "id": "row-st-1790514635929-3-2u2b",
+        "hpStatus": "Đã học"
+      },
+      {
+        "id": "row-st-1790514635929-4-xqpk",
+        "hpStatus": "Đã học",
+        "studentId": "st-1790514635929-4-xqpk",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "scores": {
+          "col_sess_6_1790612484882": "10"
+        },
+        "fullName": "Từ Minh Đức",
+        "no": 6,
+        "hpHighlightColor": "default",
+        "email": ""
+      },
+      {
+        "studentId": "st-1790514635929-5-m71z",
+        "hpHighlightColor": "default",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "no": 7,
+        "fullName": "Nguyễn Phương Hà",
+        "scores": {
+          "col_sess_6_1790612484882": "6.5"
+        },
+        "id": "row-st-1790514635929-5-m71z",
+        "hpStatus": "Đã học",
+        "email": ""
+      },
+      {
+        "no": 8,
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "scores": {
+          "col_sess_6_1790612484882": "6.5"
+        },
+        "email": "",
+        "hpHighlightColor": "default",
+        "fullName": "Phạm Thị Phương Vi",
+        "studentId": "st-1790514635929-6-ohim",
+        "hpStatus": "Đã học",
+        "id": "row-st-1790514635929-6-ohim"
+      },
+      {
+        "email": "",
+        "fullName": "Nguyễn Hải Lâm",
+        "id": "row-st-1790514635929-7-sozz",
+        "studentId": "st-1790514635929-7-sozz",
+        "hpStatus": "Đã học",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "hpHighlightColor": "default",
+        "no": 9,
+        "scores": {
+          "col_sess_6_1790612484882": "7.5"
+        }
+      },
+      {
+        "fullName": "Hoàng Thanh Bình",
+        "hpHighlightColor": "default",
+        "email": "",
+        "scores": {
+          "col_sess_6_1790612484882": "6"
+        },
+        "studentId": "st-1790514635929-8-esfi",
+        "id": "row-st-1790514635929-8-esfi",
+        "hpStatus": "Đã học",
+        "no": 10,
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        }
+      },
+      {
+        "email": "",
+        "hpStatus": "Đã học",
+        "no": 11,
+        "studentId": "st-1790514635929-9-p0yv",
+        "fullName": "Phạm Thị Phương Linh",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "yellow"
+        },
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_6_1790612484882": "4.5"
+        },
+        "id": "row-st-1790514635929-9-p0yv"
+      },
+      {
+        "fullName": "Nguyễn Duy Hiệp",
+        "no": 12,
+        "email": "",
+        "hpHighlightColor": "default",
+        "studentId": "st-1790514635930-11-5wt0",
+        "scores": {
+          "col_sess_6_1790612484882": "8"
+        },
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "hpStatus": "Đã học",
+        "id": "row-st-1790514635930-11-5wt0"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "studentId": "st-1790514635930-12-g7sw",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "id": "row-st-1790514635930-12-g7sw",
+        "scores": {
+          "col_sess_6_1790612484882": "8.5"
+        },
+        "fullName": "Phạm Anh Tú 92",
+        "no": 13,
+        "email": ""
+      },
+      {
+        "hpStatus": "Đã học",
+        "id": "row-st-1790514635930-13-4twd",
+        "studentId": "st-1790514635930-13-4twd",
+        "hpHighlightColor": "default",
+        "email": "",
+        "no": 14,
+        "scores": {
+          "col_sess_6_1790612484882": "5.5"
+        },
+        "fullName": "Nguyễn Trung Hiếu",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "yellow"
+        }
+      },
+      {
+        "hpHighlightColor": "default",
+        "scores": {
+          "col_sess_6_1790612484882": "3"
+        },
+        "hpStatus": "Đã học",
+        "id": "row-st-1790514635930-14-cwhu",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "yellow"
+        },
+        "studentId": "st-1790514635930-14-cwhu",
+        "fullName": "Phạm Quang Huy",
+        "email": "",
+        "no": 15
+      },
+      {
+        "hpStatus": "Đã học",
+        "scores": {
+          "col_sess_6_1790612484882": "7.5"
+        },
+        "no": 16,
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "email": "",
+        "id": "row-st-1790514635930-16-dphi",
+        "fullName": "Nguyễn Thu Trang",
+        "studentId": "st-1790514635930-16-dphi",
+        "hpHighlightColor": "default"
+      },
+      {
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        },
+        "id": "row-st-1790514635930-17-d4v0",
+        "scores": {
+          "col_sess_6_1790612484882": "7"
+        },
+        "email": "",
+        "studentId": "st-1790514635930-17-d4v0",
+        "fullName": "Thanh Thúy",
+        "hpHighlightColor": "default",
+        "hpStatus": "Đã học",
+        "no": 17
+      },
+      {
+        "email": "",
+        "no": 18,
+        "fullName": "Phạm Đào Như Phương",
+        "scores": {
+          "col_sess_6_1790612484882": "6.5"
+        },
+        "studentId": "st-1790514635930-18-rlvg",
+        "hpStatus": "Đã học",
+        "hpHighlightColor": "default",
+        "id": "row-st-1790514635930-18-rlvg",
+        "scoresHighlight": {
+          "col_sess_6_1790612484882": "default"
+        }
+      }
+    ],
+    "courseTuitionTag": "5tr2",
+    "classId": "cls-1790394128571",
+    "columns": [
+      {
+        "sessionNumber": 6,
+        "id": "col_sess_6_1790612484882",
+        "teacherAndDate": "09-28 Chi",
+        "date": "2026-09-28",
+        "subSkill": "Từ vựng, Nghe",
+        "lessonLabel": "L6",
+        "maxScore": 10
+      }
+    ],
+    "classBanner": "Bảng điểm Lớp cls-1790394128571",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "tagText": "INSPI"
+  },
+  {
+    "id": "sheet-cls-1790394280379",
+    "classId": "cls-1790394280379",
+    "columns": [],
+    "courseTuitionTag": "5.0tr",
+    "tagText": "INSPI",
+    "classBanner": "Lớp 94 (Thứ 4 + Thứ 7 (Ca 2: 19:45 - 21:30)) 4",
+    "updatedAt": "2026-09-26T19:05:21.919Z",
+    "rows": [
+      {
+        "studentId": "st-1790394280379-0-29sz",
+        "id": "row-st-1790394280379-0-29sz",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "email": "binhhongyn735",
+        "scoresHighlight": {},
+        "fullName": "Bùi Như Hoàng Yến",
+        "no": 1
+      },
+      {
+        "no": 2,
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "email": "lngtriuhuy736",
+        "fullName": "Lương Triệu Huy",
+        "studentId": "st-1790394280379-1-sz9f",
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790394280379-1-sz9f"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790394280379-10-m4xi",
+        "id": "row-st-1790394280379-10-m4xi",
+        "hpStatus": "Nợ 5.0tr",
+        "email": "nguynbotrn745",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "fullName": "Nguyễn Bảo Trân",
+        "scoresHighlight": {},
+        "no": 3
+      },
+      {
+        "fullName": "Nguyễn Hương Giang",
+        "email": "nguynhnggiang746",
+        "hpHighlightColor": "yellow",
+        "no": 4,
+        "scoresHighlight": {},
+        "studentId": "st-1790394280379-11-y59u",
+        "id": "row-st-1790394280379-11-y59u",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        }
+      },
+      {
+        "no": 5,
+        "fullName": "Phạm Đình Phúc",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "scoresHighlight": {},
+        "id": "row-st-1790394280379-12-923s",
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "email": "phmnhphc747",
+        "studentId": "st-1790394280379-12-923s"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "email": "trncthng748",
+        "no": 6,
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "studentId": "st-1790394280379-13-vuq2",
+        "id": "row-st-1790394280379-13-vuq2",
+        "fullName": "Trần Đức Thắng",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "hpStatus": "Nợ 5.0tr",
+        "email": "vquangqu749",
+        "id": "row-st-1790394280379-14-d020",
+        "no": 7,
+        "scoresHighlight": {},
+        "studentId": "st-1790394280379-14-d020",
+        "fullName": "Vũ Quang Quý",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "id": "row-st-1790394280379-15-k2gh",
+        "fullName": "Nguyễn Ngọc Vân Phương",
+        "no": 8,
+        "hpStatus": "Nợ 5.0tr",
+        "email": "nguynngcvnphng750",
+        "studentId": "st-1790394280379-15-k2gh"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790394280379-16-ovmk",
+        "email": "phmgiahng751",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 9,
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "fullName": "Phạm Gia Hưng",
+        "scoresHighlight": {},
+        "id": "row-st-1790394280379-16-ovmk"
+      },
+      {
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "scoresHighlight": {},
+        "no": 10,
+        "studentId": "st-1790394280379-17-4ciu",
+        "fullName": "Hà Văn Khánh Huy",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790394280379-17-4ciu",
+        "email": "hvnkhnhhuy752"
+      },
+      {
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "studentId": "st-1790394280379-18-wfpd",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790394280379-18-wfpd",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "no": 11,
+        "email": "octrng753",
+        "fullName": "Đào Đức Trọng"
+      },
+      {
+        "email": "nguynththouyn754",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790394280379-19-a6l1",
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "fullName": "Nguyễn Thị Thảo Uyên",
+        "studentId": "st-1790394280379-19-a6l1",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "no": 12
+      },
+      {
+        "fullName": "Lê Minh Thư",
+        "email": "lminhth737",
+        "no": 13,
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790394280379-2-5aki",
+        "studentId": "st-1790394280379-2-5aki",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        }
+      },
+      {
+        "email": "otrnthydng755",
+        "hpHighlightColor": "yellow",
+        "no": 14,
+        "hpStatus": "Nợ 5.0tr",
+        "fullName": "Đào Trần Thùy Dương",
+        "studentId": "st-1790394280379-20-r5cc",
+        "scoresHighlight": {},
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "id": "row-st-1790394280379-20-r5cc"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790394280379-21-zai8",
+        "no": 15,
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Thị Ngọc Anh",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "scoresHighlight": {},
+        "id": "row-st-1790394280379-21-zai8",
+        "email": "nguynthngcanh756"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790394280379-3-mpfl",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "scoresHighlight": {},
+        "fullName": "Phạm Thị Thanh Bình",
+        "email": "phmththanhbnh738",
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790394280379-3-mpfl",
+        "no": 16
+      },
+      {
+        "studentId": "st-1790394280379-4-jzwi",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790394280379-4-jzwi",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "fullName": "Trần Thùy Anh",
+        "no": 17,
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "email": "trnthyanh739"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "email": "vminhngc740",
+        "no": 18,
+        "fullName": "Vũ Minh Ngọc",
+        "id": "row-st-1790394280379-5-x79s",
+        "studentId": "st-1790394280379-5-x79s",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "fullName": "Hứa Phương Linh",
+        "no": 19,
+        "scoresHighlight": {},
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790394280379-6-nhoz",
+        "hpStatus": "Nợ 5.0tr",
+        "email": "haphnglinh741",
+        "id": "row-st-1790394280379-6-nhoz"
+      },
+      {
+        "studentId": "st-1790394280379-7-vqwb",
+        "email": "mvitthnhhuy742",
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "no": 20,
+        "fullName": "Đàm Việt Thành Huy",
+        "id": "row-st-1790394280379-7-vqwb"
+      },
+      {
+        "no": 21,
+        "email": "lminhthun743",
+        "fullName": "Lê Minh Thuận",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "studentId": "st-1790394280379-8-n0oa",
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790394280379-8-n0oa",
+        "scoresHighlight": {}
+      },
+      {
+        "scoresHighlight": {},
+        "id": "row-st-1790394280379-9-6coz",
+        "scores": {
+          "col_sess_7_session_7": "x"
+        },
+        "email": "trnhongminhngc744",
+        "studentId": "st-1790394280379-9-6coz",
+        "fullName": "Trần Hoàng Minh Ngọc",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 22
+      }
+    ],
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)"
+  },
+  {
+    "id": "sheet-cls-1790394398249",
+    "columns": [
+      {
+        "id": "c1",
+        "teacherAndDate": "L1 Đặng",
+        "lessonLabel": "L1",
+        "maxScore": 10,
+        "subSkill": "Từ vựng & Viết",
+        "sessionNumber": 1
+      },
+      {
+        "lessonLabel": "L2",
+        "id": "c2",
+        "sessionNumber": 2,
+        "subSkill": "Viết & Nghe",
+        "teacherAndDate": "L2 Đặng",
+        "maxScore": 10
+      },
+      {
+        "lessonLabel": "L3",
+        "maxScore": 10,
+        "sessionNumber": 3,
+        "subSkill": "Nghe 10",
+        "teacherAndDate": "L3 Đặng",
+        "id": "c3"
+      },
+      {
+        "subSkill": "Đọc 13",
+        "maxScore": 13,
+        "lessonLabel": "L4",
+        "sessionNumber": 4,
+        "id": "c4",
+        "teacherAndDate": "L4 Đặng"
+      }
+    ],
+    "classId": "cls-1790394398249",
+    "classBanner": "Lớp 96 (Thứ 3 + Thứ 6 (Ca 2: 19:45 - 21:30)) 1",
+    "updatedAt": "2026-09-26T19:03:06.482Z",
+    "tagText": "INSPI",
+    "rows": [
+      {
+        "scoresHighlight": {},
+        "studentId": "st-1790151030917-0-phfr",
+        "email": "maithanhphc230",
+        "fullName": "Mai Thanh Phúc",
+        "id": "row-st-1790151030917-0-phfr",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 1,
+        "hpHighlightColor": "yellow",
+        "scores": {}
+      },
+      {
+        "email": "nguynhmy231",
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "id": "row-st-1790151030917-1-ngyq",
+        "hpHighlightColor": "yellow",
+        "fullName": "Nguyễn Hà My",
+        "studentId": "st-1790151030917-1-ngyq",
+        "no": 2,
+        "scores": {}
+      },
+      {
+        "email": "thinvy232",
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "id": "row-st-1790151030917-2-rv4i",
+        "fullName": "Đỗ Thiên Vy",
+        "studentId": "st-1790151030917-2-rv4i",
+        "no": 3,
+        "scores": {}
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "scoresHighlight": {},
+        "no": 4,
+        "studentId": "st-1790151030917-3-bqf0",
+        "fullName": "Phạm Hoàng Bảo Nam",
+        "id": "row-st-1790151030917-3-bqf0",
+        "hpStatus": "Nợ 5.0tr",
+        "email": "phmhongbonam233"
+      },
+      {
+        "studentId": "st-1790151030917-4-nt6v",
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "scores": {},
+        "no": 5,
+        "id": "row-st-1790151030917-4-nt6v",
+        "email": "bikhnhchi234",
+        "fullName": "Bùi Khánh Chi",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "id": "row-st-1790151030917-5-0cru",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "email": "vqucminh235",
+        "fullName": "Vũ Quốc Minh",
+        "studentId": "st-1790151030917-5-0cru",
+        "scores": {},
+        "no": 6,
+        "scoresHighlight": {}
+      },
+      {
+        "no": 7,
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790151030917-6-z9o1",
+        "email": "chhlinh236",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {},
+        "scoresHighlight": {},
+        "id": "row-st-1790151030917-6-z9o1",
+        "fullName": "Chử Hà Linh"
+      },
+      {
+        "no": 8,
+        "scoresHighlight": {},
+        "fullName": "Lê Phương Anh",
+        "studentId": "st-1790151030917-7-mcdx",
+        "scores": {},
+        "email": "lphnganh237",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790151030917-7-mcdx",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "scoresHighlight": {},
+        "scores": {},
+        "no": 9,
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790151030917-8-mve2",
+        "email": "phmquanghinam238",
+        "fullName": "Phạm Quang Hải Nam",
+        "studentId": "st-1790151030917-8-mve2"
+      },
+      {
+        "id": "row-st-1790151030918-10-iq0o",
+        "scoresHighlight": {},
+        "scores": {},
+        "hpStatus": "Nợ 5.0tr",
+        "email": "phmthphngtho240",
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790151030918-10-iq0o",
+        "no": 10,
+        "fullName": "Phạm Thị Phương Thảo"
+      },
+      {
+        "id": "row-st-1790151030918-11-a6vh",
+        "email": "lugiahuy241",
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790151030918-11-a6vh",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "fullName": "Lưu Gia Huy",
+        "no": 11,
+        "scores": {}
+      },
+      {
+        "scores": {},
+        "fullName": "Vũ Kim Ngân",
+        "studentId": "st-1790151030918-12-3w9k",
+        "id": "row-st-1790151030918-12-3w9k",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 12,
+        "scoresHighlight": {},
+        "email": "vkimngn242",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "no": 13,
+        "studentId": "st-1790151030918-13-4se2",
+        "hpHighlightColor": "yellow",
+        "fullName": "Vũ Lê Kim Ngân",
+        "scores": {},
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790151030918-13-4se2",
+        "scoresHighlight": {},
+        "email": "vlkimngn243"
+      },
+      {
+        "fullName": "Phạm Minh Châu",
+        "email": "phmminhchu244",
+        "scoresHighlight": {},
+        "no": 14,
+        "studentId": "st-1790151030918-14-dg0d",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790151030918-14-dg0d",
+        "scores": {},
+        "hpStatus": "Nợ 5.0tr"
+      },
+      {
+        "scoresHighlight": {},
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "no": 15,
+        "id": "row-st-1790151030918-15-twpz",
+        "studentId": "st-1790151030918-15-twpz",
+        "email": "inhnguynkhnhlinh245",
+        "fullName": "Đinh Nguyễn Khánh Linh"
+      },
+      {
+        "fullName": "Lưu Quang Mạnh 41 học lại",
+        "email": "luquangmnh41hcli246",
+        "scoresHighlight": {},
+        "id": "row-st-1790151030918-16-8l1t",
+        "hpHighlightColor": "yellow",
+        "no": 16,
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790151030918-16-8l1t",
+        "scores": {}
+      },
+      {
+        "email": "nguynmnhtrnggiang247",
+        "hpHighlightColor": "yellow",
+        "no": 17,
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {},
+        "studentId": "st-1790151030918-17-i4dz",
+        "scoresHighlight": {},
+        "id": "row-st-1790151030918-17-i4dz",
+        "fullName": "Nguyễn Mạnh Trường Giang"
+      },
+      {
+        "fullName": "Vũ Phương Thảo",
+        "no": 18,
+        "scores": {},
+        "hpHighlightColor": "default",
+        "hpStatus": "CK 17/5",
+        "id": "row-st-1790151030918-18-n2wa",
+        "email": "vphngtho248",
+        "scoresHighlight": {},
+        "studentId": "st-1790151030918-18-n2wa"
+      },
+      {
+        "fullName": "Vũ Hà Anh",
+        "no": 19,
+        "scoresHighlight": {},
+        "email": "vhanh249",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {},
+        "studentId": "st-1790151030918-19-5st5",
+        "id": "row-st-1790151030918-19-5st5",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "studentId": "st-1790151030918-20-w476",
+        "email": "ngthuphng250",
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790151030918-20-w476",
+        "scores": {},
+        "scoresHighlight": {},
+        "fullName": "Đặng Thu Phương",
+        "no": 20
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "no": 21,
+        "scoresHighlight": {},
+        "scores": {},
+        "studentId": "st-1790151030918-9-7jq2",
+        "email": "trnthmduyn239",
+        "fullName": "Trần Thị Mỹ Duyên",
+        "id": "row-st-1790151030918-9-7jq2"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790394398249-0-yf6u",
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790394398249-0-yf6u",
+        "no": 22,
+        "scoresHighlight": {},
+        "email": "maithanhphc779",
+        "scores": {},
+        "fullName": "Mai Thanh Phúc"
+      },
+      {
+        "studentId": "st-1790394398249-1-ys6q",
+        "fullName": "Nguyễn Hà My",
+        "scores": {},
+        "no": 23,
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "email": "nguynhmy780",
+        "scoresHighlight": {},
+        "id": "row-st-1790394398249-1-ys6q"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {},
+        "no": 24,
+        "scoresHighlight": {},
+        "email": "phmthphngtho789",
+        "id": "row-st-1790394398249-10-gqqq",
+        "fullName": "Phạm Thị Phương Thảo",
+        "studentId": "st-1790394398249-10-gqqq",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "scoresHighlight": {},
+        "id": "row-st-1790394398249-11-dum3",
+        "email": "lugiahuy790",
+        "scores": {},
+        "studentId": "st-1790394398249-11-dum3",
+        "fullName": "Lưu Gia Huy",
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 25
+      },
+      {
+        "no": 26,
+        "email": "vkimngn791",
+        "fullName": "Vũ Kim Ngân",
+        "scores": {},
+        "studentId": "st-1790394398249-12-t7fn",
+        "hpStatus": "Nợ 5.0tr",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790394398249-12-t7fn",
+        "scoresHighlight": {}
+      },
+      {
+        "studentId": "st-1790394398249-13-wyna",
+        "email": "vlkimngn792",
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "scores": {},
+        "no": 27,
+        "fullName": "Vũ Lê Kim Ngân",
+        "id": "row-st-1790394398249-13-wyna"
+      },
+      {
+        "fullName": "Phạm Minh Châu",
+        "no": 28,
+        "scores": {},
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790394398249-14-b2ua",
+        "hpStatus": "Nợ 5.0tr",
+        "email": "phmminhchu793",
+        "id": "row-st-1790394398249-14-b2ua"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {},
+        "email": "inhnguynkhnhlinh794",
+        "no": 29,
+        "fullName": "Đinh Nguyễn Khánh Linh",
+        "id": "row-st-1790394398249-15-15zn",
+        "studentId": "st-1790394398249-15-15zn",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "studentId": "st-1790394398249-16-16ae",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790394398249-16-16ae",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "no": 30,
+        "scores": {},
+        "fullName": "Lưu Quang Mạnh 41 học lại",
+        "email": "luquangmnh41hcli795"
+      },
+      {
+        "scores": {},
+        "id": "row-st-1790394398249-17-8xyy",
+        "hpHighlightColor": "yellow",
+        "scoresHighlight": {},
+        "fullName": "Nguyễn Mạnh Trường Giang",
+        "email": "nguynmnhtrnggiang796",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 31,
+        "studentId": "st-1790394398249-17-8xyy"
+      },
+      {
+        "hpStatus": "CK 17/5",
+        "studentId": "st-1790394398249-18-4zn4",
+        "no": 32,
+        "hpHighlightColor": "default",
+        "scores": {},
+        "scoresHighlight": {},
+        "fullName": "Vũ Phương Thảo",
+        "id": "row-st-1790394398249-18-4zn4",
+        "email": "vphngtho797"
+      },
+      {
+        "email": "vhanh798",
+        "no": 33,
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "fullName": "Vũ Hà Anh",
+        "studentId": "st-1790394398249-19-kmt6",
+        "scoresHighlight": {},
+        "scores": {},
+        "id": "row-st-1790394398249-19-kmt6"
+      },
+      {
+        "fullName": "Đỗ Thiên Vy",
+        "email": "thinvy781",
+        "no": 34,
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790394398249-2-nu10",
+        "studentId": "st-1790394398249-2-nu10",
+        "scores": {}
+      },
+      {
+        "email": "ngthuphng799",
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790394398249-20-g4yb",
+        "hpStatus": "Nợ 5.0tr",
+        "scoresHighlight": {},
+        "scores": {},
+        "fullName": "Đặng Thu Phương",
+        "studentId": "st-1790394398249-20-g4yb",
+        "no": 35
+      },
+      {
+        "scores": {},
+        "studentId": "st-1790394398249-21-fxnt",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790394398249-21-fxnt",
+        "no": 36,
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow",
+        "email": "trnbongn800",
+        "fullName": "Trần Bảo Ngân"
+      },
+      {
+        "scores": {},
+        "scoresHighlight": {},
+        "no": 37,
+        "studentId": "st-1790394398249-3-srev",
+        "hpHighlightColor": "yellow",
+        "fullName": "Phạm Hoàng Bảo Nam",
+        "hpStatus": "Nợ 5.0tr",
+        "id": "row-st-1790394398249-3-srev",
+        "email": "phmhongbonam782"
+      },
+      {
+        "hpHighlightColor": "yellow",
+        "studentId": "st-1790394398249-4-l93m",
+        "email": "bikhnhchi783",
+        "hpStatus": "Nợ 5.0tr",
+        "no": 38,
+        "scores": {},
+        "fullName": "Bùi Khánh Chi",
+        "id": "row-st-1790394398249-4-l93m",
+        "scoresHighlight": {}
+      },
+      {
+        "scores": {},
+        "hpHighlightColor": "yellow",
+        "id": "row-st-1790394398249-5-hfch",
+        "scoresHighlight": {},
+        "fullName": "Vũ Quốc Minh",
+        "no": 39,
+        "email": "vqucminh784",
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790394398249-5-hfch"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {},
+        "email": "chhlinh785",
+        "id": "row-st-1790394398249-6-ie56",
+        "no": 40,
+        "scoresHighlight": {},
+        "studentId": "st-1790394398249-6-ie56",
+        "fullName": "Chử Hà Linh",
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "hpStatus": "Nợ 5.0tr",
+        "email": "lphnganh786",
+        "no": 41,
+        "scores": {},
+        "studentId": "st-1790394398249-7-xwno",
+        "id": "row-st-1790394398249-7-xwno",
+        "fullName": "Lê Phương Anh",
+        "scoresHighlight": {},
+        "hpHighlightColor": "yellow"
+      },
+      {
+        "no": 42,
+        "fullName": "Phạm Quang Hải Nam",
+        "scores": {},
+        "scoresHighlight": {},
+        "id": "row-st-1790394398249-8-uwxe",
+        "hpStatus": "Nợ 5.0tr",
+        "studentId": "st-1790394398249-8-uwxe",
+        "hpHighlightColor": "yellow",
+        "email": "phmquanghinam787"
+      },
+      {
+        "fullName": "Trần Thị Mỹ Duyên",
+        "email": "trnthmduyn788",
+        "hpHighlightColor": "yellow",
+        "no": 43,
+        "scoresHighlight": {},
+        "studentId": "st-1790394398249-9-5ek3",
+        "id": "row-st-1790394398249-9-5ek3",
+        "hpStatus": "Nợ 5.0tr",
+        "scores": {}
+      }
+    ],
+    "courseTuitionTag": "5.0tr",
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)"
+  },
+  {
+    "id": "sheet-cls-1790505864495",
+    "classBanner": "Bảng điểm Lớp cls-1790505864495",
+    "branch": "Cơ sở 1 - Tô Hiệu",
+    "tagText": "INSPI",
+    "updatedAt": "2026-09-28T11:35:03.117Z",
+    "rows": [
+      {
+        "hpHighlightColor": "default",
+        "fullName": "Dương",
+        "scores": {
+          "col_sess_1_1790595303117": "0"
+        },
+        "id": "row-student-vocab-1790595302107",
+        "studentId": "student-vocab-1790595302107",
+        "scoresHighlight": {
+          "col_sess_1_1790595303117": "default"
+        },
+        "hpStatus": "Đã học",
+        "email": "",
+        "no": 1
+      }
+    ],
+    "courseTuitionTag": "5tr2",
+    "columns": [
+      {
+        "teacherAndDate": "09-28 GV",
+        "lessonLabel": "L1",
+        "date": "2026-09-28",
+        "sessionNumber": 1,
+        "maxScore": 10,
+        "id": "col_sess_1_1790595303117",
+        "subSkill": "Ôn tập"
+      }
+    ],
+    "classId": "cls-1790505864495"
+  }
+]

@@ -25,7 +25,6 @@ import {
   FileSpreadsheet
 } from 'lucide-react';
 import { ModuleId, AuthUser } from '../types';
-import { saveBatchDocuments } from '../lib/firestoreService';
 
 interface ModuleGridProps {
   onSelectModule: (module: ModuleId) => void;
@@ -190,181 +189,9 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({
       )
     : allModules;
 
-  const [isMigrating, setIsMigrating] = React.useState(false);
-  const [migrationResult, setMigrationResult] = React.useState<any>(null);
-  const [showMigrationModal, setShowMigrationModal] = React.useState(false);
-
-  const handleMigrate = async () => {
-    if (!window.confirm('Hệ thống sẽ sao chép tự động toàn bộ danh sách lớp học, học viên, điểm danh và bài test từ cơ sở dữ liệu cũ sang cơ sở dữ liệu gói Blaze không giới hạn. Bạn có chắc chắn muốn thực hiện?')) {
-      return;
-    }
-    setIsMigrating(true);
-    setShowMigrationModal(true);
-    setMigrationResult(null);
-    try {
-      const res = await fetch('/api/migrate-database', { method: 'POST' });
-      const json = await res.json();
-      setMigrationResult(json);
-    } catch (err: any) {
-      setMigrationResult({ success: false, message: err.message || 'Lỗi kết nối máy chủ.' });
-    } finally {
-      setIsMigrating(false);
-    }
-  };
-
-  const [hasCachedData, setHasCachedData] = React.useState(false);
-  const [isRestoring, setIsRestoring] = React.useState(false);
-
-  React.useEffect(() => {
-    try {
-      const cachedClassesRaw = localStorage.getItem('vps_col_classes');
-      const cachedClasses = cachedClassesRaw ? JSON.parse(cachedClassesRaw) : [];
-      if (Array.isArray(cachedClasses) && cachedClasses.length > 0 && stats.activeClasses === 0) {
-        setHasCachedData(true);
-      }
-    } catch (e) {}
-  }, [stats.activeClasses]);
-
-  const handleRestoreFromLocalCache = async () => {
-    if (!window.confirm('Hệ thống phát hiện thiết bị này có lưu bản sao lưu lớp học & học viên. Bạn có đồng ý khôi phục toàn bộ sang cơ sở dữ liệu Blaze không giới hạn?')) {
-      return;
-    }
-    setIsRestoring(true);
-    try {
-      const collections = [
-        'classes',
-        'students',
-        'placementTests',
-        'class_spreadsheets',
-        'transactions',
-        'leads',
-        'teachers',
-        'exams',
-        'vocab_tests',
-        'vocab_reviews',
-        'vocab_test_submissions',
-        'trialStudents',
-        'contactNotes',
-        'inventory',
-        'courses'
-      ];
-      
-      let restoreCount = 0;
-      for (const col of collections) {
-        const cachedRaw = localStorage.getItem(`vps_col_${col}`);
-        if (cachedRaw) {
-          const items = JSON.parse(cachedRaw);
-          if (Array.isArray(items) && items.length > 0) {
-            await saveBatchDocuments(col, items);
-            restoreCount += items.length;
-          }
-        }
-      }
-      
-      alert(`🎉 Khôi phục hoàn tất! Đã khôi phục thành công ${restoreCount} dữ liệu lớp học, học viên lên gói Blaze của bạn!`);
-      window.location.reload();
-    } catch (e: any) {
-      alert('Có lỗi khi khôi phục: ' + e.message);
-    } finally {
-      setIsRestoring(false);
-    }
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       
-      {/* Migration Modal */}
-      {showMigrationModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 text-slate-900">
-            <h3 className="text-lg font-black text-slate-900 flex items-center gap-2 mb-3">
-              <Sparkles className="w-5 h-5 text-purple-600 animate-bounce" />
-              <span>Di Chuyển Dữ Liệu Sang Blaze</span>
-            </h3>
-
-            {isMigrating ? (
-              <div className="space-y-4 py-4 text-center">
-                <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <p className="text-sm font-bold text-slate-800">Đang quét và sao chép dữ liệu...</p>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Hệ thống đang đọc dữ liệu từ database cũ và chuyển thẳng sang cơ sở dữ liệu gói Blaze không giới hạn của bạn. Vui lòng giữ kết nối internet ổn định và không đóng tab này.
-                </p>
-              </div>
-            ) : migrationResult ? (
-              <div className="space-y-4">
-                {migrationResult.totalCopied > 0 ? (
-                  <div className="bg-emerald-50 border border-emerald-200 text-emerald-950 p-4 rounded-2xl text-xs space-y-2 font-medium">
-                    <p className="font-bold text-sm text-emerald-900">🎉 DI CHUYỂN DỮ LIỆU THÀNH CÔNG!</p>
-                    <p>Hệ thống đã sao chép thành công các dữ liệu sau:</p>
-                    <ul className="list-disc list-inside space-y-1 text-slate-700 pl-1">
-                      <li>Lớp học: <strong className="text-slate-900">{migrationResult.results.classes.copied}/{migrationResult.results.classes.found}</strong> lớp</li>
-                      <li>Học viên: <strong className="text-slate-900">{migrationResult.results.students.copied}/{migrationResult.results.students.found}</strong> học viên</li>
-                      <li>Bài test đầu vào: <strong className="text-slate-900">{migrationResult.results.placementTests.copied}/{migrationResult.results.placementTests.found}</strong> bài</li>
-                      <li>Sổ liên lạc / Bảng điểm: <strong className="text-slate-900">{migrationResult.results.class_spreadsheets.copied}/{migrationResult.results.class_spreadsheets.found}</strong> sổ</li>
-                    </ul>
-                    <p className="text-emerald-800 font-bold mt-1">Hệ thống đã tự động kích hoạt cơ sở dữ liệu Blaze vĩnh viễn không giới hạn!</p>
-                  </div>
-                ) : (
-                  <div className="bg-amber-50 border border-amber-200 text-amber-950 p-4 rounded-2xl text-xs space-y-2 leading-relaxed">
-                    <p className="font-bold text-sm text-amber-900">⚠️ DATABASE CŨ ĐANG BỊ KHÓA QUOTA</p>
-                    <p>
-                      Cơ sở dữ liệu cũ của bạn hiện tại vẫn đang bị Google khóa do vượt quá hạn ngạch miễn phí trong ngày (Quota Limit Exceeded). Do đó, hệ thống chưa thể đọc dữ liệu cũ ra để copy sang gói Blaze được.
-                    </p>
-                    <p className="font-bold text-amber-800">
-                      💡 Giải pháp: Vui lòng thử lại nút bấm này vào chiều nay (sau 14h00 theo giờ Việt Nam khi Google tự động Reset hạn ngạch). Khi đó, dữ liệu cũ sẽ lập tức mở khóa và sao chép thành công 100%!
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex justify-end gap-2.5 mt-2">
-                  {migrationResult.totalCopied > 0 ? (
-                    <button
-                      onClick={() => window.location.reload()}
-                      className="px-4 py-2 bg-purple-950 text-white font-bold text-xs rounded-xl hover:bg-purple-900 transition-all cursor-pointer"
-                    >
-                      🔄 Tải Lại Trang Để Áp Dụng
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setShowMigrationModal(false)}
-                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-all cursor-pointer"
-                    >
-                      Đóng
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      )}
-
-      {/* LOCAL BACKUP RECOVERY WARNING */}
-      {hasCachedData && (
-        <div className="bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl text-white p-6 shadow-xl border border-amber-400/20 relative overflow-hidden animate-in fade-in duration-300">
-          <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[11px] font-bold text-white uppercase tracking-wider">
-                <Shield className="w-3.5 h-3.5" />
-                Khôi phục khẩn cấp
-              </span>
-              <h3 className="text-lg font-black text-white">Phát Hiện Bản Sao Lưu Dữ Liệu Lớp Học & Học Viên!</h3>
-              <p className="text-xs text-amber-50 leading-relaxed max-w-2xl">
-                Hệ thống phát hiện trình duyệt của bạn đang lưu bản sao lưu ngoại tuyến đầy đủ của toàn bộ lớp học và học viên (từ trước khi chuyển đổi database). Bạn có thể bấm nút bên phải để tải ngay toàn bộ lên gói dữ liệu Blaze mới tinh này chỉ trong 2 giây!
-              </p>
-            </div>
-            <button
-              onClick={handleRestoreFromLocalCache}
-              disabled={isRestoring}
-              className="px-5 py-3 bg-white text-orange-950 hover:bg-amber-50 font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all active:scale-95 shrink-0 cursor-pointer disabled:opacity-50"
-            >
-              {isRestoring ? 'Đang khôi phục...' : '⚡ Khôi phục ngay lên Blaze'}
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Top Banner / Center Intro */}
       <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-3xl text-white p-6 sm:p-8 shadow-sm relative overflow-hidden">
         <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -389,22 +216,13 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({
 
           <div className="mt-4 flex flex-wrap gap-2.5">
             {isAdmin && (
-              <>
-                <button
-                  onClick={onOpenCreateClass}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>+ Tạo Lớp Học Mới</span>
-                </button>
-                <button
-                  onClick={handleMigrate}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4 text-yellow-200" />
-                  <span>Di chuyển dữ liệu sang Blaze</span>
-                </button>
-              </>
+              <button
+                onClick={onOpenCreateClass}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>+ Tạo Lớp Học Mới</span>
+              </button>
             )}
             <button
               onClick={onOpenLogin}
