@@ -269,6 +269,30 @@ export function subscribeCollection<T extends { id: string }>(
     initialData &&
     initialData.length > 0
   ) {
+    const initialMap = new Map(initialData.map((p) => [p.id, p]));
+    // Upgrade any dummy/placeholder items in initialItems with full question sets from initialData
+    initialItems = initialItems.map((rawItem: T) => {
+      const item = rawItem as any;
+      const preset = initialMap.get(item.id) as any;
+      if (
+        preset &&
+        Array.isArray(preset.questions) &&
+        preset.questions.length > 0 &&
+        (!Array.isArray(item.questions) || preset.questions.length > item.questions.length)
+      ) {
+        return {
+          ...item,
+          title: preset.title || item.title,
+          unitName: preset.unitName || item.unitName,
+          courseLevel: preset.courseLevel || item.courseLevel,
+          timePerQuestionSeconds: preset.timePerQuestionSeconds || item.timePerQuestionSeconds,
+          questions: preset.questions,
+          submissions: item.submissions || preset.submissions || [],
+        } as unknown as T;
+      }
+      return rawItem;
+    });
+
     const existingIds = new Set(initialItems.map((i) => i.id));
     const missing = initialData.filter((p) => !existingIds.has(p.id) && !isRecordDeleted(p.id, collectionName));
     if (missing.length > 0) {
@@ -306,6 +330,44 @@ export function subscribeCollection<T extends { id: string }>(
                 id: d.id,
                 ...d.data(),
               })) as T[];
+
+            // Ensure full questions from presets are not downgraded by stale/empty Firestore docs
+            if (
+              (collectionName === 'vocab_tests' || collectionName === 'vocab_reviews') &&
+              initialData &&
+              initialData.length > 0
+            ) {
+              const initialMap = new Map(initialData.map((p) => [p.id, p]));
+              firestoreItems = firestoreItems.map((rawItem: T) => {
+                const item = rawItem as any;
+                const preset = initialMap.get(item.id) as any;
+                if (
+                  preset &&
+                  Array.isArray(preset.questions) &&
+                  preset.questions.length > 0 &&
+                  (!Array.isArray(item.questions) || preset.questions.length > item.questions.length)
+                ) {
+                  return {
+                    ...item,
+                    title: preset.title || item.title,
+                    unitName: preset.unitName || item.unitName,
+                    courseLevel: preset.courseLevel || item.courseLevel,
+                    timePerQuestionSeconds: preset.timePerQuestionSeconds || item.timePerQuestionSeconds,
+                    questions: preset.questions,
+                    submissions: item.submissions || preset.submissions || [],
+                  } as unknown as T;
+                }
+                return rawItem;
+              });
+
+              const existingFsIds = new Set(firestoreItems.map((i: any) => i.id));
+              const missingPresets = initialData.filter(
+                (p) => !existingFsIds.has(p.id) && !isRecordDeleted(p.id, collectionName)
+              );
+              if (missingPresets.length > 0) {
+                firestoreItems = [...firestoreItems, ...missingPresets];
+              }
+            }
 
             cachedCollections.set(collectionName, firestoreItems);
             try {
@@ -480,6 +542,17 @@ export async function fetchDocument<T>(
   } catch (err) {
     console.warn(`[Firebase Firestore] fetchDocument error for ${collectionName}/${id}:`, err);
   }
+
+  // 1. Check VPS server storage endpoint for instant recovery
+  try {
+    const res = await fetch(`/api/storage/${encodeURIComponent(collectionName)}/${encodeURIComponent(id)}?_t=${Date.now()}`, {
+      headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json?.data) return json.data as T;
+    }
+  } catch (e) {}
 
   const list = cachedCollections.get(collectionName) || [];
   const found = list.find((item) => String(item.id) === String(id));

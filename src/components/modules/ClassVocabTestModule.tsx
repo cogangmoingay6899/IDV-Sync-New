@@ -32,6 +32,7 @@ import {
   Image as ImageIcon,
   QrCode,
   Download,
+  Loader2,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { VocabTest, VocabTestSubmission, VocabQuestion, ClassGroup, Student, ExamScore, AttendanceRecord, AuthUser } from '../../types';
@@ -45,6 +46,25 @@ import {
   getReviewTestShareUrl,
   getReviewZaloShareMessage,
 } from '../../utils/placementLink';
+import { KNOWN_CUSTOM_VOCAB_TESTS, KNOWN_CUSTOM_REVIEW_TESTS } from '../../data/customVocabTests';
+
+// Helper to check if a test has only placeholder/dummy questions
+export const isPlaceholderDummyTest = (test: VocabTest | null | undefined): boolean => {
+  if (!test || !Array.isArray(test.questions) || test.questions.length === 0) return true;
+  if (
+    test.questions.length <= 3 &&
+    test.questions.some(
+      (q) =>
+        q.word?.includes('Target Word') ||
+        q.word?.includes('Review Question') ||
+        q.meaning?.includes('Nghĩa tiếng Việt chuẩn') ||
+        q.meaning?.includes('Đáp án ôn tập kiến thức chuẩn')
+    )
+  ) {
+    return true;
+  }
+  return false;
+};
 
 // Preset Initial Vocab Tests: Pre-create 31 lessons for each of the 4 courses (Khóa 1, 2, 3, 4) with unique links & anti-cheat
 const COURSE_CONFIGS = [
@@ -91,7 +111,11 @@ COURSE_CONFIGS.forEach(course => {
       }
     ];
 
-    if (lessonNum === 1 && course.prefix === 'k1') {
+    // Priority 1: Check known custom tests entered by teachers
+    const customTest = KNOWN_CUSTOM_VOCAB_TESTS[testId];
+    if (customTest && Array.isArray(customTest.questions) && customTest.questions.length > 0) {
+      sampleQuestions = customTest.questions as VocabQuestion[];
+    } else if (lessonNum === 1 && course.prefix === 'k1') {
       sampleQuestions = [
         {
           id: 'vt-k1-01-q1',
@@ -138,10 +162,10 @@ COURSE_CONFIGS.forEach(course => {
 
     generatedTests.push({
       id: testId,
-      title: `Test Từ Vựng Bài ${lessonNum} - ${course.level}`,
-      courseLevel: course.level as any,
-      unitName: `Bài ${lessonNum}`,
-      timePerQuestionSeconds: 20,
+      title: customTest?.title || `Test Từ Vựng Bài ${lessonNum} - ${course.level}`,
+      courseLevel: (customTest?.courseLevel || course.level) as any,
+      unitName: customTest?.unitName || `Bài ${lessonNum}`,
+      timePerQuestionSeconds: customTest?.timePerQuestionSeconds || 20,
       createdDate: '2026-09-10',
       isActive: true,
       questions: sampleQuestions,
@@ -197,12 +221,17 @@ REVIEW_COURSE_CONFIGS.forEach(course => {
       }
     ];
 
+    const customReview = KNOWN_CUSTOM_REVIEW_TESTS[testId];
+    if (customReview && Array.isArray(customReview.questions) && customReview.questions.length > 0) {
+      sampleQuestions = customReview.questions as VocabQuestion[];
+    }
+
     generatedReviewTests.push({
       id: testId,
-      title: `Test Ôn Tập Bài ${lessonNum} - ${course.level}`,
-      courseLevel: course.level as any,
-      unitName: `Bài ${lessonNum}`,
-      timePerQuestionSeconds: 20,
+      title: customReview?.title || `Test Ôn Tập Bài ${lessonNum} - ${course.level}`,
+      courseLevel: (customReview?.courseLevel || course.level) as any,
+      unitName: customReview?.unitName || `Bài ${lessonNum}`,
+      timePerQuestionSeconds: customReview?.timePerQuestionSeconds || 20,
       createdDate: '2026-09-10',
       isActive: true,
       questions: sampleQuestions,
@@ -379,7 +408,14 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
   // Runner state (when taking test)
   const [runnerStudentName, setRunnerStudentName] = useState('');
-  const [runnerClassName, setRunnerClassName] = useState(classGroup?.name || '');
+  const [runnerClassName, setRunnerClassName] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      const c = p.get('class') || p.get('className') || p.get('lop') || p.get('classCode');
+      if (c && c.trim()) return c.trim();
+    }
+    return classGroup?.name || '';
+  });
   const [runnerStudentPhone, setRunnerStudentPhone] = useState('');
   const [runnerStarted, setRunnerStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -539,20 +575,44 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
   const handleStartRunner = (test: VocabTest, forceRestart: boolean = false) => {
     if (!test) return;
 
-    // Ensure questions and submissions are safe arrays
-    const safeQuestions = Array.isArray(test.questions) ? test.questions : [];
+    // Check if test has dummy questions and if real questions are available in known custom tests
+    let questionsToUse = Array.isArray(test.questions) ? test.questions : [];
+    const customTestMatch = KNOWN_CUSTOM_VOCAB_TESTS[test.id] || KNOWN_CUSTOM_REVIEW_TESTS[test.id];
+    if (
+      customTestMatch &&
+      Array.isArray(customTestMatch.questions) &&
+      customTestMatch.questions.length > questionsToUse.length
+    ) {
+      questionsToUse = customTestMatch.questions as VocabQuestion[];
+    }
+
+    const safeQuestions = questionsToUse;
     const safeTest: VocabTest = {
       ...test,
+      title: customTestMatch?.title || test.title,
+      unitName: customTestMatch?.unitName || test.unitName,
+      courseLevel: (customTestMatch?.courseLevel || test.courseLevel) as any,
+      timePerQuestionSeconds: customTestMatch?.timePerQuestionSeconds || test.timePerQuestionSeconds || 20,
       questions: safeQuestions,
       submissions: Array.isArray(test.submissions) ? test.submissions : [],
     };
 
     // Prevent retaking test if in student portal mode or if already completed in session
     const isAlreadyCompleted = sessionStorage.getItem(`idv_completed_test_${safeTest.id}`) === 'true';
-    if (isStudentPortalMode && isAlreadyCompleted) {
-      setIsExited(true);
-      showToast('🔒 Bạn đã hoàn thành bài test này rồi và không thể làm lại!');
-      return;
+    const completedQCount = Number(sessionStorage.getItem(`idv_completed_qcount_${safeTest.id}`) || '0');
+
+    // CRITICAL FIX: If student previously completed a dummy test (e.g. <=3 questions), but the real test has now loaded (>3 questions), allow retake!
+    if (isStudentPortalMode && isAlreadyCompleted && !forceRestart) {
+      if (completedQCount > 0 && completedQCount <= 3 && safeQuestions.length > 3) {
+        sessionStorage.removeItem(`idv_completed_test_${safeTest.id}`);
+        sessionStorage.removeItem(`idv_completed_qcount_${safeTest.id}`);
+        sessionStorage.removeItem(`idv_active_test_${safeTest.id}`);
+        showToast(`💡 Đã tải bộ đề thi chính thức (${safeQuestions.length} câu). Mời em làm bài!`);
+      } else {
+        setIsExited(true);
+        showToast('🔒 Bạn đã hoàn thành bài test này rồi và không thể làm lại!');
+        return;
+      }
     }
 
     // Close any other open modals to prevent overlay blocking
@@ -563,6 +623,10 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
     // If the student is already actively doing THIS test, DO NOT RESET THEM!
     if (!forceRestart && activeRunnerTest?.id === safeTest.id && runnerStarted && !testCompletedSubmission) {
+      // However, if the active runner had dummy questions and the new test has real questions, upgrade questions seamlessly
+      if (isPlaceholderDummyTest(activeRunnerTest) && !isPlaceholderDummyTest(safeTest)) {
+        setActiveRunnerTest((prev) => (prev ? { ...prev, questions: safeQuestions } : safeTest));
+      }
       setIsExited(false);
       return;
     }
@@ -575,12 +639,24 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       if (raw) savedSession = JSON.parse(raw);
     } catch (e) {}
 
+    // Discard saved session if it had <= 3 dummy questions and we now have > 3 real questions
+    if (savedSession && ((savedSession.totalQuestions || 0) <= 3 && safeQuestions.length > 3)) {
+      sessionStorage.removeItem(sessionKey);
+      savedSession = null;
+    }
+
+    const classFromUrl = typeof window !== 'undefined'
+      ? (new URLSearchParams(window.location.search).get('class') ||
+         new URLSearchParams(window.location.search).get('className') ||
+         new URLSearchParams(window.location.search).get('lop') || '')
+      : '';
+
     if (savedSession && savedSession.runnerStarted && !savedSession.completed && !forceRestart) {
       setIsExited(false);
       setActiveRunnerTest(safeTest);
       setSelectedCourseLevel(safeTest.courseLevel);
       setRunnerStudentName(savedSession.studentName || '');
-      setRunnerClassName(savedSession.className || (classGroup ? classGroup.name : ''));
+      setRunnerClassName(savedSession.className || classFromUrl || (classGroup ? classGroup.name : ''));
       setRunnerStudentPhone(savedSession.studentPhone || '');
       setRunnerStarted(true);
       setCurrentQuestionIndex(savedSession.currentQuestionIndex || 0);
@@ -609,7 +685,7 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
     setActiveRunnerTest(safeTest);
     setSelectedCourseLevel(safeTest.courseLevel);
     setRunnerStudentName('');
-    setRunnerClassName(classGroup ? classGroup.name : '');
+    setRunnerClassName(classFromUrl || (classGroup ? classGroup.name : ''));
     setRunnerStudentPhone('');
     setRunnerStarted(false);
     setCurrentQuestionIndex(0);
@@ -629,77 +705,240 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
     setQuestionTimeLeft(firstLimit);
   };
 
+  // Dedicated Target Test Direct Loader: Guarantees full real questions are fetched from VPS server & Firestore
+  const [isLoadingTargetTest, setIsLoadingTargetTest] = useState<boolean>(() => {
+    return Boolean(initialVocabTestId || initialReviewTestId);
+  });
+
+  useEffect(() => {
+    const rawTargetId = initialVocabTestId || initialReviewTestId;
+    if (!rawTargetId) return;
+
+    let isMounted = true;
+    const isReview = Boolean(initialReviewTestId);
+    const colName = isReview ? 'vocab_reviews' : 'vocab_tests';
+    const targetId = rawTargetId.trim();
+
+    const loadTargetTestDirectly = async () => {
+      try {
+        // Priority 0: Instant check against known custom tests in bundle memory (< 1ms)
+        const staticCustom = isReview ? KNOWN_CUSTOM_REVIEW_TESTS[targetId] : KNOWN_CUSTOM_VOCAB_TESTS[targetId];
+        if (staticCustom && Array.isArray(staticCustom.questions) && staticCustom.questions.length > 0) {
+          const safeStatic = sanitizeVocabTest(staticCustom as VocabTest);
+          if (isMounted) {
+            if (isReview) {
+              setReviewTests((prev) => [safeStatic, ...prev.filter((t) => t.id !== safeStatic.id)]);
+            } else {
+              setTests((prev) => [safeStatic, ...prev.filter((t) => t.id !== safeStatic.id)]);
+            }
+            setActiveRunnerTest(safeStatic);
+            setIsLoadingTargetTest(false);
+            // Ensure dual-persisted to Firestore & VPS server
+            saveDocument(colName, safeStatic).catch(() => {});
+          }
+        }
+
+        // Priority 1: Check local VPS endpoint directly (ultra fast <10ms, has full questions)
+        const vpsRes = await fetch(`/api/storage/${colName}/${encodeURIComponent(targetId)}?_t=${Date.now()}`).catch(() => null);
+        if (vpsRes && vpsRes.ok) {
+          const vpsJson = await vpsRes.json();
+          if (vpsJson?.data?.questions && vpsJson.data.questions.length > 0) {
+            if (isMounted) {
+              const safe = sanitizeVocabTest(vpsJson.data);
+              if (!isPlaceholderDummyTest(safe) || !activeRunnerTest || isPlaceholderDummyTest(activeRunnerTest)) {
+                if (isReview) {
+                  setReviewTests((prev) => [safe, ...prev.filter((t) => t.id !== safe.id)]);
+                } else {
+                  setTests((prev) => [safe, ...prev.filter((t) => t.id !== safe.id)]);
+                }
+                setActiveRunnerTest((prev) => {
+                  if (!prev || isPlaceholderDummyTest(prev) || safe.questions.length >= prev.questions.length) {
+                    return safe;
+                  }
+                  return prev;
+                });
+                if (!isPlaceholderDummyTest(safe)) {
+                  setIsLoadingTargetTest(false);
+                  return;
+                }
+              }
+            }
+          }
+        }
+
+        // Priority 2: Try Firestore fetchDocument
+        const firestoreTest = await fetchDocument<VocabTest>(colName, targetId).catch(() => null);
+        if (firestoreTest && firestoreTest.questions && firestoreTest.questions.length > 0) {
+          if (isMounted) {
+            const safe = sanitizeVocabTest(firestoreTest);
+            if (!isPlaceholderDummyTest(safe) || !activeRunnerTest || isPlaceholderDummyTest(activeRunnerTest)) {
+              if (isReview) {
+                setReviewTests((prev) => [safe, ...prev.filter((t) => t.id !== safe.id)]);
+              } else {
+                setTests((prev) => [safe, ...prev.filter((t) => t.id !== safe.id)]);
+              }
+              setActiveRunnerTest((prev) => {
+                if (!prev || isPlaceholderDummyTest(prev) || safe.questions.length >= prev.questions.length) {
+                  return safe;
+                }
+                return prev;
+              });
+              if (!isPlaceholderDummyTest(safe)) {
+                setIsLoadingTargetTest(false);
+                return;
+              }
+            }
+          }
+        }
+
+        // Priority 3: Fuzzy match by course level and lesson number from Firestore collection
+        const colList = await fetchCollection<VocabTest>(colName).catch(() => []);
+        if (isMounted && Array.isArray(colList) && colList.length > 0) {
+          const clean = targetId.toLowerCase();
+          const targetLessonMatch = clean.match(/(\d+)/);
+          const targetLesson = targetLessonMatch ? parseInt(targetLessonMatch[1], 10) : 0;
+
+          let coursePrefix: 'Khóa 1' | 'Khóa 2' | 'Khóa 3' | 'Khóa 4' = 'Khóa 1';
+          if (clean.includes('k2') || clean.includes('khoa-2') || clean.includes('khóa 2')) coursePrefix = 'Khóa 2';
+          else if (clean.includes('k3') || clean.includes('khoa-3') || clean.includes('khóa 3')) coursePrefix = 'Khóa 3';
+          else if (clean.includes('k4') || clean.includes('khoa-4') || clean.includes('khóa 4')) coursePrefix = 'Khóa 4';
+
+          const matchingDoc = colList.find((item) => {
+            if (item.courseLevel !== coursePrefix) return false;
+            return extractLessonNumber(item) === targetLesson;
+          });
+
+          if (matchingDoc && matchingDoc.questions && matchingDoc.questions.length > 0 && !isPlaceholderDummyTest(matchingDoc)) {
+            const safe = sanitizeVocabTest(matchingDoc);
+            if (isReview) {
+              setReviewTests((prev) => [safe, ...prev.filter((t) => t.id !== safe.id)]);
+            } else {
+              setTests((prev) => [safe, ...prev.filter((t) => t.id !== safe.id)]);
+            }
+            setActiveRunnerTest(safe);
+            setIsLoadingTargetTest(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Error loading target test directly:', err);
+      } finally {
+        if (isMounted) setIsLoadingTargetTest(false);
+      }
+    };
+
+    loadTargetTestDirectly();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialVocabTestId, initialReviewTestId]);
+
   // Auto-launch test if initialVocabTestId is passed from URL
   useEffect(() => {
     if (!initialVocabTestId || tests.length === 0) return;
 
     setActiveTestType('vocab');
+    const cleanId = initialVocabTestId.trim().toLowerCase();
     let found = tests.find(
-      (t) => t.id === initialVocabTestId || t.id.toLowerCase() === initialVocabTestId.toLowerCase()
+      (t) => t.id === initialVocabTestId || t.id.toLowerCase() === cleanId
     );
 
+    // If not found by exact ID, search intelligently by course level & lesson number
     if (!found) {
-      const cleanId = initialVocabTestId.toLowerCase();
+      const lessonMatch = cleanId.match(/(\d+)/);
+      const targetLessonNum = lessonMatch ? parseInt(lessonMatch[1], 10) : 0;
+
+      let targetCourse: 'Khóa 1' | 'Khóa 2' | 'Khóa 3' | 'Khóa 4' = 'Khóa 1';
       if (cleanId.includes('k2') || cleanId.includes('khoa-2') || cleanId.includes('khóa 2')) {
-        found = tests.find((t) => t.courseLevel === 'Khóa 2');
+        targetCourse = 'Khóa 2';
       } else if (cleanId.includes('k3') || cleanId.includes('khoa-3') || cleanId.includes('khóa 3')) {
-        found = tests.find((t) => t.courseLevel === 'Khóa 3');
+        targetCourse = 'Khóa 3';
       } else if (cleanId.includes('k4') || cleanId.includes('khoa-4') || cleanId.includes('khóa 4')) {
-        found = tests.find((t) => t.courseLevel === 'Khóa 4');
-      } else {
-        found = tests.find((t) => t.courseLevel === 'Khóa 1') || tests[0];
+        targetCourse = 'Khóa 4';
+      }
+
+      if (targetLessonNum > 0) {
+        found = tests.find(
+          (t) => t.courseLevel === targetCourse && extractLessonNumber(t) === targetLessonNum
+        );
+      }
+      if (!found) {
+        found = tests.find((t) => t.courseLevel === targetCourse);
       }
     }
 
     if (found) {
+      // If found test has dummy questions and isLoadingTargetTest is still true, wait for real questions
+      if (isPlaceholderDummyTest(found) && isLoadingTargetTest) {
+        return;
+      }
+
       const foundQLen = (found.questions || []).length;
       const activeQLen = (activeRunnerTest?.questions || []).length;
       if (
         !activeRunnerTest ||
         activeRunnerTest.id.toLowerCase() !== found.id.toLowerCase() ||
-        (!runnerStarted && activeQLen !== foundQLen)
+        (!runnerStarted && activeQLen !== foundQLen) ||
+        (isPlaceholderDummyTest(activeRunnerTest) && !isPlaceholderDummyTest(found))
       ) {
         autoLaunchedVocabIdRef.current = initialVocabTestId;
         handleStartRunner(found);
       }
     }
-  }, [initialVocabTestId, tests, runnerStarted]);
+  }, [initialVocabTestId, tests, runnerStarted, isLoadingTargetTest]);
 
   // Auto-launch test if initialReviewTestId is passed from URL
   useEffect(() => {
     if (!initialReviewTestId || reviewTests.length === 0) return;
 
     setActiveTestType('review');
+    const cleanId = initialReviewTestId.trim().toLowerCase();
     let found = reviewTests.find(
-      (t) => t.id === initialReviewTestId || t.id.toLowerCase() === initialReviewTestId.toLowerCase()
+      (t) => t.id === initialReviewTestId || t.id.toLowerCase() === cleanId
     );
 
     if (!found) {
-      const cleanId = initialReviewTestId.toLowerCase();
+      const lessonMatch = cleanId.match(/(\d+)/);
+      const targetLessonNum = lessonMatch ? parseInt(lessonMatch[1], 10) : 0;
+
+      let targetCourse: 'Khóa 1' | 'Khóa 2' | 'Khóa 3' | 'Khóa 4' = 'Khóa 1';
       if (cleanId.includes('k2') || cleanId.includes('khoa-2') || cleanId.includes('khóa 2')) {
-        found = reviewTests.find((t) => t.courseLevel === 'Khóa 2');
+        targetCourse = 'Khóa 2';
       } else if (cleanId.includes('k3') || cleanId.includes('khoa-3') || cleanId.includes('khóa 3')) {
-        found = reviewTests.find((t) => t.courseLevel === 'Khóa 3');
+        targetCourse = 'Khóa 3';
       } else if (cleanId.includes('k4') || cleanId.includes('khoa-4') || cleanId.includes('khóa 4')) {
-        found = reviewTests.find((t) => t.courseLevel === 'Khóa 4');
-      } else {
-        found = reviewTests.find((t) => t.courseLevel === 'Khóa 1') || reviewTests[0];
+        targetCourse = 'Khóa 4';
+      }
+
+      if (targetLessonNum > 0) {
+        found = reviewTests.find(
+          (t) => t.courseLevel === targetCourse && extractLessonNumber(t) === targetLessonNum
+        );
+      }
+      if (!found) {
+        found = reviewTests.find((t) => t.courseLevel === targetCourse);
       }
     }
 
     if (found) {
+      if (isPlaceholderDummyTest(found) && isLoadingTargetTest) {
+        return;
+      }
+
       const foundQLen = (found.questions || []).length;
       const activeQLen = (activeRunnerTest?.questions || []).length;
       if (
         !activeRunnerTest ||
         activeRunnerTest.id.toLowerCase() !== found.id.toLowerCase() ||
-        (!runnerStarted && activeQLen !== foundQLen)
+        (!runnerStarted && activeQLen !== foundQLen) ||
+        (isPlaceholderDummyTest(activeRunnerTest) && !isPlaceholderDummyTest(found))
       ) {
         autoLaunchedReviewIdRef.current = initialReviewTestId;
         handleStartRunner(found);
       }
     }
-  }, [initialReviewTestId, reviewTests, runnerStarted]);
+  }, [initialReviewTestId, reviewTests, runnerStarted, isLoadingTargetTest]);
 
   // Initialize default questions when opening create modal if empty
   useEffect(() => {
@@ -821,10 +1060,11 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
   // Helper to generate full share link
   const getTestShareUrl = (testId: string) => {
+    const classHint = classGroup ? (classGroup.name.replace(/[^0-9]/g, '') || classGroup.name) : undefined;
     if (activeTestType === 'review') {
-      return getReviewTestShareUrl(testId, publicBaseUrl);
+      return getReviewTestShareUrl(testId, publicBaseUrl, classHint);
     }
-    return getVocabTestShareUrl(testId, publicBaseUrl);
+    return getVocabTestShareUrl(testId, publicBaseUrl, classHint);
   };
 
   const handleCopyTestLink = (test: VocabTest, format: 'url' | 'zalo' | 'simple' = 'zalo') => {
@@ -1503,13 +1743,49 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
     }
   };
 
+  if (
+    isStudentPortalMode &&
+    !isExited &&
+    (isLoadingTargetTest || !activeRunnerTest || isPlaceholderDummyTest(activeRunnerTest))
+  ) {
+    const rawTargetId = initialVocabTestId || initialReviewTestId || '';
+    return (
+      <div className="max-w-md mx-auto my-6 sm:my-12 p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 text-center space-y-5 shadow-xl animate-in fade-in zoom-in-95 w-full">
+        <div className="w-16 h-16 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center mx-auto shadow-inner border-2 border-purple-200">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+        </div>
+        <div className="space-y-2">
+          <span className="px-3 py-1 rounded-full text-[10px] font-black bg-purple-100 text-purple-900 border border-purple-200 uppercase tracking-wider">
+            IELTS DƯƠNG VŨ • BÀI KIỂM TRA CHÍNH THỨC
+          </span>
+          <h2 className="text-lg sm:text-xl font-black text-slate-900">
+            Đang tải bộ câu hỏi thi chính thức...
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+            Hệ thống đang đồng bộ toàn bộ bộ câu hỏi từ máy chủ. Vui lòng giữ màn hình trong giây lát...
+          </p>
+        </div>
+        <div className="p-3 bg-purple-50 rounded-2xl border border-purple-100 text-xs font-bold text-purple-900 flex items-center justify-center gap-2">
+          <ShieldAlert className="w-4 h-4 text-purple-700 shrink-0" />
+          <span>Mã bài test: {rawTargetId}</span>
+        </div>
+      </div>
+    );
+  }
+
   if (isStudentPortalMode && (isExited || !activeRunnerTest)) {
     const isReview = Boolean(initialReviewTestId);
-    const targetTest = isReview
-      ? (initialReviewTestId && reviewTests.find((t) => t.id.toLowerCase() === initialReviewTestId.toLowerCase())) ||
+    const targetId = (initialReviewTestId || initialVocabTestId || '').toLowerCase();
+    const lessonMatch = targetId.match(/(\d+)/);
+    const targetLessonNum = lessonMatch ? parseInt(lessonMatch[1], 10) : 0;
+
+    let targetTest = isReview
+      ? (initialReviewTestId && reviewTests.find((t) => t.id.toLowerCase() === targetId)) ||
+        (targetLessonNum > 0 && reviewTests.find((t) => extractLessonNumber(t) === targetLessonNum)) ||
         reviewTests.find((t) => t.courseLevel === selectedCourseLevel) ||
         reviewTests[0]
-      : (initialVocabTestId && tests.find((t) => t.id.toLowerCase() === initialVocabTestId.toLowerCase())) ||
+      : (initialVocabTestId && tests.find((t) => t.id.toLowerCase() === targetId)) ||
+        (targetLessonNum > 0 && tests.find((t) => extractLessonNumber(t) === targetLessonNum)) ||
         tests.find((t) => t.courseLevel === selectedCourseLevel) ||
         tests[0];
 
@@ -1916,7 +2192,13 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
                         <button
                           type="button"
-                          onClick={() => setQrModalTest(test)}
+                          onClick={() => {
+                            const custom = activeTestType === 'review' ? KNOWN_CUSTOM_REVIEW_TESTS[test.id] : KNOWN_CUSTOM_VOCAB_TESTS[test.id];
+                            const fullTest = custom && Array.isArray(custom.questions) && custom.questions.length > test.questions.length
+                              ? { ...test, ...custom, questions: custom.questions as VocabQuestion[] }
+                              : test;
+                            setQrModalTest(fullTest);
+                          }}
                           className="flex-1 py-2 px-3.5 bg-amber-500 hover:bg-amber-600 text-purple-950 font-black text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95 whitespace-nowrap cursor-pointer"
                           title="Xem & Tải mã QR để gửi học sinh quét camera làm bài ngay"
                         >

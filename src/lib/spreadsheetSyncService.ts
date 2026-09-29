@@ -1,5 +1,6 @@
 import { saveDocument, fetchDocument, fetchCollection } from './firestoreService';
-import { AttendanceRecord, ClassSpreadsheetData, SpreadsheetStudentRow, SpreadsheetColumn } from '../types';
+import { AttendanceRecord } from '../types';
+import { ClassSpreadsheetData, SpreadsheetStudentRow, SpreadsheetLessonColumn as SpreadsheetColumn } from '../components/modules/ClassSpreadsheetGradebookModule';
 
 /**
  * Automatically syncs attendance & lesson scores directly into the class spreadsheet
@@ -46,7 +47,7 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
     sheet = {
       id: `sheet-${classId}`,
       classId: classId,
-      classBanner: `Bảng điểm Lớp ${sample.className || classId}`,
+      classBanner: `Bảng điểm Lớp ${(sample as any).className || classId}`,
       tagText: 'INSPI',
       courseTuitionTag: '5tr2',
       branch: 'Cơ sở 1 - Tô Hiệu',

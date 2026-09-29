@@ -41,9 +41,22 @@ export function getPlacementTestHashUrl(customBase?: string): string {
   return `${base}/#test-online`;
 }
 
-export function getVocabTestShareUrl(testId: string, customBase?: string): string {
+export function getVocabTestShareUrl(testId: string, customBase?: string, classHint?: string): string {
   const base = customBase || getPublicBaseUrl();
-  return `${base}/?vocabTestId=${encodeURIComponent(testId)}`;
+  let url = `${base}/?vocabTestId=${encodeURIComponent(testId)}`;
+  if (classHint && classHint.trim()) {
+    url += `&class=${encodeURIComponent(classHint.trim())}`;
+  }
+  return url;
+}
+
+export function getReviewTestShareUrl(testId: string, customBase?: string, classHint?: string): string {
+  const base = customBase || getPublicBaseUrl();
+  let url = `${base}/?reviewTestId=${encodeURIComponent(testId)}`;
+  if (classHint && classHint.trim()) {
+    url += `&class=${encodeURIComponent(classHint.trim())}`;
+  }
+  return url;
 }
 
 export function getZaloShareMessage(testUrl: string): string {
@@ -73,11 +86,6 @@ export function getVocabZaloShareMessage(testTitle: string, courseLevel: string,
 4. Điểm số bài làm sẽ được LƯU TỰ ĐỘNG VÀO BẢNG XẾP HẠNG của lớp.
 
 ✨ Link chính thức xác thực từ Trung tâm IELTS Dương Vũ. Chúc các em làm bài thật tốt!`;
-}
-
-export function getReviewTestShareUrl(testId: string, customBase?: string): string {
-  const base = customBase || getPublicBaseUrl();
-  return `${base}/?reviewTestId=${encodeURIComponent(testId)}`;
 }
 
 export function getReviewZaloShareMessage(testTitle: string, courseLevel: string, unitName: string, testUrl: string, timePerQ = 20): string {

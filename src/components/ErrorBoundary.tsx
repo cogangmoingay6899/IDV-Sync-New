@@ -12,10 +12,16 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-  };
+  public state: State;
+  public props: Props;
+  constructor(props: Props) {
+    super(props);
+    this.props = props;
+    this.state = {
+      hasError: false,
+      error: null,
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
@@ -49,7 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <button
               type="button"
               onClick={() => {
-                this.setState({ hasError: false, error: null });
+                (this as any).setState({ hasError: false, error: null });
                 window.location.reload();
               }}
               className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
