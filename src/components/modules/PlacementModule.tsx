@@ -142,6 +142,24 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
     if (onSyncFromCloud) {
       onSyncFromCloud().catch(() => {});
     }
+
+    // Load shared Google Sheet & Webhook config from server
+    fetch('/api/placement-config')
+      .then((res) => res.json())
+      .then((cfg) => {
+        if (cfg) {
+          if (cfg.googleSheetUrl) {
+            setGoogleSheetUrl(cfg.googleSheetUrl);
+            setTempGoogleSheetUrl(cfg.googleSheetUrl);
+            localStorage.setItem('ielts_placement_sheet_url', cfg.googleSheetUrl);
+          }
+          if (cfg.webhookUrl) {
+            setWebhookUrl(cfg.webhookUrl);
+            localStorage.setItem('ielts_placement_webhook_url', cfg.webhookUrl);
+          }
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Manual Test Result Modal
@@ -724,6 +742,11 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
     localStorage.setItem('ielts_placement_sheet_url', trimmed);
     setShowGoogleSheetModal(false);
     showToast('Đã lưu link liên kết Google Sheet thành công!');
+    fetch('/api/placement-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ googleSheetUrl: trimmed, webhookUrl }),
+    }).catch(() => {});
   };
 
   const handleOpenGoogleSheet = () => {
@@ -801,6 +824,7 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
   };
 
   const [isSyncingWebhook, setIsSyncingWebhook] = useState<boolean>(false);
+  const [syncingSingleId, setSyncingSingleId] = useState<string | null>(null);
   const [syncedIds, setSyncedIds] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem('idv_synced_to_sheet_test_ids') || '[]');
@@ -809,18 +833,70 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
     }
   });
 
-  // Calculate new/unsynced tests recorded by the system
-  const unsyncedTests = placementTests.filter((t) => !syncedIds.includes(t.id));
+  // Calculate new/unsynced tests recorded by the system (ignoring metadata items)
+  const validPlacementTests = placementTests.filter(
+    (t) => t && t.id && !String(t.id).startsWith('meta_') && Boolean(t.candidateName)
+  );
+  const unsyncedTests = validPlacementTests.filter((t) => !syncedIds.includes(t.id));
+
+  // Sync a single student's test to Google Sheet
+  const handleSyncSingleTestToWebhook = async (test: PlacementTest) => {
+    if (!test || !test.id) return;
+    const targetWebhook = webhookUrl.trim() || 'https://script.google.com/macros/s/AKfycbyR_WM6kpyQZmdODOT8Z0okH0YSFDdqi_yJZ8riYOcVOx7bXeAayesEdIMWzoLsVj-J/exec';
+    setSyncingSingleId(test.id);
+    showToast(`⏳ Đang đẩy kết quả bài test "${test.candidateName}" sang Google Sheet (Sheet New)...`);
+
+    try {
+      const rowData = extractTestRowValues(test, 0);
+      const payload = JSON.stringify({
+        headers: PLACEMENT_SHEET_COLUMNS,
+        row: rowData,
+        test,
+        candidateName: test.candidateName,
+        phone: test.phone,
+        submittedAt: test.submittedAt || test.testDate || new Date().toISOString(),
+      });
+
+      // 1. Direct fetch
+      await fetch(targetWebhook, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: payload,
+      }).catch(() => {});
+
+      // 2. Server proxy sync
+      await fetch('/api/sync-placement-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          webhookUrl: targetWebhook,
+          tests: [test],
+        }),
+      }).catch(() => {});
+
+      const updatedSynced = Array.from(new Set([...syncedIds, test.id]));
+      setSyncedIds(updatedSynced);
+      localStorage.setItem('idv_synced_to_sheet_test_ids', JSON.stringify(updatedSynced));
+
+      showToast(`✅ Đã đồng bộ bài test của học sinh "${test.candidateName}" sang Google Sheet thành công!`);
+    } catch (e: any) {
+      console.error('Error syncing single test:', e);
+      showToast('⚠️ Lỗi khi đồng bộ: ' + (e?.message || 'Vui lòng thử lại'));
+    } finally {
+      setSyncingSingleId(null);
+    }
+  };
 
   const handleSyncToWebhook = async (mode: 'newest' | 'all' = 'newest') => {
     const targetWebhook = webhookUrl.trim() || 'https://script.google.com/macros/s/AKfycbyR_WM6kpyQZmdODOT8Z0okH0YSFDdqi_yJZ8riYOcVOx7bXeAayesEdIMWzoLsVj-J/exec';
     
     // Determine tests to sync: either only latest/unsynced or all
-    let testsToPush = mode === 'newest' ? unsyncedTests : placementTests;
+    let testsToPush = mode === 'newest' ? unsyncedTests : validPlacementTests;
     
     // If mode is 'newest' but all are already marked synced, push the most recent 10 tests as latest
     if (mode === 'newest' && testsToPush.length === 0) {
-      testsToPush = [...placementTests].slice(-10);
+      testsToPush = [...validPlacementTests].slice(-10);
     }
 
     if (testsToPush.length === 0) {
@@ -832,23 +908,20 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
     showToast(`⏳ Đang đồng bộ 1 chiều ${testsToPush.length} bài test sang Google Sheet (Sheet New)...`);
 
     try {
-      // 1. Client-side push in batch to Google Apps Script Webhook
-      for (let i = 0; i < testsToPush.length; i++) {
-        const test = testsToPush[i];
-        const rowData = extractTestRowValues(test, i);
-        const payload = JSON.stringify({
-          headers: PLACEMENT_SHEET_COLUMNS,
-          row: rowData,
-          test,
-        });
+      // 1. Client-side batch push to Google Apps Script Webhook
+      const allRows = testsToPush.map((t, i) => extractTestRowValues(t, i));
+      const batchPayload = JSON.stringify({
+        headers: PLACEMENT_SHEET_COLUMNS,
+        rows: allRows,
+        tests: testsToPush,
+      });
 
-        await fetch(targetWebhook, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' },
-          body: payload,
-        }).catch(() => {});
-      }
+      await fetch(targetWebhook, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: batchPayload,
+      }).catch(() => {});
 
       // 2. Server-side proxy sync to guarantee delivery
       await fetch('/api/sync-placement-webhook', {
@@ -946,6 +1019,11 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
     localStorage.setItem('ielts_placement_webhook_url', target);
     setShowAppsScriptModal(false);
     showToast('Đã lưu cấu hình Webhook Google Apps Script thành công!');
+    fetch('/api/placement-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ webhookUrl: target, googleSheetUrl }),
+    }).catch(() => {});
   };
 
   return (
@@ -1739,6 +1817,22 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                         </button>
                       </div>
 
+                      {/* Đồng bộ riêng bài này sang Google Sheet */}
+                      <button
+                        type="button"
+                        onClick={() => handleSyncSingleTestToWebhook(t)}
+                        disabled={syncingSingleId === t.id}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold rounded-xl transition-all border ${
+                          syncedIds.includes(t.id)
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                            : 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700 shadow-2xs'
+                        }`}
+                        title="Đẩy kết quả bài test của học sinh sang Google Sheet (1 chiều - Sheet New)"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${syncingSingleId === t.id ? 'animate-spin' : ''}`} />
+                        <span>{syncingSingleId === t.id ? 'Đang đẩy...' : (syncedIds.includes(t.id) ? 'Đã sang Sheet' : 'Đồng bộ Sheet')}</span>
+                      </button>
+
                       {/* Ghi chú button right next to Xóa button */}
                       <button
                         type="button"
@@ -2236,22 +2330,36 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
               </div>
             </div>
 
-            <div className="pt-4 mt-2 border-t border-slate-200 flex items-center justify-between shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  handleDeleteTest(viewingDetailTest);
-                  setViewingDetailTest(null);
-                }}
-                className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-xl transition-colors text-sm flex items-center gap-1.5"
-                title="Xóa vĩnh viễn bài thi này khỏi hệ thống"
-              >
-                <Trash2 className="w-4 h-4 text-rose-600" />
-                <span>Xóa bài thi này</span>
-              </button>
+            <div className="pt-4 mt-2 border-t border-slate-200 flex items-center justify-between gap-2 flex-wrap shrink-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleDeleteTest(viewingDetailTest);
+                    setViewingDetailTest(null);
+                  }}
+                  className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-xl transition-colors text-xs sm:text-sm flex items-center gap-1.5"
+                  title="Xóa vĩnh viễn bài thi này khỏi hệ thống"
+                >
+                  <Trash2 className="w-4 h-4 text-rose-600" />
+                  <span>Xóa bài thi</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSyncSingleTestToWebhook(viewingDetailTest)}
+                  disabled={syncingSingleId === viewingDetailTest.id}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold rounded-xl shadow-md text-xs sm:text-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                  title="Đẩy ngay kết quả bài thi này sang tab Sheet New trên Google Sheet (1 chiều)"
+                >
+                  <RefreshCw className={`w-4 h-4 ${syncingSingleId === viewingDetailTest.id ? 'animate-spin' : ''}`} />
+                  <span>{syncingSingleId === viewingDetailTest.id ? 'Đang đẩy...' : (syncedIds.includes(viewingDetailTest.id) ? 'Đã sang Sheet (Đẩy lại)' : 'Đồng bộ bài này sang Google Sheet')}</span>
+                </button>
+              </div>
+
               <button
                 onClick={() => setViewingDetailTest(null)}
-                className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors text-sm"
+                className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors text-xs sm:text-sm"
               >
                 Đóng
               </button>

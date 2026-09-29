@@ -235,8 +235,14 @@ export const SAMPLE_GOOGLE_APPS_SCRIPT = `function doPost(e) {
       headerRange.setBackground("#059669").setFontColor("#FFFFFF").setFontWeight("bold");
     }
     
-    // Thêm dòng kết quả làm bài của học sinh
-    if (data.row && Array.isArray(data.row)) {
+    // Thêm dòng kết quả làm bài của học sinh (hỗ trợ cả mảng nhiều dòng data.rows hoặc một dòng đơn data.row)
+    if (data.rows && Array.isArray(data.rows) && data.rows.length > 0) {
+      for (var i = 0; i < data.rows.length; i++) {
+        if (Array.isArray(data.rows[i])) {
+          sheet.appendRow(data.rows[i]);
+        }
+      }
+    } else if (data.row && Array.isArray(data.row)) {
       sheet.appendRow(data.row);
     }
     

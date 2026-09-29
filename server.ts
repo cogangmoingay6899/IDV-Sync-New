@@ -563,6 +563,53 @@ async function startServer() {
     }
   });
 
+  // --- GET / SET SHARED PLACEMENT CONFIG (GOOGLE SHEET URL & WEBHOOK URL) ---
+  app.get('/api/placement-config', (req, res) => {
+    try {
+      const defaultWebhook = 'https://script.google.com/macros/s/AKfycbyR_WM6kpyQZmdODOT8Z0okH0YSFDdqi_yJZ8riYOcVOx7bXeAayesEdIMWzoLsVj-J/exec';
+      const defaultSheetUrl = 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit?usp=sharing';
+      
+      const settingsFile = path.join(dataDir, 'settings.json');
+      let config = { webhookUrl: defaultWebhook, googleSheetUrl: defaultSheetUrl };
+      if (fs.existsSync(settingsFile)) {
+        try {
+          const parsed = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
+          if (parsed.placementConfig) {
+            config = {
+              webhookUrl: parsed.placementConfig.webhookUrl || defaultWebhook,
+              googleSheetUrl: parsed.placementConfig.googleSheetUrl || defaultSheetUrl,
+            };
+          }
+        } catch (e) {}
+      }
+      res.json(config);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/placement-config', (req, res) => {
+    try {
+      const { webhookUrl, googleSheetUrl } = req.body || {};
+      const settingsFile = path.join(dataDir, 'settings.json');
+      let currentSettings: any = {};
+      if (fs.existsSync(settingsFile)) {
+        try {
+          currentSettings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
+        } catch (e) {}
+      }
+      currentSettings.placementConfig = {
+        webhookUrl: webhookUrl || currentSettings.placementConfig?.webhookUrl || '',
+        googleSheetUrl: googleSheetUrl || currentSettings.placementConfig?.googleSheetUrl || '',
+        updatedAt: new Date().toISOString(),
+      };
+      fs.writeFileSync(settingsFile, JSON.stringify(currentSettings, null, 2), 'utf8');
+      res.json({ success: true, placementConfig: currentSettings.placementConfig });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // --- MANUAL / BATCH SYNC TO GOOGLE APPS SCRIPT WEBHOOK (STRICTLY 1-WAY: APP -> GOOGLE SHEET) ---
   app.post('/api/sync-placement-webhook', async (req, res) => {
     try {
@@ -579,31 +626,66 @@ async function startServer() {
         }
       }
       const providedTests = req.body?.tests;
-      const testsToSync = (Array.isArray(providedTests) && providedTests.length > 0)
+      const rawTests = (Array.isArray(providedTests) && providedTests.length > 0)
         ? providedTests
         : getCollectionData('placementTests');
 
+      const testsToSync = rawTests.filter(
+        (t: any) => t && t.id && !String(t.id).startsWith('meta_') && Boolean(t.candidateName || t.name)
+      );
+
+      if (testsToSync.length === 0) {
+        return res.json({ success: true, count: 0, total: 0, message: 'Không có bài thi hợp lệ để đồng bộ' });
+      }
+
       const { PLACEMENT_SHEET_COLUMNS, extractTestRowValues } = await import('./src/utils/placementGoogleSheets');
 
-      let successCount = 0;
-      for (let i = 0; i < testsToSync.length; i++) {
-        const t = testsToSync[i];
-        try {
-          const rowData = extractTestRowValues(t, i);
-          await fetch(webhookUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              headers: PLACEMENT_SHEET_COLUMNS,
-              row: rowData,
-              test: t,
-              candidateName: t.candidateName,
-              phone: t.phone,
-              submittedAt: t.submittedAt || t.testDate || new Date().toISOString(),
-            }),
-          });
-          successCount++;
-        } catch (e) {}
+      // 1. Try batch push (all rows in 1 single request)
+      const allRows = testsToSync.map((t: any, idx: number) => extractTestRowValues(t, idx));
+      let batchSuccess = false;
+      try {
+        const batchResponse = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            headers: PLACEMENT_SHEET_COLUMNS,
+            rows: allRows,
+            tests: testsToSync,
+          }),
+        });
+        if (batchResponse.ok) {
+          batchSuccess = true;
+        }
+      } catch (e) {
+        console.warn('Batch webhook sync failed, falling back to parallel row sync:', e);
+      }
+
+      // 2. Parallel individual sync fallback if batch didn't complete
+      let successCount = batchSuccess ? testsToSync.length : 0;
+      if (!batchSuccess) {
+        const syncPromises = testsToSync.map(async (t: any, i: number) => {
+          try {
+            const rowData = extractTestRowValues(t, i);
+            await fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                headers: PLACEMENT_SHEET_COLUMNS,
+                row: rowData,
+                test: t,
+                candidateName: t.candidateName,
+                phone: t.phone,
+                submittedAt: t.submittedAt || t.testDate || new Date().toISOString(),
+              }),
+            });
+            return true;
+          } catch (e) {
+            return false;
+          }
+        });
+
+        const results = await Promise.allSettled(syncPromises);
+        successCount = results.filter((r) => r.status === 'fulfilled' && r.value === true).length;
       }
 
       res.json({ success: true, count: successCount, total: testsToSync.length, webhookUrl });
