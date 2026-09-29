@@ -788,7 +788,7 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
   useEffect(() => {
     if (activeRunnerTest || initialVocabTestId || initialReviewTestId) {
-      document.title = activeTestType === 'review' ? 'Bài ôn tập kiến thức - IELTS Dương Vũ' : 'Bài kiểm tra từ vựng - IELTS Dương Vũ';
+      document.title = activeTestType === 'review' ? 'IELTS Dương Vũ - Bài kiểm tra ôn tập' : 'IELTS Dương Vũ - Bài kiểm tra từ vựng';
     }
   }, [activeRunnerTest, initialVocabTestId, initialReviewTestId, activeTestType]);
 

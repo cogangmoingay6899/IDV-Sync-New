@@ -278,14 +278,16 @@ export default function App() {
       setVocabTestIdParam(vocabId);
       setReviewTestIdParam(reviewId);
 
-      if (vocabId || reviewId) {
-        document.title = 'Bài kiểm tra trực tuyến - IELTS Dương Vũ';
+      if (vocabId) {
+        document.title = 'IELTS Dương Vũ - Bài kiểm tra từ vựng';
+      } else if (reviewId) {
+        document.title = 'IELTS Dương Vũ - Bài kiểm tra ôn tập';
       } else if (isPortal) {
-        document.title = 'Bài kiểm tra đầu vào IELTS - IELTS Dương Vũ';
-      } else if (isSpeakPortal) {
-        document.title = 'Luyện Speaking AI - IELTS Dương Vũ';
+        document.title = 'IELTS Dương Vũ - Bài kiểm tra đầu vào';
+      } else if (isSpeakPortal || isPronPortal) {
+        document.title = 'IELTS Dương Vũ - Luyện phát âm & luyện nói';
       } else {
-        document.title = 'Hệ Thống Quản Trị - IELTS Dương Vũ';
+        document.title = 'IELTS Dương Vũ - Quản lý Đào tạo & Điểm số';
       }
     };
 

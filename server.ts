@@ -715,8 +715,42 @@ Hãy trả về DUY NHẤT một chuỗi JSON hợp lệ (không kèm Markdown c
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.use(express.static(distPath, { index: false }));
+    
+    app.get('*', (req, res, next) => {
+      if (req.path.includes('.') && !req.path.endsWith('.html')) {
+        return next();
+      }
+
+      try {
+        const indexPath = path.join(distPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          let html = fs.readFileSync(indexPath, 'utf-8');
+          
+          let title = 'IELTS Dương Vũ - Quản lý Đào tạo & Điểm số';
+          const fullUrl = req.url || '';
+          
+          if (fullUrl.includes('vocabTestId') || fullUrl.includes('vocab')) {
+            title = 'IELTS Dương Vũ - Bài kiểm tra từ vựng';
+          } else if (fullUrl.includes('reviewTestId') || fullUrl.includes('review')) {
+            title = 'IELTS Dương Vũ - Bài kiểm tra ôn tập';
+          } else if (fullUrl.includes('test=online') || fullUrl.includes('placement')) {
+            title = 'IELTS Dương Vũ - Bài kiểm tra đầu vào';
+          } else if (fullUrl.includes('speak') || fullUrl.includes('pronunciation')) {
+            title = 'IELTS Dương Vũ - Luyện phát âm & luyện nói';
+          }
+
+          html = html.replace(/<title>[^<]*<\/title>/g, `<title>${title}</title>`);
+          html = html.replace(/<meta property="og:title" content="[^"]*"\s*\/?>/g, `<meta property="og:title" content="${title}" />`);
+          html = html.replace(/<meta name="description" content="[^"]*"\s*\/?>/g, `<meta name="description" content="" />`);
+          html = html.replace(/<meta property="og:description" content="[^"]*"\s*\/?>/g, `<meta property="og:description" content="" />`);
+
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+          return res.send(html);
+        }
+      } catch (err) {
+        console.error('[Dynamic SEO Error]:', err);
+      }
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
