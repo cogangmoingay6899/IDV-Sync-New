@@ -32,6 +32,24 @@ export function extractSessionsFromSpreadsheets(
     });
 
     const classId = cls ? cls.id : rawClassId;
+    
+    // Get possible teachers for this class
+    const possibleTeachers: Teacher[] = [];
+    if (cls) {
+      const namesToMatch = [
+        cls.teacherName,
+        ...(Array.isArray(cls.teacherNames) ? cls.teacherNames : [])
+      ].filter(Boolean);
+      
+      namesToMatch.forEach(name => {
+        const found = teachers.find(t => 
+          t.name.toLowerCase().normalize('NFC').includes(String(name).toLowerCase().normalize('NFC')) ||
+          String(name).toLowerCase().normalize('NFC').includes(t.name.toLowerCase().normalize('NFC'))
+        );
+        if (found) possibleTeachers.push(found);
+      });
+    }
+
     const defaultTeacherName = cls
       ? (cls.teacherName || (Array.isArray(cls.teacherNames) && cls.teacherNames.length > 0 ? cls.teacherNames.join(', ') : 'Giáo viên IDV'))
       : 'Giáo viên IDV';
@@ -40,9 +58,9 @@ export function extractSessionsFromSpreadsheets(
       if (!col) return;
 
       // 1. Resolve date
+      // ... (keep date logic) ...
       let sessionDate = col.date;
       if (!sessionDate && col.teacherAndDate) {
-        // e.g. "09-28 Chi" or "09-26" -> derive current year date "2026-09-28"
         const mMatch = col.teacherAndDate.match(/(\d{1,2})[-/](\d{1,2})/);
         if (mMatch) {
           const month = String(mMatch[1]).padStart(2, '0');
@@ -51,7 +69,6 @@ export function extractSessionsFromSpreadsheets(
         }
       }
       if (!sessionDate && col.id) {
-        // e.g. col_sess_23_1790569769546 -> extract timestamp 1790569769546
         const tsMatch = col.id.match(/\d{12,13}/);
         if (tsMatch) {
           try {
@@ -66,13 +83,19 @@ export function extractSessionsFromSpreadsheets(
       // 2. Resolve teacher name
       let teacherName = defaultTeacherName;
       if (col.teacherAndDate) {
-        const rawT = col.teacherAndDate.replace(/^[\d\s/-]+/, '').trim(); // e.g. "Chi", "Ngọc", "Đặng", "GV"
+        const rawT = col.teacherAndDate
+          .replace(/^\d{1,2}[-/]\d{1,2}/, '') // Remove date
+          .replace(/^[Ll]\d+\s+/, '')          // Remove "L1 ", "l2 "
+          .trim(); 
+        
         if (rawT && rawT.toUpperCase() !== 'GV') {
-          // Find matching teacher in teachers list
-          const matchedT = teachers.find((t) => {
+          // If we have possible teachers for this class, restrict match to them
+          const searchSpace = possibleTeachers.length > 0 ? possibleTeachers : teachers;
+          
+          const matchedT = searchSpace.find((t) => {
             const normTName = t.name.toLowerCase().normalize('NFC');
             const normRaw = rawT.toLowerCase().normalize('NFC');
-            return normTName.includes(normRaw) || normRaw.includes(normTName);
+            return normTName === normRaw || normTName.includes(normRaw) || normRaw.includes(normTName);
           });
           if (matchedT) {
             teacherName = matchedT.name;
