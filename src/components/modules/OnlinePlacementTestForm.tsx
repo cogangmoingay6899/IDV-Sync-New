@@ -1223,22 +1223,28 @@ export const OnlinePlacementTestForm: React.FC<OnlinePlacementTestFormProps> = (
         console.warn('LocalStorage candidate backup save error:', e);
       }
 
-      // 2. Direct save to Application Server (Guaranteed cross-device & cross-network sync via keepalive)
+      // 2. Direct save to Application Server (Awaited to prevent early connection closures)
       try {
-        fetch('/api/placement-tests', {
+        const serverRes = await fetch('/api/placement-tests', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newTest),
           keepalive: true,
-        }).catch((apiErr) => {
-          console.warn('Server API save attempt:', apiErr);
         });
-      } catch (e) {}
+        if (serverRes.ok) {
+          console.log('✅ Placement test successfully saved to application server');
+        }
+      } catch (e) {
+        console.warn('Server API save attempt:', e);
+      }
 
-      // 3. Save to Firestore Database
-      saveDocument('placementTests', newTest).catch((err) => {
+      // 3. Save to Firestore Database (Awaited to ensure Firestore record is fully registered)
+      try {
+        await saveDocument('placementTests', newTest);
+        console.log('✅ Placement test successfully saved to Firestore');
+      } catch (err) {
         console.warn('Direct Firestore save failed in OnlinePlacementTestForm:', err);
-      });
+      }
 
       // Send to Webhook (Google Apps Script) automatically
       const DEFAULT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyR_WM6kpyQZmdODOT8Z0okH0YSFDdqi_yJZ8riYOcVOx7bXeAayesEdIMWzoLsVj-J/exec';
