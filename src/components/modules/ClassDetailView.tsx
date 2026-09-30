@@ -56,7 +56,7 @@ import {
   Settings,
   ArrowLeftRight,
 } from 'lucide-react';
-import { Student, ClassGroup, Teacher, AttendanceRecord, ExamScore, CurriculumCourse, AuthUser, SpeakingLog } from '../../types';
+import { Student, ClassGroup, Teacher, AttendanceRecord, ExamScore, CurriculumCourse, AuthUser, SpeakingLog, PlacementTest } from '../../types';
 import { ClassVocabTestModule } from './ClassVocabTestModule';
 import { ClassPronunciationModule } from './ClassPronunciationModule';
 import {
@@ -87,6 +87,7 @@ interface ClassDetailViewProps {
   allClasses?: ClassGroup[];
   teachers?: Teacher[];
   courses?: CurriculumCourse[];
+  placementTests?: PlacementTest[];
   attendanceRecords?: AttendanceRecord[];
   onSaveAttendance?: (records: AttendanceRecord[]) => void;
   onAddTeacher?: (teacher: Teacher) => void;
@@ -154,6 +155,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   allClasses = [],
   teachers = [],
   courses = [],
+  placementTests = [],
   attendanceRecords = [],
   onSaveAttendance,
   onAddTeacher,
@@ -5229,6 +5231,7 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
           onClose={() => setSelectedStudentForHistory(null)}
           student={selectedStudentForHistory}
           classes={allClasses && allClasses.length > 0 ? allClasses : [classGroup]}
+          placementTests={placementTests}
           attendanceRecords={attendanceRecords}
           onTransferClass={onTransferStudent || ((sid, fromC, toC) => onEnrollStudent(toC, sid))}
           currentUser={currentUser}

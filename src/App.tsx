@@ -326,22 +326,25 @@ export default function App() {
     try {
       const cached = localStorage.getItem('idv_placement_tests_cache');
       const submitted = localStorage.getItem('idv_submitted_candidate_placement_tests');
-      let combined: PlacementTest[] = [];
-
-      if (submitted) {
-        const parsedSubmitted = JSON.parse(submitted);
-        if (Array.isArray(parsedSubmitted)) {
-          combined = [...parsedSubmitted];
-        }
-      }
+      let combined: PlacementTest[] = [...INITIAL_PLACEMENT_TESTS];
 
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const existingIds = new Set(combined.map((c) => c.id));
-          parsed.forEach((p: PlacementTest) => {
-            if (!existingIds.has(p.id)) combined.push(p);
-          });
+          const map = new Map<string, PlacementTest>();
+          combined.forEach((c) => map.set(c.id, c));
+          parsed.forEach((p: PlacementTest) => map.set(p.id, p));
+          combined = Array.from(map.values());
+        }
+      }
+
+      if (submitted) {
+        const parsedSubmitted = JSON.parse(submitted);
+        if (Array.isArray(parsedSubmitted) && parsedSubmitted.length > 0) {
+          const map = new Map<string, PlacementTest>();
+          combined.forEach((c) => map.set(c.id, c));
+          parsedSubmitted.forEach((p: PlacementTest) => map.set(p.id, p));
+          combined = Array.from(map.values());
         }
       }
 
@@ -351,7 +354,7 @@ export default function App() {
     } catch (e) {
       console.warn('Failed to read cached placement tests:', e);
     }
-    return [];
+    return INITIAL_PLACEMENT_TESTS;
   });
   const [trialStudents, setTrialStudents] = useState<TrialStudent[]>(INITIAL_TRIAL_STUDENTS);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>(INITIAL_ATTENDANCE);
@@ -373,7 +376,7 @@ export default function App() {
     });
     const unsubTeachers = subscribeCollection('teachers', INITIAL_TEACHERS, setTeachers);
     const unsubLeads = subscribeCollection('leads', INITIAL_LEADS, setLeads);
-    const unsubPlacement = subscribeCollection('placementTests', [], (data) => {
+    const unsubPlacement = subscribeCollection('placementTests', INITIAL_PLACEMENT_TESTS, (data) => {
       let cachedSubmissions: PlacementTest[] = [];
       try {
         const rawSubmissions = localStorage.getItem('idv_submitted_candidate_placement_tests');
@@ -2489,6 +2492,7 @@ export default function App() {
             classes={effectiveClasses}
             teachers={teachers}
             courses={courses}
+            placementTests={placementTests}
             attendanceRecords={attendance}
             transactions={transactions}
             exams={exams}

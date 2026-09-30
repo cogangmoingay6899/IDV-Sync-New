@@ -51,15 +51,8 @@ async function startServer() {
         if (Array.isArray(list)) return new Set(list);
       }
     } catch (e) {}
-    // Default initial tombstones for cleaned mock classes and tests
-    return new Set([
-      'pt-101', 'pt-102', 'pt-103',
-      'cls-29', 'cls-41', 'cls-50', 'cls-58', 'cls-59', 'cls-61', 'cls-63', 'cls-64', 'cls-65',
-      'cls-66', 'cls-67', 'cls-68', 'cls-69', 'cls-70', 'cls-71', 'cls-72', 'cls-73', 'cls-74',
-      'cls-75', 'cls-76', 'cls-77', 'cls-78', 'cls-79', 'cls-80', 'cls-81', 'cls-82', 'cls-83',
-      'cls-84', 'cls-85', 'cls-86', 'cls-87', 'cls-88', 'cls-89', 'cls-90', 'cls-91', 'cls-92',
-      'cls-93', 'cls-94'
-    ]);
+    // Only return empty or user-deleted items, do not block placement tests
+    return new Set<string>();
   };
 
   const addDeletedIds = (newIds: string[]) => {

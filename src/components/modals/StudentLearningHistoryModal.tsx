@@ -42,6 +42,7 @@ import {
   TuitionTransaction,
   AuthUser,
   ClassTransferRecord,
+  PlacementTest,
 } from '../../types';
 import { formatDateVN } from '../../utils/courseSchedule';
 
@@ -50,6 +51,7 @@ interface StudentLearningHistoryModalProps {
   onClose: () => void;
   student: Student | null;
   classes: ClassGroup[];
+  placementTests?: PlacementTest[];
   attendanceRecords?: AttendanceRecord[];
   examScores?: ExamScore[];
   contactBookNotes?: ContactBookNote[];
@@ -76,6 +78,7 @@ export const StudentLearningHistoryModal: React.FC<StudentLearningHistoryModalPr
   onClose,
   student,
   classes,
+  placementTests = [],
   attendanceRecords = [],
   examScores = [],
   contactBookNotes = [],
@@ -135,6 +138,25 @@ export const StudentLearningHistoryModal: React.FC<StudentLearningHistoryModalPr
   const studentTransactions = transactions
     .filter((t) => t.studentId === student.id || (t.studentCode && t.studentCode === student.code))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // 5b. Find entrance placement test for this student
+  const studentPlacementTest = useMemo(() => {
+    if (!student || !placementTests || placementTests.length === 0) return null;
+    const cleanPhone = (student.phone || '').replace(/\D/g, '');
+    const cleanName = (student.name || '').trim().toLowerCase();
+    const cleanEmail = (student.email || '').trim().toLowerCase();
+
+    return (
+      placementTests.find((pt) => {
+        if (pt.id === student.id) return true;
+        const ptPhone = (pt.phone || '').replace(/\D/g, '');
+        if (cleanPhone && ptPhone && cleanPhone === ptPhone) return true;
+        if (cleanEmail && pt.email && cleanEmail === pt.email.trim().toLowerCase()) return true;
+        if (cleanName && pt.candidateName && cleanName === pt.candidateName.trim().toLowerCase()) return true;
+        return false;
+      }) || null
+    );
+  }, [student, placementTests]);
 
   // 6. Calculate all classes student has ever touched
   const distinctClassIds = Array.from(
@@ -431,6 +453,76 @@ export const StudentLearningHistoryModal: React.FC<StudentLearningHistoryModalPr
                   <strong>Cơ chế bảo toàn dữ liệu học viên IELTS DƯƠNG VŨ:</strong> Khi học viên chuyển lớp (ví dụ từ Khóa 1 lên Khóa 2, hoặc đổi ca học sang lớp khác), toàn bộ lịch sử điểm danh, số buổi đã học, bài kiểm tra, điểm thi và nhận xét của giáo viên ở lớp cũ đều được giữ nguyên 100% và liên kết theo mã học viên <strong>{student.code}</strong>.
                 </div>
               </div>
+
+              {/* Entrance Placement Test Card if available */}
+              {studentPlacementTest ? (
+                <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white rounded-2xl p-5 border border-purple-800 shadow-md">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/15 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 bg-purple-500/30 rounded-xl border border-purple-400/30">
+                        <Sparkles className="w-5 h-5 text-amber-300" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-purple-200 uppercase tracking-wider">
+                            Kết Quả Bài Kiểm Tra Đầu Vào
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                            {studentPlacementTest.status || 'Đã có kết quả'}
+                          </span>
+                        </div>
+                        <h4 className="text-base font-black text-white mt-0.5">
+                          {studentPlacementTest.code} • Ngày test: {formatDateVN(studentPlacementTest.testDate)}
+                        </h4>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/10">
+                      <span className="text-xs text-purple-200 font-semibold">Band xếp lớp:</span>
+                      <span className="text-xl font-black text-amber-300">
+                        {studentPlacementTest.overallScore}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 4 Skill subscores */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3.5">
+                    <div className="bg-white/10 rounded-xl p-2.5 text-center border border-white/10">
+                      <div className="text-[10px] text-purple-200 font-bold uppercase">Listening</div>
+                      <div className="text-base font-black text-white mt-0.5">{studentPlacementTest.listeningScore}</div>
+                    </div>
+                    <div className="bg-white/10 rounded-xl p-2.5 text-center border border-white/10">
+                      <div className="text-[10px] text-purple-200 font-bold uppercase">Reading</div>
+                      <div className="text-base font-black text-white mt-0.5">{studentPlacementTest.readingScore}</div>
+                    </div>
+                    <div className="bg-white/10 rounded-xl p-2.5 text-center border border-white/10">
+                      <div className="text-[10px] text-purple-200 font-bold uppercase">Writing</div>
+                      <div className="text-base font-black text-white mt-0.5">{studentPlacementTest.writingScore}</div>
+                    </div>
+                    <div className="bg-white/10 rounded-xl p-2.5 text-center border border-white/10">
+                      <div className="text-[10px] text-purple-200 font-bold uppercase">Speaking</div>
+                      <div className="text-base font-black text-white mt-0.5">{studentPlacementTest.speakingScore}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3.5 pt-3 border-t border-white/10 text-xs text-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-purple-300 font-semibold">Đề xuất khóa học:</span>{' '}
+                      <strong className="text-amber-300">{studentPlacementTest.recommendedCourse}</strong>
+                      {studentPlacementTest.evaluatorName && (
+                        <span className="text-purple-300 ml-2">
+                          (Người chấm: {studentPlacementTest.evaluatorName})
+                        </span>
+                      )}
+                    </div>
+                    {studentPlacementTest.comment && (
+                      <div className="text-[11px] text-purple-200 italic max-w-md">
+                        "{studentPlacementTest.comment}"
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : null}
 
               {/* Class History Timeline */}
               <div className="space-y-4">
@@ -730,7 +822,48 @@ export const StudentLearningHistoryModal: React.FC<StudentLearningHistoryModalPr
           {/* TAB 3: EXAM SCORES & EVALUATIONS */}
           {activeTab === 'scores' && (
             <div className="space-y-4">
-              {studentExams.length === 0 && studentReports.length === 0 ? (
+              {/* Entrance Placement Test highlight in scores tab */}
+              {studentPlacementTest && (
+                <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-700" />
+                      <span className="font-bold text-xs text-purple-900 uppercase">
+                        1. Bài kiểm tra đầu vào (Placement Test)
+                      </span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-200 text-purple-900">
+                      Overall: {studentPlacementTest.overallScore}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                    <div className="bg-white p-2 rounded-xl border border-purple-100">
+                      <div className="text-[10px] text-slate-500 font-semibold">Listening</div>
+                      <div className="font-black text-purple-900">{studentPlacementTest.listeningScore}</div>
+                    </div>
+                    <div className="bg-white p-2 rounded-xl border border-purple-100">
+                      <div className="text-[10px] text-slate-500 font-semibold">Reading</div>
+                      <div className="font-black text-purple-900">{studentPlacementTest.readingScore}</div>
+                    </div>
+                    <div className="bg-white p-2 rounded-xl border border-purple-100">
+                      <div className="text-[10px] text-slate-500 font-semibold">Writing</div>
+                      <div className="font-black text-purple-900">{studentPlacementTest.writingScore}</div>
+                    </div>
+                    <div className="bg-white p-2 rounded-xl border border-purple-100">
+                      <div className="text-[10px] text-slate-500 font-semibold">Speaking</div>
+                      <div className="font-black text-purple-900">{studentPlacementTest.speakingScore}</div>
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] text-purple-800 mt-2 flex items-center justify-between">
+                    <span>Khóa đề xuất: <strong>{studentPlacementTest.recommendedCourse}</strong></span>
+                    <span>Ngày test: {formatDateVN(studentPlacementTest.testDate)}</span>
+                  </div>
+                </div>
+              )}
+
+              {studentExams.length === 0 && studentReports.length === 0 && !studentPlacementTest ? (
                 <div className="py-12 text-center text-slate-400 text-xs">
                   Chưa có kết quả bài thi hoặc báo cáo định kỳ nào được lưu.
                 </div>
@@ -741,7 +874,7 @@ export const StudentLearningHistoryModal: React.FC<StudentLearningHistoryModalPr
                     <div className="border border-slate-200 rounded-2xl overflow-hidden">
                       <div className="bg-purple-50/70 p-3 border-b border-purple-100 font-bold text-xs text-purple-900 flex items-center gap-2">
                         <Award className="w-4 h-4 text-purple-700" />
-                        Danh sách điểm thi các đợt ({studentExams.length} bài)
+                        2. Danh sách điểm thi các đợt định kỳ ({studentExams.length} bài)
                       </div>
                       <table className="w-full text-left text-xs">
                         <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">

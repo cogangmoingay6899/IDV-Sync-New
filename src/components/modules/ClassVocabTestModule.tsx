@@ -1783,11 +1783,17 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       ? (initialReviewTestId && reviewTests.find((t) => t.id.toLowerCase() === targetId)) ||
         (targetLessonNum > 0 && reviewTests.find((t) => extractLessonNumber(t) === targetLessonNum)) ||
         reviewTests.find((t) => t.courseLevel === selectedCourseLevel) ||
-        reviewTests[0]
+        reviewTests[0] ||
+        (initialReviewTestId && INITIAL_REVIEW_TESTS.find((t) => t.id.toLowerCase() === targetId)) ||
+        (targetLessonNum > 0 && INITIAL_REVIEW_TESTS.find((t) => extractLessonNumber(t) === targetLessonNum)) ||
+        INITIAL_REVIEW_TESTS[0]
       : (initialVocabTestId && tests.find((t) => t.id.toLowerCase() === targetId)) ||
         (targetLessonNum > 0 && tests.find((t) => extractLessonNumber(t) === targetLessonNum)) ||
         tests.find((t) => t.courseLevel === selectedCourseLevel) ||
-        tests[0];
+        tests[0] ||
+        (initialVocabTestId && INITIAL_VOCAB_TESTS.find((t) => t.id.toLowerCase() === targetId)) ||
+        (targetLessonNum > 0 && INITIAL_VOCAB_TESTS.find((t) => extractLessonNumber(t) === targetLessonNum)) ||
+        INITIAL_VOCAB_TESTS[0];
 
     const isAlreadyCompleted =
       isExited ||

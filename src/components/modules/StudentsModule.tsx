@@ -65,6 +65,7 @@ export interface StudentsModuleProps {
   classes: ClassGroup[];
   teachers?: Teacher[];
   courses?: CurriculumCourse[];
+  placementTests?: PlacementTest[];
   attendanceRecords?: AttendanceRecord[];
   transactions?: TuitionTransaction[];
   exams?: ExamScore[];
@@ -95,6 +96,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
   classes: t,
   teachers: s = [],
   courses: a = [],
+  placementTests: ptList = [],
   attendanceRecords: l = [],
   transactions: o = [],
   exams: exList = [],
@@ -313,6 +315,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
       allClasses: t,
       teachers: s,
       courses: a,
+      placementTests: ptList,
       attendanceRecords: l,
       onSaveAttendance: d,
       onAddTeacher: u,
@@ -2724,6 +2727,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
           onClose: () => setSelectedStudentForHistory(null),
           student: selectedStudentForHistory,
           classes: t,
+          placementTests: ptList,
           attendanceRecords: l,
           examScores: exList,
           contactBookNotes: cnList,
