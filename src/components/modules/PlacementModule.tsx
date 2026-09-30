@@ -315,22 +315,23 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
     showToast(`Đã chuyển trạng thái bài test của ${test.candidateName} thành "${newStatus}"!`);
   };
 
-  // Quick set recommended course to Khóa 1 or Khóa 2
-  const handleSetCourse = (test: PlacementTest, courseName: 'Khóa 1' | 'Khóa 2') => {
+  // Quick set recommended course to Khóa 1, Khóa 2 or Không Đạt
+  const handleSetCourse = (test: PlacementTest, courseName: string) => {
     let comment = test.comment;
-    if (!comment || comment === PRESET_COMMENTS.FAILED || comment === PRESET_COMMENTS.COURSE_1 || comment === PRESET_COMMENTS.COURSE_2) {
-      comment = courseName === 'Khóa 1' ? PRESET_COMMENTS.COURSE_1 : PRESET_COMMENTS.COURSE_2;
+    if (!comment || comment.includes('Chờ Quản lý') || comment === PRESET_COMMENTS.FAILED || comment === PRESET_COMMENTS.COURSE_1 || comment === PRESET_COMMENTS.COURSE_2) {
+      comment = courseName === 'Khóa 1' ? PRESET_COMMENTS.COURSE_1 : courseName === 'Khóa 2' ? PRESET_COMMENTS.COURSE_2 : courseName === 'Không Đạt' ? PRESET_COMMENTS.FAILED : `Đã xếp vào ${courseName}`;
     }
+    const newStatus: PlacementTest['status'] = courseName === 'Không Đạt' ? 'Không đạt' : 'Đã có kết quả';
     const updated: PlacementTest = {
       ...test,
       recommendedCourse: courseName,
-      status: test.status === 'Không đạt' ? 'Đã có kết quả' : test.status,
+      status: newStatus,
       comment,
     };
     if (onUpdateTest) {
       onUpdateTest(updated);
     }
-    showToast(`Đã chuyển xếp lớp cho ${test.candidateName} thành "${courseName}"!`);
+    showToast(`Đã duyệt xếp lớp cho ${test.candidateName} thành "${courseName}"! Trạng thái: "${newStatus}".`);
   };
 
   // Note Modal State & Handlers
@@ -437,6 +438,7 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
 
     if (!matchSearch) return false;
     if (statusFilter === 'all') return true;
+    if (statusFilter === 'pending_eval') return t.status === 'Chờ đánh giá' || t.recommendedCourse === 'Chờ đánh giá';
     if (statusFilter === 'online') return t.sourceType === 'form_online';
     if (statusFilter === 'course1') return t.recommendedCourse === 'Khóa 1';
     if (statusFilter === 'course2') return t.recommendedCourse === 'Khóa 2';
@@ -447,6 +449,9 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
     return true;
   });
 
+  const pendingEvalCount = placementTests.filter(
+    (t) => t.status === 'Chờ đánh giá' || t.recommendedCourse === 'Chờ đánh giá'
+  ).length;
   const onlineSubmittedCount = placementTests.filter((t) => t.sourceType === 'form_online').length;
   const recentOnlineTests = placementTests.filter((t) => {
     if (t.sourceType !== 'form_online') return false;
@@ -1514,13 +1519,13 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
               <span className="text-slate-400 font-medium">Lọc:</span>
               {[
                 { id: 'all', label: 'Tất cả' },
+                { id: 'pending_eval', label: `⏳ Chờ đánh giá (${pendingEvalCount})` },
                 { id: 'online', label: `🌐 Nộp Online (${onlineSubmittedCount})` },
                 { id: 'course1', label: '📘 Khóa 1' },
                 { id: 'course2', label: '🚀 Khóa 2' },
-                { id: 'evaluated', label: 'Đã có điểm' },
+                { id: 'evaluated', label: 'Đã có kết quả' },
                 { id: 'failed', label: '❌ Không đạt' },
                 { id: 'assigned', label: 'Đã phân lớp chờ' },
-                { id: 'waiting', label: 'Chờ xử lý' },
               ].map((f) => (
                 <button
                   key={f.id}
@@ -1606,11 +1611,14 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                             ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                             : t.status === 'Đã có kết quả'
                             ? 'bg-purple-100 text-purple-800 border border-purple-200'
-                            : 'bg-amber-100 text-amber-800 border border-amber-200'
+                            : 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold shadow-2xs'
                         }`}
                       >
                         {t.status === 'Không đạt' && <XCircle className="w-3 h-3 text-rose-600" />}
-                        <span>{t.status}</span>
+                        {(t.status === 'Chờ đánh giá' || t.recommendedCourse === 'Chờ đánh giá') && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        )}
+                        <span>{t.status === 'Chờ đánh giá' || t.recommendedCourse === 'Chờ đánh giá' ? '⏳ Chờ đánh giá' : t.status}</span>
                       </span>
                     </div>
 
@@ -1690,8 +1698,14 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                     )}
 
                     <div className="text-xs space-y-2 bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+                      {(t.status === 'Chờ đánh giá' || t.recommendedCourse === 'Chờ đánh giá') && (
+                        <div className="bg-amber-100/90 text-amber-950 p-2 rounded-xl border border-amber-300 text-[11px] font-bold flex items-center gap-1.5 shadow-2xs">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                          <span>⏳ Vui lòng tick chọn khóa bên dưới để duyệt kết quả:</span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between gap-1 flex-wrap">
-                        <span className="text-slate-500 font-semibold">Khóa đề xuất:</span>
+                        <span className="text-slate-500 font-semibold">Khóa xếp / Duyệt:</span>
                         <div className="inline-flex items-center rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
                           <button
                             type="button"
@@ -1699,9 +1713,9 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                             className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all ${
                               t.recommendedCourse === 'Khóa 1'
                                 ? 'bg-purple-600 text-white shadow-2xs'
-                                : 'text-slate-600 hover:text-purple-700 hover:bg-slate-50'
+                                : 'text-slate-600 hover:text-purple-700 hover:bg-purple-50'
                             }`}
-                            title="Xếp vào Khóa 1 (PRE)"
+                            title="Tick xếp vào Khóa 1 -> Báo 'Đã có kết quả'"
                           >
                             Khóa 1
                           </button>
@@ -1711,11 +1725,23 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                             className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all ${
                               t.recommendedCourse === 'Khóa 2'
                                 ? 'bg-indigo-600 text-white shadow-2xs'
-                                : 'text-slate-600 hover:text-indigo-700 hover:bg-slate-50'
+                                : 'text-slate-600 hover:text-indigo-700 hover:bg-indigo-50'
                             }`}
-                            title="Xếp vào Khóa 2 (INSPIRE)"
+                            title="Tick xếp vào Khóa 2 -> Báo 'Đã có kết quả'"
                           >
                             Khóa 2
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSetCourse(t, 'Không Đạt')}
+                            className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all ${
+                              t.status === 'Không đạt' || t.recommendedCourse === 'Không Đạt'
+                                ? 'bg-rose-600 text-white shadow-2xs'
+                                : 'text-rose-600 hover:bg-rose-50'
+                            }`}
+                            title="Tick đánh giá 'Không Đạt'"
+                          >
+                            Không đạt
                           </button>
                         </div>
                       </div>

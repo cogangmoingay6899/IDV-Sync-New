@@ -5187,7 +5187,9 @@ export const INITIAL_TEACHERS: Teacher[] = [
     "specialty": "IELTS Speaking Fluency & Academic Pronunciation, Giao tiếp nâng cao",
     "degrees": "Cử nhân ĐH Sư Phạm Ngoại Ngữ, Chứng chỉ TESOL",
     "activeClassesCount": 3,
-    "hourlyRate": 420000,
+    "salaryCalcType": "fixed_per_session",
+    "fixedRate": 600000,
+    "hourlyRate": 600000,
     "rating": 4.93,
     "status": "Đang giảng dạy"
   },
@@ -5202,14 +5204,16 @@ export const INITIAL_TEACHERS: Teacher[] = [
     "specialty": "IELTS Writing Task 1 & 2, Listening & Mock Test",
     "degrees": "Cử nhân Ngôn ngữ Anh, IELTS 8.0",
     "activeClassesCount": 2,
-    "hourlyRate": 420000,
+    "salaryCalcType": "fixed_per_session",
+    "fixedRate": 500000,
+    "hourlyRate": 500000,
     "rating": 4.92,
     "status": "Đang giảng dạy"
   },
   {
     "id": "tch-vungan",
     "code": "GV-IDV10",
-    "name": "Vũ Thị Ngân",
+    "name": "Vũ Thị Ngần",
     "type": "Việt Nam",
     "nationality": "Việt Nam 🇻🇳",
     "email": "vuthingan19990365161299@gmail.com",
@@ -5217,7 +5221,9 @@ export const INITIAL_TEACHERS: Teacher[] = [
     "specialty": "IELTS Foundation & Junior, Ngữ pháp & Phản xạ",
     "degrees": "Cử nhân Sư phạm Tiếng Anh, TESOL Quốc tế",
     "activeClassesCount": 2,
-    "hourlyRate": 420000,
+    "salaryCalcType": "fixed_per_session",
+    "fixedRate": 500000,
+    "hourlyRate": 500000,
     "rating": 4.90,
     "status": "Đang giảng dạy"
   },
@@ -5232,7 +5238,9 @@ export const INITIAL_TEACHERS: Teacher[] = [
     "specialty": "IELTS Listening & Speaking Chuyên Sâu, Phản Xạ Kép",
     "degrees": "Cử nhân Ngôn ngữ Anh, Chứng chỉ Giảng dạy Quốc tế",
     "activeClassesCount": 2,
-    "hourlyRate": 420000,
+    "salaryCalcType": "fixed_per_session",
+    "fixedRate": 500000,
+    "hourlyRate": 500000,
     "rating": 4.91,
     "status": "Đang giảng dạy"
   }

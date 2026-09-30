@@ -228,6 +228,9 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
 
   // Helper to match a session with a selected teacher
   const isSessionForSelectedTeacher = (session: typeof processedSessions[0], teacherObj: Teacher | null | undefined, id: string) => {
+    // 1. If "Tất cả giáo viên" (all) is selected, include all sessions!
+    if (id === 'all') return true;
+
     // Normalization helper for accurate Vietnamese comparison
     const normalize = (name: string) => name.toLowerCase().normalize('NFC').trim();
     
@@ -237,7 +240,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
 
     const sessionTeacherParts = splitNames(session.teacherName);
 
-    if (isTeacher) {
+    if (isTeacher && id === 'logged-in') {
       if (!loggedInTeacherName) return false;
       const normalizedLoggedIn = normalize(loggedInTeacherName);
       
@@ -253,8 +256,6 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
 
       return matchesName || matchesEmail;
     }
-
-    if (id === 'all') return true;
 
     // Filter by specific teacher
     const targetTeacher = teachers.find((t) => t.id === id);

@@ -118,8 +118,8 @@ export interface DetailedEvaluationResult {
   readingTotal: number;
   writingErrorLevel: 'ít lỗi' | 'lỗi nhiều';
   isFailed: boolean;
-  status: 'Đã có kết quả' | 'Không đạt';
-  recommendedCourse: 'Khóa 1' | 'Khóa 2' | 'Không Đạt';
+  status: 'Chờ đánh giá' | 'Đã có kết quả' | 'Không đạt';
+  recommendedCourse: string;
   comment: string;
   ruleExplanation: string;
 }
@@ -161,8 +161,8 @@ export function evaluatePlacementResult(
   const writingErrorLevel: 'ít lỗi' | 'lỗi nhiều' =
     manualWritingErrorLevel || evaluateWritingErrorLevel(writingSentences);
 
-  // 5. Apply user rules in exact order:
-  // Rule A: Nếu từ vựng 2 đổ xuống VÀ đồng thời bài đọc 2 đổ xuống -> Báo Không Đạt. Còn lại để quản lý quyết định.
+  // 5. Apply user rules in exact order (all initial submissions enter Chờ đánh giá for Manager review):
+  // Rule A: Nếu từ vựng 2 đổ xuống VÀ đồng thời bài đọc 2 đổ xuống -> Gợi ý Không Đạt. Chờ Quản lý duyệt.
   if (vocabCorrect <= 2 && readingCorrect <= 2) {
     return {
       vocabCorrect,
@@ -175,14 +175,14 @@ export function evaluatePlacementResult(
       readingTotal: 5,
       writingErrorLevel,
       isFailed: true,
-      status: 'Không đạt',
-      recommendedCourse: 'Không Đạt',
-      comment: PRESET_COMMENTS.FAILED,
-      ruleExplanation: `Từ vựng đúng ${vocabCorrect}/10 VÀ bài Đọc đúng ${readingCorrect}/5 (quy định: từ vựng ≤ 2 đồng thời bài đọc ≤ 2 thì auto báo Không Đạt).`,
+      status: 'Chờ đánh giá',
+      recommendedCourse: 'Chờ đánh giá',
+      comment: 'Đã nộp bài test. Cảnh báo hệ thống: Từ vựng ≤ 2 VÀ Đọc ≤ 2 (Gợi ý: Không Đạt). Chờ Quản lý duyệt.',
+      ruleExplanation: `Từ vựng đúng ${vocabCorrect}/10 VÀ bài Đọc đúng ${readingCorrect}/5 (Gợi ý: Không Đạt - Chờ Quản lý duyệt).`,
     };
   }
 
-  // Rule B: Nếu từ vựng dưới 5 -> Xếp Khóa 1
+  // Rule B: Nếu từ vựng dưới 5 -> Gợi ý Khóa 1. Chờ Quản lý duyệt.
   if (vocabCorrect < 5) {
     return {
       vocabCorrect,
@@ -195,14 +195,14 @@ export function evaluatePlacementResult(
       readingTotal: 5,
       writingErrorLevel,
       isFailed: false,
-      status: 'Đã có kết quả',
-      recommendedCourse: 'Khóa 1',
-      comment: PRESET_COMMENTS.COURSE_1,
-      ruleExplanation: `Từ vựng đạt ${vocabCorrect}/10 câu (dưới 5 câu: xếp Khóa 1).`,
+      status: 'Chờ đánh giá',
+      recommendedCourse: 'Chờ đánh giá',
+      comment: 'Đã nộp bài test. Gợi ý hệ thống: Khóa 1 (Từ vựng < 5). Chờ Quản lý duyệt.',
+      ruleExplanation: `Từ vựng đạt ${vocabCorrect}/10 câu (Gợi ý: xếp Khóa 1 - Chờ Quản lý duyệt).`,
     };
   }
 
-  // Rule C: Nghe đọc tốt/đúng hết, nhưng viết câu lỗi nhiều -> Xếp Khóa 1
+  // Rule C: Nghe đọc tốt/đúng hết, nhưng viết câu lỗi nhiều -> Gợi ý Khóa 1. Chờ Quản lý duyệt.
   if (writingErrorLevel === 'lỗi nhiều') {
     return {
       vocabCorrect,
@@ -215,14 +215,14 @@ export function evaluatePlacementResult(
       readingTotal: 5,
       writingErrorLevel,
       isFailed: false,
-      status: 'Đã có kết quả',
-      recommendedCourse: 'Khóa 1',
-      comment: PRESET_COMMENTS.COURSE_1,
-      ruleExplanation: `Nghe đọc tốt (Nghe đúng ${listeningCorrect}/5, Đọc đúng ${readingCorrect}/5), nhưng phần Viết câu lỗi nhiều (xếp Khóa 1).`,
+      status: 'Chờ đánh giá',
+      recommendedCourse: 'Chờ đánh giá',
+      comment: 'Đã nộp bài test. Gợi ý hệ thống: Khóa 1 (Viết câu lỗi nhiều). Chờ Quản lý duyệt.',
+      ruleExplanation: `Nghe đọc tốt (Nghe đúng ${listeningCorrect}/5, Đọc đúng ${readingCorrect}/5), nhưng phần Viết câu lỗi nhiều (Gợi ý: Khóa 1 - Chờ Quản lý duyệt).`,
     };
   }
 
-  // Rule D: Viết câu ít lỗi -> Xếp Khóa 2
+  // Rule D: Viết câu ít lỗi -> Gợi ý Khóa 2. Chờ Quản lý duyệt.
   return {
     vocabCorrect,
     vocabTotal: 10,
@@ -234,10 +234,10 @@ export function evaluatePlacementResult(
     readingTotal: 5,
     writingErrorLevel: 'ít lỗi',
     isFailed: false,
-    status: 'Đã có kết quả',
-    recommendedCourse: 'Khóa 2',
-    comment: PRESET_COMMENTS.COURSE_2,
-    ruleExplanation: `Nghe đọc tốt (Nghe đúng ${listeningCorrect}/5, Đọc đúng ${readingCorrect}/5), Từ vựng ${vocabCorrect}/10, Viết câu chuẩn xác ít lỗi (xếp Khóa 2).`,
+    status: 'Chờ đánh giá',
+    recommendedCourse: 'Chờ đánh giá',
+    comment: 'Đã nộp bài test. Gợi ý hệ thống: Khóa 2. Chờ Quản lý duyệt.',
+    ruleExplanation: `Nghe đọc tốt (Nghe đúng ${listeningCorrect}/5, Đọc đúng ${readingCorrect}/5), Từ vựng ${vocabCorrect}/10, Viết câu chuẩn xác ít lỗi (Gợi ý: Khóa 2 - Chờ Quản lý duyệt).`,
   };
 }
 

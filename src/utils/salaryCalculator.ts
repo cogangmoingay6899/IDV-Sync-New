@@ -76,8 +76,7 @@ export function getTeacherDefaultSalaryConfig(name: string): Partial<Teacher> {
   if (
     norm.includes('ngoc vu') ||
     norm.includes('vu ngoc') ||
-    norm.includes('vungoc') ||
-    norm.includes('ngoc')
+    norm.includes('vungoc')
   ) {
     return {
       salaryCalcType: 'fixed_with_size_condition',
@@ -89,13 +88,12 @@ export function getTeacherDefaultSalaryConfig(name: string): Partial<Teacher> {
   // 7. Hải Long, Đàm Hiếu, Vũ Ngần (fixed salary 500,000/session)
   if (
     norm.includes('hai long') ||
-    norm.includes('long') ||
+    norm.includes('nguyen hai long') ||
     norm.includes('dam hieu') ||
-    norm.includes('hieu') ||
+    norm.includes('dam trung hieu') ||
+    norm.includes('trung hieu') ||
     norm.includes('vu ngan') ||
-    norm.includes('ngan') ||
-    norm.includes('trunghieu') ||
-    norm.includes('dam trung hieu')
+    norm.includes('vu thi ngan')
   ) {
     return {
       salaryCalcType: 'fixed_per_session',
@@ -120,6 +118,27 @@ export function calculateTeacherSessionSalary(
   classStudents: Student[] = []
 ): number {
   if (!teacher) return 500000;
+
+  const teacherNameNorm = (teacher.name || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+  // Explicit fixed rate rules requested by school management
+  if (teacherNameNorm.includes('huyen chi') || teacherNameNorm.includes('chi')) {
+    return 600000;
+  }
+
+  if (
+    teacherNameNorm.includes('hai long') ||
+    teacherNameNorm.includes('dam hieu') ||
+    teacherNameNorm.includes('trung hieu') ||
+    teacherNameNorm.includes('vu ngan') ||
+    teacherNameNorm.includes('vu thi ngan')
+  ) {
+    return 500000;
+  }
 
   const calcType = teacher.salaryCalcType || getTeacherDefaultSalaryConfig(teacher.name).salaryCalcType || 'rate_per_student';
   const base = teacher.baseAmount || getTeacherDefaultSalaryConfig(teacher.name).baseAmount || 4800000;

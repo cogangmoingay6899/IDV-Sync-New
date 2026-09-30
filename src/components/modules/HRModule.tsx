@@ -62,8 +62,26 @@ export const HRModule: React.FC<HRModuleProps> = ({
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [showAddTeacherModal, setShowAddTeacherModal] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState('05/2026');
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    return `${m}/${now.getFullYear()}`;
+  });
   const [copySuccessToast, setCopySuccessToast] = useState(false);
+
+  // Dynamic month options for payroll dropdown
+  const monthOptions = useMemo(() => {
+    const list: string[] = [];
+    const currentYr = new Date().getFullYear();
+    const years = [currentYr - 1, currentYr, currentYr + 1];
+    years.forEach((yr) => {
+      for (let m = 1; m <= 12; m++) {
+        const mStr = String(m).padStart(2, '0');
+        list.push(`${mStr}/${yr}`);
+      }
+    });
+    return list;
+  }, []);
   const [isAutoExtracted, setIsAutoExtracted] = useState(true);
   const [salaryToastMessage, setSalaryToastMessage] = useState<string | null>(null);
 
@@ -490,11 +508,13 @@ export const HRModule: React.FC<HRModuleProps> = ({
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer shadow-2xs"
             >
-              <option value="05/2026">Tháng 05/2026</option>
-              <option value="06/2026">Tháng 06/2026</option>
-              <option value="07/2026">Tháng 07/2026</option>
+              {monthOptions.map((m) => (
+                <option key={m} value={m}>
+                  Tháng {m}
+                </option>
+              ))}
             </select>
           </div>
         )}

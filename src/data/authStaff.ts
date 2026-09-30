@@ -110,7 +110,7 @@ export const KNOWN_STAFF_PROFILES: Record<string, StaffProfile> = {
     branch: 'Cơ sở 2 - Kiến An (Hải Phòng)',
   },
   'vuthingan19990365161299@gmail.com': {
-    name: 'Cô Vũ Thị Ngân',
+    name: 'Cô Vũ Thị Ngần',
     title: 'Giáo viên IELTS (CS2 Kiến An)',
     specialty: 'IELTS Foundation & Junior',
     branch: 'Cơ sở 2 - Kiến An (Hải Phòng)',
