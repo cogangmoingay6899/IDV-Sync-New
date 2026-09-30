@@ -823,7 +823,18 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       } catch (err) {
         console.warn('Error loading target test directly:', err);
       } finally {
-        if (isMounted) setIsLoadingTargetTest(false);
+        if (isMounted) {
+          setIsLoadingTargetTest(false);
+          setActiveRunnerTest((curr) => {
+            if (curr && curr.questions && curr.questions.length > 0) return curr;
+            const clean = targetId.toLowerCase();
+            const pool = isReview
+              ? (reviewTests.length > 0 ? reviewTests : INITIAL_REVIEW_TESTS)
+              : (tests.length > 0 ? tests : INITIAL_VOCAB_TESTS);
+            const found = pool.find((t) => t.id === targetId || t.id.toLowerCase() === clean) || pool[0];
+            return found || null;
+          });
+        }
       }
     };
 
@@ -1746,7 +1757,8 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
   if (
     isStudentPortalMode &&
     !isExited &&
-    (isLoadingTargetTest || !activeRunnerTest || isPlaceholderDummyTest(activeRunnerTest))
+    isLoadingTargetTest &&
+    !activeRunnerTest
   ) {
     const rawTargetId = initialVocabTestId || initialReviewTestId || '';
     return (

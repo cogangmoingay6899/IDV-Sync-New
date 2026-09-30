@@ -329,6 +329,18 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       }
     >();
 
+    // Pre-fill all teachers registered in the center so every teacher is visible
+    teachers.forEach((t) => {
+      summaryMap.set(t.name, {
+        teacherName: t.name,
+        teacherId: t.id,
+        totalSessions: 0,
+        totalSalary: 0,
+        classesTaught: new Set<string>(),
+        classesBreakdown: {},
+      });
+    });
+
     processedSessions.forEach((session) => {
       // Identify corresponding teacher from system
       const tProfile = teachers.find(
@@ -360,12 +372,23 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       const cls = classes.find((c) => c.id === session.classId);
       const level = cls?.courseLevel || 'Khóa 1';
       const classStudents = students.filter((st) => st.classId === session.classId);
-      const rate = calculateTeacherSessionSalary(tProfile || null, level, session.studentTotalCount || 20, session.sessionNumber, classStudents);
+      const rate = calculateTeacherSessionSalary(
+        tProfile || null,
+        level,
+        session.studentTotalCount || 20,
+        session.sessionNumber,
+        classStudents
+      );
       summary.totalSalary += rate;
     });
 
     return Array.from(summaryMap.values()).sort((a, b) => b.totalSessions - a.totalSessions);
   }, [processedSessions, teachers, classes, students, isTeacher, selectedTeacherId]);
+
+  // Total payroll across all teachers for the selected month
+  const totalGlobalPayroll = useMemo(() => {
+    return globalTeachersSummary.reduce((acc, s) => acc + s.totalSalary, 0);
+  }, [globalTeachersSummary]);
 
   // Overall key metrics
   const totalSessionsCount = filteredSessions.length;
@@ -557,12 +580,15 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
               </>
             ) : (
               <>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Giáo viên tích cực</span>
-                <div className="text-xl font-extrabold text-purple-800 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span>IELTS DƯƠNG VŨ</span>
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Tổng thù lao tất cả GV</span>
+                <div className="text-xl font-extrabold text-emerald-700 tracking-tight">
+                  {totalGlobalPayroll > 0
+                    ? `${totalGlobalPayroll.toLocaleString('vi-VN')} đ`
+                    : 'Chưa có phát sinh'}
                 </div>
-                <span className="text-[10px] text-slate-500 block">Đội ngũ chất lượng cao</span>
+                <span className="text-[10px] text-slate-500 block">
+                  Tổng {globalTeachersSummary.length} giảng viên hệ thống
+                </span>
               </>
             )}
           </div>
