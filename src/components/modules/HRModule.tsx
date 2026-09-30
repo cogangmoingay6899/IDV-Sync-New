@@ -30,11 +30,14 @@ import {
   ALL_STANDARD_SLOTS,
 } from './TeacherScheduleAvailability';
 import { calculateTeacherSessionSalary, getTeacherDefaultSalaryConfig } from '../../utils/salaryCalculator';
+import { extractSessionsFromSpreadsheets } from '../../utils/spreadsheetSessionExtractor';
 
 interface HRModuleProps {
   teachers: Teacher[];
   classes?: ClassGroup[];
   students?: Student[];
+  attendanceRecords?: AttendanceRecord[];
+  classSpreadsheets?: any[];
   onAddTeacher: (teacher: Teacher) => void;
   onUpdateTeacher?: (updatedTeacher: Teacher) => void;
   onUpdateClass?: (updatedClass: ClassGroup) => void;
@@ -53,6 +56,8 @@ export const HRModule: React.FC<HRModuleProps> = ({
   teachers,
   classes = [],
   students = [],
+  attendanceRecords = [],
+  classSpreadsheets = [],
   onAddTeacher,
   onUpdateTeacher,
   onUpdateClass,
@@ -200,21 +205,50 @@ export const HRModule: React.FC<HRModuleProps> = ({
   const extractedPayrollRows = useMemo(() => {
     if (!selectedTeacher) return [];
 
+    // Parse month and year from selectedMonth (format "MM/YYYY")
+    const parts = selectedMonth.split('/');
+    const targetM = parts.length >= 2 ? parseInt(parts[0], 10) : new Date().getMonth() + 1;
+    const targetY = parts.length >= 2 ? parseInt(parts[1], 10) : new Date().getFullYear();
+
     const teacherClasses = classes.filter(
       (c) =>
         c.teacherId === selectedTeacher.id ||
-        (selectedTeacher.name && c.teacherName.toLowerCase().includes(selectedTeacher.name.toLowerCase()))
+        (selectedTeacher.name && (c.teacherName || '').toLowerCase().includes(selectedTeacher.name.toLowerCase())) ||
+        (Array.isArray(c.teacherNames) && c.teacherNames.some((tn) => tn.toLowerCase().includes(selectedTeacher.name.toLowerCase())))
     );
 
     const rows: TeacherPayrollRow[] = [];
     const calcType = selectedTeacher.salaryCalcType || getTeacherDefaultSalaryConfig(selectedTeacher.name).salaryCalcType || 'rate_per_student';
 
+    const spreadsheetRecords = extractSessionsFromSpreadsheets(classSpreadsheets, classes, teachers);
+    const combinedRecords = [...attendanceRecords, ...spreadsheetRecords];
+
     teacherClasses.forEach((cls) => {
+      // Find actual attendance sessions for this class in targetM / targetY
+      const classRecordsInMonth = combinedRecords.filter((r) => {
+        if (!r || r.classId !== cls.id || !r.date) return false;
+        
+        let rYear = 0;
+        let rMonth = 0;
+        if (r.date.includes('-')) {
+          const p = r.date.split('-');
+          rYear = parseInt(p[0], 10);
+          rMonth = parseInt(p[1], 10);
+        } else if (r.date.includes('/')) {
+          const p = r.date.split('/');
+          rYear = parseInt(p[2], 10);
+          rMonth = parseInt(p[1], 10);
+        }
+        return rMonth === targetM && rYear === targetY;
+      });
+
+      // Unique session dates recorded in this month
+      const uniqueDates = new Set(classRecordsInMonth.map((r) => r.date));
+      const sessionCount = uniqueDates.size;
+
       const classStudentsList = students.filter(
         (s) => (s.classId === cls.id || s.className === cls.name) && s.status === 'Đang học'
       );
-
-      const sessionCount = cls.completedSessions || 1;
       const studentCount = classStudentsList.length || cls.currentStudents || 15;
 
       if (calcType === 'rate_per_student') {
@@ -306,7 +340,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
     }
 
     return rows;
-  }, [selectedTeacher, classes, students]);
+  }, [selectedTeacher, classes, students, attendanceRecords, classSpreadsheets, teachers, selectedMonth]);
 
   const currentTeacherRows = useMemo(() => {
     if (!selectedTeacher) return [];

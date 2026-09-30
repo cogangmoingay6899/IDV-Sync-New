@@ -18,12 +18,14 @@ import {
 } from 'lucide-react';
 import { ClassGroup, Student, AttendanceRecord, Teacher, AuthUser } from '../../types';
 import { calculateTeacherSessionSalary } from '../../utils/salaryCalculator';
+import { extractSessionsFromSpreadsheets } from '../../utils/spreadsheetSessionExtractor';
 
 interface TeacherSessionsModuleProps {
   classes: ClassGroup[];
   students: Student[];
   teachers: Teacher[];
   attendanceRecords: AttendanceRecord[];
+  classSpreadsheets?: any[];
   currentUser?: AuthUser;
 }
 
@@ -31,7 +33,8 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
   classes,
   students,
   teachers,
-  attendanceRecords,
+  attendanceRecords = [],
+  classSpreadsheets = [],
   currentUser,
 }) => {
   // Determine if user is teacher, assistant, or admin
@@ -137,7 +140,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     return count > 0 ? count : 8;
   };
 
-  // Extract all unique sessions from attendance records
+  // Extract all unique sessions from attendance records + class spreadsheets
   const processedSessions = useMemo(() => {
     const sessionsMap = new Map<
       string,
@@ -157,7 +160,10 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       }
     >();
 
-    attendanceRecords.forEach((record) => {
+    const spreadsheetRecords = extractSessionsFromSpreadsheets(classSpreadsheets, classes, teachers);
+    const combinedRecords = [...attendanceRecords, ...spreadsheetRecords];
+
+    combinedRecords.forEach((record) => {
       // Parse year and month
       const dateParts = parseYearMonth(record.date);
       if (!dateParts) return;
@@ -224,7 +230,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     });
 
     return Array.from(sessionsMap.values()).sort((a, b) => b.date.localeCompare(a.date));
-  }, [attendanceRecords, classes, selectedYear, selectedMonth]);
+  }, [attendanceRecords, classSpreadsheets, classes, teachers, selectedYear, selectedMonth]);
 
   // Helper to match a session with a selected teacher
   const isSessionForSelectedTeacher = (session: typeof processedSessions[0], teacherObj: Teacher | null | undefined, id: string) => {

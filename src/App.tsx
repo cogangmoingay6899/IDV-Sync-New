@@ -321,6 +321,7 @@ export default function App() {
     return [];
   });
   const [teachers, setTeachers] = useState<Teacher[]>(INITIAL_TEACHERS);
+  const [classSpreadsheets, setClassSpreadsheets] = useState<any[]>([]);
   const [leads, setLeads] = useState<LeadAdmission[]>(INITIAL_LEADS);
   const [placementTests, setPlacementTests] = useState<PlacementTest[]>(() => {
     try {
@@ -460,6 +461,7 @@ export default function App() {
     const unsubCourses = subscribeCollection('courses', INITIAL_COURSES, setCourses);
     const unsubKpis = subscribeCollection('kpis', INITIAL_KPIS, setKpis);
     const unsubInventory = subscribeCollection('inventory', INITIAL_INVENTORY, setInventory);
+    const unsubSpreadsheets = subscribeCollection('class_spreadsheets', [], setClassSpreadsheets);
 
     // Cross-tab instant synchronization for placement tests (Immediate UI update when candidate submits in separate tab)
     let syncChannel: BroadcastChannel | null = null;
@@ -2570,6 +2572,7 @@ export default function App() {
             students={students}
             teachers={teachers}
             attendanceRecords={attendance}
+            classSpreadsheets={classSpreadsheets}
             currentUser={currentUser}
           />
         )}
@@ -2700,6 +2703,8 @@ export default function App() {
                 teachers={teachers}
                 classes={classes}
                 students={students}
+                attendanceRecords={attendance}
+                classSpreadsheets={classSpreadsheets}
                 onAddTeacher={handleAddTeacher}
                 onUpdateTeacher={handleUpdateTeacher}
                 onUpdateClass={handleUpdateClass}
