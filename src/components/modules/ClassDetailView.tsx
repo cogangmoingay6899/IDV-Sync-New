@@ -1296,7 +1296,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       const parsedPenalty = row?.penaltyCopies !== '' && !isNaN(Number(row?.penaltyCopies)) ? Number(row.penaltyCopies) : undefined;
 
       return {
-        id: `att-${Date.now()}-${st.id}`,
+        id: `att-${classGroup.id}-s${sessionNumber}-${st.id}`,
         classId: classGroup.id,
         date: currentDate,
         sessionNumber: sessionNumber,
@@ -1352,7 +1352,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
           }
 
           const newExam: ExamScore = {
-            id: `ex-${Date.now()}-${st.id}`,
+            id: `ex-${classGroup.id}-s${sessionNumber}-${st.id}`,
             studentId: st.id,
             studentName: st.name,
             studentCode: st.code,
@@ -2475,25 +2475,6 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                 <span className="text-xs text-purple-800 bg-purple-100 px-2 py-0.5 rounded-md font-bold">
                   {selectedSkills.join(' + ')}
                 </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsClassZaloModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors shadow-2xs"
-                  title="Xuất bảng điểm, sắp xếp điểm từ cao xuống thấp và lưu ảnh gửi Phụ huynh"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>Xuất ảnh / Gửi Zalo</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveDailySession}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-purple-700 hover:bg-purple-800 rounded-xl shadow-xs transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Lưu buổi học</span>
-                </button>
               </div>
             </div>
 

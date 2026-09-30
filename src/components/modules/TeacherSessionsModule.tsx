@@ -323,6 +323,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
         teacherName: string;
         teacherId: string | null;
         totalSessions: number;
+        totalSalary: number;
         classesTaught: Set<string>;
         classesBreakdown: Record<string, number>; // classId -> count
       }
@@ -344,6 +345,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
           teacherName: nameKey,
           teacherId: idKey,
           totalSessions: 0,
+          totalSalary: 0,
           classesTaught: new Set<string>(),
           classesBreakdown: {},
         });
@@ -353,10 +355,17 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       summary.totalSessions += 1;
       summary.classesTaught.add(session.classId);
       summary.classesBreakdown[session.classId] = (summary.classesBreakdown[session.classId] || 0) + 1;
+
+      // Calculate session salary
+      const cls = classes.find((c) => c.id === session.classId);
+      const level = cls?.courseLevel || 'Khóa 1';
+      const classStudents = students.filter((st) => st.classId === session.classId);
+      const rate = calculateTeacherSessionSalary(tProfile || null, level, session.studentTotalCount || 20, session.sessionNumber, classStudents);
+      summary.totalSalary += rate;
     });
 
     return Array.from(summaryMap.values()).sort((a, b) => b.totalSessions - a.totalSessions);
-  }, [processedSessions, teachers, isTeacher, selectedTeacherId]);
+  }, [processedSessions, teachers, classes, students, isTeacher, selectedTeacherId]);
 
   // Overall key metrics
   const totalSessionsCount = filteredSessions.length;
@@ -585,6 +594,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                     <th className="py-3 px-5 w-12 text-center">STT</th>
                     <th className="py-3 px-4">Họ và tên giảng viên</th>
                     <th className="py-3 px-4 text-center">Tổng số buổi dạy</th>
+                    <th className="py-3 px-4 text-center">Tổng lương ước tính</th>
                     <th className="py-3 px-4 text-center">Số lớp đứng dạy</th>
                     <th className="py-3 px-4">Danh sách các lớp giảng dạy</th>
                     <th className="py-3 px-4 text-center w-28">Thao tác</th>
@@ -621,6 +631,9 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                           <span className="inline-block px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-black rounded-lg border border-purple-100">
                             {summary.totalSessions} buổi
                           </span>
+                        </td>
+                        <td className="py-4 px-4 text-center font-extrabold text-emerald-700">
+                          {summary.totalSalary.toLocaleString('vi-VN')} đ
                         </td>
                         <td className="py-4 px-4 text-center text-slate-800 font-bold">
                           {summary.classesTaught.size} lớp
@@ -666,7 +679,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
 
                   {globalTeachersSummary.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <td colSpan={7} className="py-12 text-center text-slate-400">
                         <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                         <p className="font-semibold text-slate-600 text-xs">Không có dữ liệu buổi dạy trong tháng này</p>
                         <p className="text-[11px] text-slate-400 mt-0.5">Vui lòng kiểm tra lại bộ lọc thời gian hoặc lấy dữ liệu điểm danh lớp học.</p>

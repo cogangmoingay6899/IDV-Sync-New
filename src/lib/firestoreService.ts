@@ -756,27 +756,42 @@ export async function addSubmissionToTest(
 ) {
   try {
     const cleanSub = sanitizeFirestoreData(submission);
-    const docRef = doc(db, collectionName, testId);
-    try {
-      await updateDoc(docRef, {
-        submissions: arrayUnion(cleanSub),
+    
+    // 1. Get current test from local cache or fetch from VPS server
+    let currentTests = cachedCollections.get(collectionName) || [];
+    let test = currentTests.find((t: any) => String(t.id) === String(testId));
+    
+    if (!test) {
+      try {
+        const res = await fetch(`/api/storage/${encodeURIComponent(collectionName)}?_t=${Date.now()}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json.data)) {
+            currentTests = json.data;
+            cachedCollections.set(collectionName, currentTests);
+            test = currentTests.find((t: any) => String(t.id) === String(testId));
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (test) {
+      const existingSubs = Array.isArray(test.submissions) ? test.submissions : [];
+      const filteredSubs = existingSubs.filter((s: any) => s.id !== cleanSub.id);
+      const updatedTest = {
+        ...test,
+        submissions: [...filteredSubs, cleanSub],
         updatedAt: new Date().toISOString(),
-      });
-    } catch (updateErr) {
-      // Fallback if doc doesn't exist yet or updateDoc fails
-      const test = await fetchDocument<any>(collectionName, testId);
-      if (test) {
-        const existingSubs = Array.isArray(test.submissions) ? test.submissions : [];
-        const filteredSubs = existingSubs.filter((s: any) => s.id !== cleanSub.id);
-        const updated = {
-          ...test,
-          submissions: [...filteredSubs, cleanSub],
-        };
-        await saveDocument(collectionName, updated);
-      }
+      };
+
+      // Save via saveDocument (saves to VPS & localStorage)
+      await saveDocument(collectionName, updatedTest);
+      console.log(`✅ [VPS Storage] Successfully added submission for test ${testId} in ${collectionName}`);
+    } else {
+      console.warn(`⚠️ [VPS Storage] Test ${testId} not found in collection ${collectionName} when adding submission.`);
     }
   } catch (err) {
-    console.error(`[Firebase Firestore] Error adding submission to ${collectionName}:`, err);
+    console.error(`[VPS Storage] Error adding submission to ${collectionName}:`, err);
   }
 }
 

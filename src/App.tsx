@@ -2014,7 +2014,12 @@ export default function App() {
 
   // Handler: Add Exam Score
   const handleAddExamScore = (exam: ExamScore) => {
-    setExams((prev) => [exam, ...prev]);
+    setExams((prev) => {
+      const filtered = prev.filter(
+        (e) => e.id !== exam.id && !(e.classId === exam.classId && e.examName === exam.examName && e.studentId === exam.studentId)
+      );
+      return [exam, ...filtered];
+    });
     saveDocument('exams', exam);
   };
 
