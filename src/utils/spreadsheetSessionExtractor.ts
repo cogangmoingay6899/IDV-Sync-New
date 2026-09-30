@@ -115,6 +115,8 @@ export function extractSessionsFromSpreadsheets(
         teacherName: teacherName,
         skillTaught: col.subSkill || 'Tổng hợp',
         skillsTaught: col.subSkill ? [col.subSkill] : [],
+        studentTotalCount: sheet.rows.length,
+        studentPresentCount: studentPresentCount
       });
     });
   });

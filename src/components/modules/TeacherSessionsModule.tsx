@@ -213,10 +213,14 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       }
 
       const session = sessionsMap.get(sessionKey)!;
-      session.studentTotalCount += 1;
-      if (record.status === 'Có mặt' || record.status === 'Đi muộn' || record.status === 'Đi trễ') {
-        session.studentPresentCount += 1;
-      }
+      
+      const stTotal = (record as any).studentTotalCount || 1;
+      const stPresent = (record as any).studentPresentCount !== undefined 
+        ? (record as any).studentPresentCount 
+        : (record.status === 'Có mặt' || record.status === 'Đi muộn' || record.status === 'Đi trễ' ? 1 : 0);
+
+      session.studentTotalCount += stTotal;
+      session.studentPresentCount += stPresent;
       // Combine skills
       if (record.skillsTaught && record.skillsTaught.length > 0) {
         record.skillsTaught.forEach((skill) => {
