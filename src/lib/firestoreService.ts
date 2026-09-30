@@ -29,6 +29,7 @@ type CollectionListener<T> = (data: T[]) => void;
 const activeListeners = new Map<string, Set<CollectionListener<any>>>();
 const cachedCollections = new Map<string, any[]>();
 const firestoreUnsubscribers = new Map<string, Unsubscribe>();
+const activeFallbackIntervals = new Map<string, any>();
 
 // Known deleted mock/sample items that should never reappear on any device
 const KNOWN_DEFAULT_DELETED_IDS = [
@@ -307,120 +308,13 @@ export function subscribeCollection<T extends { id: string }>(
   cachedCollections.set(collectionName, initialItems);
   onData(initialItems);
 
-  // 3. Connect real-time Firebase Firestore listener
-  if (!firestoreUnsubscribers.has(collectionName) && typeof window !== 'undefined') {
-    try {
-      const colRef = collection(db, collectionName);
-      const unsub = onSnapshot(
-        colRef,
-        (snapshot) => {
-          if (!snapshot.empty) {
-            // Check if snapshot contains meta_deleted_ids document
-            const metaDoc = snapshot.docs.find((d) => d.id === 'meta_deleted_ids');
-            if (metaDoc && metaDoc.exists()) {
-              const metaData = metaDoc.data();
-              if (Array.isArray(metaData?.deletedIds)) {
-                metaData.deletedIds.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
-              }
-            }
-
-            let firestoreItems: T[] = snapshot.docs
-              .filter((d) => d.id !== 'meta_deleted_ids' && !isRecordDeleted(d.id, collectionName))
-              .map((d) => ({
-                id: d.id,
-                ...d.data(),
-              })) as T[];
-
-            // Ensure full questions from presets are not downgraded by stale/empty Firestore docs
-            if (
-              (collectionName === 'vocab_tests' || collectionName === 'vocab_reviews') &&
-              initialData &&
-              initialData.length > 0
-            ) {
-              const initialMap = new Map(initialData.map((p) => [p.id, p]));
-              firestoreItems = firestoreItems.map((rawItem: T) => {
-                const item = rawItem as any;
-                const preset = initialMap.get(item.id) as any;
-                if (
-                  preset &&
-                  Array.isArray(preset.questions) &&
-                  preset.questions.length > 0 &&
-                  (!Array.isArray(item.questions) || preset.questions.length > item.questions.length)
-                ) {
-                  return {
-                    ...item,
-                    title: preset.title || item.title,
-                    unitName: preset.unitName || item.unitName,
-                    courseLevel: preset.courseLevel || item.courseLevel,
-                    timePerQuestionSeconds: preset.timePerQuestionSeconds || item.timePerQuestionSeconds,
-                    questions: preset.questions,
-                    submissions: item.submissions || preset.submissions || [],
-                  } as unknown as T;
-                }
-                return rawItem;
-              });
-
-              const existingFsIds = new Set(firestoreItems.map((i: any) => i.id));
-              const missingPresets = initialData.filter(
-                (p) => !existingFsIds.has(p.id) && !isRecordDeleted(p.id, collectionName)
-              );
-              if (missingPresets.length > 0) {
-                firestoreItems = [...firestoreItems, ...missingPresets];
-              }
-            }
-
-            cachedCollections.set(collectionName, firestoreItems);
-            try {
-              localStorage.setItem(`vps_col_${collectionName}`, JSON.stringify(firestoreItems));
-            } catch (e) {}
-
-            const currentListeners = activeListeners.get(collectionName);
-            if (currentListeners) {
-              currentListeners.forEach((cb) => {
-                try {
-                  cb(firestoreItems);
-                } catch (err) {}
-              });
-            }
-          } else {
-            // Snapshot is empty: emit empty array and do NOT seed classes or placement tests
-            cachedCollections.set(collectionName, []);
-            try {
-              localStorage.setItem(`vps_col_${collectionName}`, JSON.stringify([]));
-            } catch (e) {}
-
-            const currentListeners = activeListeners.get(collectionName);
-            if (currentListeners) {
-              currentListeners.forEach((cb) => {
-                try {
-                  cb([]);
-                } catch (err) {}
-              });
-            }
-
-            // NEVER re-seed classes or placementTests
-            if (collectionName !== 'classes' && collectionName !== 'placementTests' && initialData && initialData.length > 0) {
-              const nonDeletedInitial = initialData.filter((i) => !isRecordDeleted(i.id, collectionName));
-              if (nonDeletedInitial.length > 0) {
-                console.log(`[Firebase Firestore] Seeding initial data for ${collectionName}...`);
-                saveBatchDocuments(collectionName, nonDeletedInitial).catch((err) => {
-                  console.warn(`[Firebase Firestore] Seeding error for ${collectionName}:`, err);
-                });
-              }
-            }
-          }
-        },
-        (error) => {
-          console.warn(`[Firebase Firestore] Snapshot listener fallback for ${collectionName}:`, error);
-          // Fallback to VPS Server fetch if Firestore snapshot encountered permissions/network
-          fetchFromVPSServer(collectionName, initialData, onData);
-        }
-      );
-      firestoreUnsubscribers.set(collectionName, unsub);
-    } catch (err) {
-      console.warn(`[Firebase Firestore] Init error on ${collectionName}:`, err);
+  // 3. Sync purely via local VPS Server Storage & LocalStorage cache (Bypassing Firestore completely to avoid quota issues)
+  if (!activeFallbackIntervals.has(collectionName) && typeof window !== 'undefined') {
+    fetchFromVPSServer(collectionName, initialData, onData);
+    const interval = setInterval(() => {
       fetchFromVPSServer(collectionName, initialData, onData);
-    }
+    }, 4000);
+    activeFallbackIntervals.set(collectionName, interval);
   }
 
   // Unsubscribe function
@@ -428,10 +322,9 @@ export function subscribeCollection<T extends { id: string }>(
     listenerSet.delete(onData);
     if (listenerSet.size === 0) {
       activeListeners.delete(collectionName);
-      const unsub = firestoreUnsubscribers.get(collectionName);
-      if (unsub) {
-        unsub();
-        firestoreUnsubscribers.delete(collectionName);
+      if (activeFallbackIntervals.has(collectionName)) {
+        clearInterval(activeFallbackIntervals.get(collectionName));
+        activeFallbackIntervals.delete(collectionName);
       }
     }
   };

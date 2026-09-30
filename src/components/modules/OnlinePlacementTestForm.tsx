@@ -589,6 +589,36 @@ export const OnlinePlacementTestForm: React.FC<OnlinePlacementTestFormProps> = (
   const [lastAutoSaveTime, setLastAutoSaveTime] = useState<string>('');
   const [showDraftRestoredNotice, setShowDraftRestoredNotice] = useState<boolean>(false);
 
+  // Real-time Background Sync to recover any lost / unsynced submissions or completed drafts
+  useEffect(() => {
+    const runBackgroundRecoverySync = async () => {
+      try {
+        const rawLocal = localStorage.getItem('idv_submitted_candidate_placement_tests');
+        if (!rawLocal) return;
+        const candidateSubs: PlacementTest[] = JSON.parse(rawLocal);
+        if (!Array.isArray(candidateSubs) || candidateSubs.length === 0) return;
+
+        console.log(`[Sync Recovery] Found ${candidateSubs.length} candidate submissions in browser storage.`);
+        for (const test of candidateSubs) {
+          try {
+            await fetch('/api/placement-tests', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(test),
+            });
+            console.log(`[Sync Recovery] Auto-uploaded test: ${test.candidateName}`);
+          } catch (e) {
+            console.warn('[Sync Recovery] API upload error:', e);
+          }
+        }
+      } catch (err) {
+        console.warn('[Sync Recovery] Error running background sync:', err);
+      }
+    };
+
+    runBackgroundRecoverySync();
+  }, []);
+
   // Form Data Model matching the 7 Sections from PDF (Auto-restored from draft if available)
   const [formData, setFormData] = useState(() => {
     try {
