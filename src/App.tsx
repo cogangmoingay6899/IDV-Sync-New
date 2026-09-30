@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Header } from './components/Header';
 import { ModuleGrid } from './components/ModuleGrid';
 import { FinanceModule } from './components/modules/FinanceModule';
@@ -366,6 +366,9 @@ export default function App() {
   const [kpis, setKpis] = useState<KPITarget[]>(INITIAL_KPIS);
   const [inventory, setInventory] = useState<InventoryItem[]>(INITIAL_INVENTORY);
 
+  // Keep a set of already loaded placement test IDs to avoid duplicate alerts and trigger audio-visual pings on new submissions
+  const knownPlacementTestIdsRef = useRef<Set<string> | null>(null);
+
   // Real-time Cloud Database (Firebase Firestore) Sync across all devices
   useEffect(() => {
     const unsubStudents = subscribeCollection('students', INITIAL_STUDENTS, (items) => {
@@ -409,6 +412,30 @@ export default function App() {
         }
         return t;
       });
+
+      // TRIGGER REAL-TIME AUDIO-VISUAL ALERTS FOR NEW ONLINE TEST SUBMISSIONS
+      try {
+        const currentIds = new Set(updatedTests.map((t) => t.id));
+        if (knownPlacementTestIdsRef.current !== null) {
+          const newTests = updatedTests.filter(
+            (t) => !knownPlacementTestIdsRef.current!.has(t.id) && t.sourceType === 'form_online'
+          );
+          if (newTests.length > 0) {
+            newTests.forEach((nt) => {
+              if (!isPlacementTestUrl()) {
+                showToast(`🔔 Hệ thống vừa nhận bài TEST ĐẦU VÀO mới từ em: ${nt.candidateName}! (Đề xuất: ${nt.recommendedCourse})`);
+                try {
+                  const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-200.wav');
+                  audio.volume = 0.45;
+                  audio.play().catch(() => {});
+                } catch (ae) {}
+              }
+            });
+          }
+        }
+        knownPlacementTestIdsRef.current = currentIds;
+      } catch (e) {}
+
       try {
         localStorage.setItem('idv_placement_tests_cache', JSON.stringify(updatedTests.slice(0, 100)));
       } catch (e) {
@@ -480,6 +507,50 @@ export default function App() {
       }
     };
     window.addEventListener('storage', handleStorageSync);
+
+    // Auto-upload locally cached submissions back to server & cloud to ensure no offline submissions are lost
+    const uploadCachedSubmissionsToSystem = async () => {
+      try {
+        const rawLocal = localStorage.getItem('idv_submitted_candidate_placement_tests');
+        if (!rawLocal) return;
+        const candidateSubs: PlacementTest[] = JSON.parse(rawLocal);
+        if (!Array.isArray(candidateSubs) || candidateSubs.length === 0) return;
+
+        // Fetch current active list of IDs on server
+        let serverIds = new Set<string>();
+        try {
+          const res = await fetch('/api/placement-tests');
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success && Array.isArray(json.data)) {
+              serverIds = new Set(json.data.map((t: any) => t.id));
+            }
+          }
+        } catch (e) {}
+
+        const unsyncedTests = candidateSubs.filter((t) => !serverIds.has(t.id));
+        if (unsyncedTests.length > 0) {
+          console.log(`[Sync Engine] Uploading ${unsyncedTests.length} locally saved tests to VPS and Firestore...`);
+          for (const test of unsyncedTests) {
+            // Save to Server
+            await fetch('/api/placement-tests', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(test),
+            }).catch(() => {});
+
+            // Save to Firestore
+            await saveDocument('placementTests', test).catch(() => {});
+          }
+          console.log(`[Sync Engine] Successfully uploaded all ${unsyncedTests.length} tests!`);
+          showToast(`🚀 Đã đồng bộ ngược thành công ${unsyncedTests.length} bài test từ máy lên Cloud!`);
+        }
+      } catch (err) {
+        console.warn('Auto-upload cached submissions error:', err);
+      }
+    };
+
+    uploadCachedSubmissionsToSystem();
 
     // Cross-device server polling for new placement tests submitted by candidates
     const syncServerPlacementTests = async () => {
