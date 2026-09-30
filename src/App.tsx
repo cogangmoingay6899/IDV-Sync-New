@@ -536,7 +536,22 @@ export default function App() {
           }
         } catch (e) {}
 
-        const unsyncedTests = candidateSubs.filter((t) => !serverIds.has(t.id));
+        // Only upload tests submitted in the last 7 days (from last week up to today)
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const sevenDaysAgoTime = sevenDaysAgo.getTime();
+
+        const unsyncedTests = candidateSubs.filter((t) => {
+          if (serverIds.has(t.id)) return false;
+          try {
+            const dateToCheck = t.submittedAt ? new Date(t.submittedAt) : t.testDate ? new Date(t.testDate) : null;
+            if (dateToCheck && !isNaN(dateToCheck.getTime())) {
+              return dateToCheck.getTime() >= sevenDaysAgoTime;
+            }
+          } catch (e) {}
+          return false;
+        });
+
         if (unsyncedTests.length > 0) {
           console.log(`[Sync Engine] Uploading ${unsyncedTests.length} locally saved tests to VPS and Firestore...`);
           for (const test of unsyncedTests) {
