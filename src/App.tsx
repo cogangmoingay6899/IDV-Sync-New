@@ -391,8 +391,16 @@ export default function App() {
 
       const tests = (Array.isArray(data) ? data : []).filter((t) => !isRecordDeleted(t.id, 'placementTests'));
       const testMap = new Map<string, PlacementTest>();
-      // Cloud data first
-      tests.forEach((t) => testMap.set(t.id, t));
+      
+      // If we have no online tests in the sync snapshot, always keep INITIAL_PLACEMENT_TESTS presets visible
+      const baseTests = tests.length > 0 ? tests : INITIAL_PLACEMENT_TESTS;
+      
+      // Cloud/Preset data first
+      baseTests.forEach((t) => {
+        if (!isRecordDeleted(t.id, 'placementTests')) {
+          testMap.set(t.id, t);
+        }
+      });
       // Ensure candidate submitted tests are merged and preserved if not deleted
       cachedSubmissions.forEach((t) => {
         if (!isRecordDeleted(t.id, 'placementTests')) {
