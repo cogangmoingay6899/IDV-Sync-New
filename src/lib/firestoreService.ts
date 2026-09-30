@@ -775,21 +775,31 @@ export async function addSubmissionToTest(
       } catch (e) {}
     }
 
-    if (test) {
-      const existingSubs = Array.isArray(test.submissions) ? test.submissions : [];
-      const filteredSubs = existingSubs.filter((s: any) => s.id !== cleanSub.id);
-      const updatedTest = {
-        ...test,
-        submissions: [...filteredSubs, cleanSub],
-        updatedAt: new Date().toISOString(),
+    if (!test) {
+      // Construct fallback test shell if test hasn't been saved to server storage file yet
+      test = {
+        id: testId,
+        title: `Bài kiểm tra ${testId}`,
+        unitName: 'Tổng hợp',
+        courseLevel: 'Khóa 1',
+        timePerQuestionSeconds: 20,
+        questions: [],
+        submissions: [],
+        createdAt: new Date().toISOString(),
       };
-
-      // Save via saveDocument (saves to VPS & localStorage)
-      await saveDocument(collectionName, updatedTest);
-      console.log(`✅ [VPS Storage] Successfully added submission for test ${testId} in ${collectionName}`);
-    } else {
-      console.warn(`⚠️ [VPS Storage] Test ${testId} not found in collection ${collectionName} when adding submission.`);
     }
+
+    const existingSubs = Array.isArray(test.submissions) ? test.submissions : [];
+    const filteredSubs = existingSubs.filter((s: any) => s.id !== cleanSub.id);
+    const updatedTest = {
+      ...test,
+      submissions: [...filteredSubs, cleanSub],
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save via saveDocument (saves to VPS & localStorage)
+    await saveDocument(collectionName, updatedTest);
+    console.log(`✅ [VPS Storage] Successfully added submission for test ${testId} in ${collectionName}`);
   } catch (err) {
     console.error(`[VPS Storage] Error adding submission to ${collectionName}:`, err);
   }

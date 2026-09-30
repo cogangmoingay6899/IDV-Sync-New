@@ -570,6 +570,16 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
     return () => unsub();
   }, []);
 
+  // Standalone Submissions Collection State for Global Leaderboard Sync
+  const [standaloneSubmissions, setStandaloneSubmissions] = useState<VocabTestSubmission[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeCollection<VocabTestSubmission>('vocab_test_submissions', [], (data) => {
+      setStandaloneSubmissions(data || []);
+    });
+    return () => unsub();
+  }, []);
+
   // Modals & Active Test States
   // Start runner with session recovery and multi-user isolation
   const handleStartRunner = (test: VocabTest, forceRestart: boolean = false) => {
@@ -2300,7 +2310,32 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
       {/* MODAL 1: BẢNG XẾP HẠNG (LEADERBOARD) AI LÀM NHANH NHẤT & CHÍNH XÁC NHẤT */}
       {activeLeaderboardTest && (() => {
-        const allSubmissions = (activeLeaderboardTest.submissions || []).filter(
+        const testIdClean = activeLeaderboardTest.id.toLowerCase();
+        const testNumMatch = testIdClean.match(/(\d+)/);
+        const testLessonNum = testNumMatch ? parseInt(testNumMatch[1], 10) : 0;
+
+        const matchingStandalone = standaloneSubmissions.filter((s) => {
+          if (!s || !s.testId) return false;
+          const sIdClean = s.testId.toLowerCase();
+          if (sIdClean === testIdClean) return true;
+          const sNumMatch = sIdClean.match(/(\d+)/);
+          const sLessonNum = sNumMatch ? parseInt(sNumMatch[1], 10) : 0;
+          return sLessonNum > 0 && sLessonNum === testLessonNum;
+        });
+
+        const combinedRaw = [
+          ...(activeLeaderboardTest.submissions || []),
+          ...matchingStandalone
+        ];
+
+        const subMap = new Map<string, VocabTestSubmission>();
+        combinedRaw.forEach((s) => {
+          if (!s || !s.studentName) return;
+          const uniqueKey = s.id || `${s.studentName}_${s.score}_${s.timeSpentSeconds}_${s.submittedAt}`;
+          subMap.set(uniqueKey, s);
+        });
+
+        const allSubmissions = Array.from(subMap.values()).filter(
           (sub) =>
             sub.studentName &&
             sub.studentName !== 'Nguyễn Văn Minh' &&
