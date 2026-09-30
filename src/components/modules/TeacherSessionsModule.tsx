@@ -110,6 +110,33 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     return null;
   };
 
+  // Helper to estimate scheduled sessions for a class in a given month based on its schedule
+  const getScheduledSessionsCountForMonth = (cls: ClassGroup, year: number, month: number): number => {
+    if (!cls || !cls.schedule) return 8;
+    const scheduleLower = cls.schedule.toLowerCase();
+    
+    const targetDays: number[] = [];
+    if (scheduleLower.includes('thứ 2') || scheduleLower.includes('thứ hai') || scheduleLower.includes('t2') || scheduleLower.includes('mon')) targetDays.push(1);
+    if (scheduleLower.includes('thứ 3') || scheduleLower.includes('thứ ba') || scheduleLower.includes('t3') || scheduleLower.includes('tue')) targetDays.push(2);
+    if (scheduleLower.includes('thứ 4') || scheduleLower.includes('thứ tư') || scheduleLower.includes('t4') || scheduleLower.includes('wed')) targetDays.push(3);
+    if (scheduleLower.includes('thứ 5') || scheduleLower.includes('thứ năm') || scheduleLower.includes('t5') || scheduleLower.includes('thu')) targetDays.push(4);
+    if (scheduleLower.includes('thứ 6') || scheduleLower.includes('thứ sáu') || scheduleLower.includes('t6') || scheduleLower.includes('fri')) targetDays.push(5);
+    if (scheduleLower.includes('thứ 7') || scheduleLower.includes('thứ bảy') || scheduleLower.includes('t7') || scheduleLower.includes('sat')) targetDays.push(6);
+    if (scheduleLower.includes('chủ nhật') || scheduleLower.includes('cn') || scheduleLower.includes('sun')) targetDays.push(0);
+
+    if (targetDays.length === 0) return 8;
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+    let count = 0;
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayOfWeek = new Date(year, month - 1, day).getDay();
+      if (targetDays.includes(dayOfWeek)) {
+        count++;
+      }
+    }
+    return count > 0 ? count : 8;
+  };
+
   // Extract all unique sessions from attendance records
   const processedSessions = useMemo(() => {
     const sessionsMap = new Map<
@@ -145,11 +172,17 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       const branch = cls?.branch || 'Chưa rõ';
       const schedule = cls?.schedule || 'Chưa ghi nhận lịch';
 
-      // Determine the teacher who taught this session.
-      // We look at record.teacherName first. If not found, fall back to the class's teacherName
+      // Determine all teachers associated with this session (from record and class assignment)
       let recordTeacher = record.teacherName?.trim() || '';
-      if (!recordTeacher && cls) {
-        recordTeacher = cls.teacherName || '';
+      if (cls) {
+        const clsTeachers = Array.isArray(cls.teacherNames) && cls.teacherNames.length > 0
+          ? cls.teacherNames.join(', ')
+          : (cls.teacherName || '');
+        if (!recordTeacher) {
+          recordTeacher = clsTeachers;
+        } else if (clsTeachers && !recordTeacher.toLowerCase().includes(clsTeachers.toLowerCase()) && !clsTeachers.toLowerCase().includes(recordTeacher.toLowerCase())) {
+          recordTeacher = `${recordTeacher}, ${clsTeachers}`;
+        }
       }
       if (!recordTeacher) {
         recordTeacher = 'IELTS DƯƠNG VŨ';
@@ -342,44 +375,49 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     });
 
     processedSessions.forEach((session) => {
-      // Identify corresponding teacher from system
-      const tProfile = teachers.find(
-        (t) =>
-          session.teacherName.toLowerCase().includes(t.name.toLowerCase()) ||
-          (t.email && session.teacherName.toLowerCase().includes(t.email.toLowerCase()))
-      );
+      // Find ALL teachers matching this session (by name or assigned class)
+      const matchingTeachers = teachers.filter((t) => {
+        const normSession = session.teacherName.toLowerCase();
+        const normTName = t.name.toLowerCase();
+        const normTEmail = t.email ? t.email.toLowerCase() : '';
+        return normSession.includes(normTName) || (normTEmail && normSession.includes(normTEmail));
+      });
 
-      const nameKey = tProfile ? tProfile.name : session.teacherName;
-      const idKey = tProfile ? tProfile.id : null;
+      const targetProfiles = matchingTeachers.length > 0 ? matchingTeachers : [null];
 
-      if (!summaryMap.has(nameKey)) {
-        summaryMap.set(nameKey, {
-          teacherName: nameKey,
-          teacherId: idKey,
-          totalSessions: 0,
-          totalSalary: 0,
-          classesTaught: new Set<string>(),
-          classesBreakdown: {},
-        });
-      }
+      targetProfiles.forEach((tProfile) => {
+        const nameKey = tProfile ? tProfile.name : session.teacherName;
+        const idKey = tProfile ? tProfile.id : null;
 
-      const summary = summaryMap.get(nameKey)!;
-      summary.totalSessions += 1;
-      summary.classesTaught.add(session.classId);
-      summary.classesBreakdown[session.classId] = (summary.classesBreakdown[session.classId] || 0) + 1;
+        if (!summaryMap.has(nameKey)) {
+          summaryMap.set(nameKey, {
+            teacherName: nameKey,
+            teacherId: idKey,
+            totalSessions: 0,
+            totalSalary: 0,
+            classesTaught: new Set<string>(),
+            classesBreakdown: {},
+          });
+        }
 
-      // Calculate session salary
-      const cls = classes.find((c) => c.id === session.classId);
-      const level = cls?.courseLevel || 'Khóa 1';
-      const classStudents = students.filter((st) => st.classId === session.classId);
-      const rate = calculateTeacherSessionSalary(
-        tProfile || null,
-        level,
-        session.studentTotalCount || 20,
-        session.sessionNumber,
-        classStudents
-      );
-      summary.totalSalary += rate;
+        const summary = summaryMap.get(nameKey)!;
+        summary.totalSessions += 1;
+        summary.classesTaught.add(session.classId);
+        summary.classesBreakdown[session.classId] = (summary.classesBreakdown[session.classId] || 0) + 1;
+
+        // Calculate session salary
+        const cls = classes.find((c) => c.id === session.classId);
+        const level = cls?.courseLevel || 'Khóa 1';
+        const classStudents = students.filter((st) => st.classId === session.classId);
+        const rate = calculateTeacherSessionSalary(
+          tProfile,
+          level,
+          session.studentTotalCount || 20,
+          session.sessionNumber,
+          classStudents
+        );
+        summary.totalSalary += rate;
+      });
     });
 
     return Array.from(summaryMap.values()).sort((a, b) => b.totalSessions - a.totalSessions);
