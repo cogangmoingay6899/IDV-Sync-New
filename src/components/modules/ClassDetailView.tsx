@@ -819,8 +819,26 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       }
     }
 
+    // Try to load any un-saved draft rows for this exact class, date, and session number
+    let draftRows: Record<string, StudentRowState> = {};
+    try {
+      const raw = localStorage.getItem(`idv_daily_log_draft_${classGroup.id}`);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft && draft.sessionNumber === sessionNumber && draft.currentDate === currentDate && draft.studentRows) {
+          draftRows = draft.studentRows;
+        }
+      }
+    } catch (e) {}
+
     const initial: Record<string, StudentRowState> = {};
     classStudents.forEach((st) => {
+      // Preserve student draft row if present
+      if (draftRows[st.id]) {
+        initial[st.id] = { ...draftRows[st.id] };
+        return;
+      }
+
       const existing = attendanceRecords.find(
         (r) => r.classId === classGroup.id && r.studentId === st.id && r.sessionNumber === sessionNumber
       );
