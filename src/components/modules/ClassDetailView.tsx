@@ -188,7 +188,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   const [activeStudentName, setActiveStudentName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isNhungPhan && activeTab !== 'daily_log') {
+    if (isNhungPhan && activeTab !== 'daily_log' && activeTab !== 'vocab_tests') {
       setActiveTab('daily_log');
     }
   }, [isNhungPhan, activeTab]);
@@ -1869,6 +1869,19 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
             <span>Điểm buổi học</span>
           </button>
 
+          <button
+            type="button"
+            onClick={() => setActiveTab('vocab_tests')}
+            className={`flex-1 py-2.5 px-3.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all ${
+              activeTab === 'vocab_tests'
+                ? 'bg-purple-700 text-white shadow-md shadow-purple-600/20'
+                : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/80'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            <span>Bài Test & Xếp hạng</span>
+          </button>
+
           {!isNhungPhan && (
             <>
               <button
@@ -1882,19 +1895,6 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
               >
                 <Users className="w-4 h-4" />
                 <span>Danh sách lớp</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('vocab_tests')}
-                className={`flex-1 py-2.5 px-3.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all ${
-                  activeTab === 'vocab_tests'
-                    ? 'bg-purple-700 text-white shadow-md shadow-purple-600/20'
-                    : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/80'
-                }`}
-              >
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                <span>Bài Test</span>
               </button>
 
               <button

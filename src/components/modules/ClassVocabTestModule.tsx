@@ -3620,12 +3620,33 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                     return sClass.includes(myClass) || myClass.includes(sClass);
                   };
 
-                  // Deduplicate by ID
-                  const subMap = new Map<string, VocabTestSubmission>();
-                  (activeRunnerTest.submissions || []).forEach((s) => subMap.set(s.id, s));
-                  if (testCompletedSubmission) subMap.set(testCompletedSubmission.id, testCompletedSubmission);
+                  // Combine standaloneSubmissions for this test
+                  const testIdClean = (activeRunnerTest?.id || '').toLowerCase();
+                  const testNumMatch = testIdClean.match(/(\d+)/);
+                  const testLessonNum = testNumMatch ? parseInt(testNumMatch[1], 10) : 0;
 
-                  let subList = Array.from(subMap.values()).filter(
+                  const matchingStandalone = standaloneSubmissions.filter((s) => {
+                    if (!s || !s.testId) return false;
+                    const sIdClean = s.testId.toLowerCase();
+                    if (sIdClean === testIdClean) return true;
+                    const sNumMatch = sIdClean.match(/(\d+)/);
+                    const sLessonNum = sNumMatch ? parseInt(sNumMatch[1], 10) : 0;
+                    return sLessonNum > 0 && sLessonNum === testLessonNum;
+                  });
+
+                  // Deduplicate by ID or unique key
+                  const subMap = new Map<string, VocabTestSubmission>();
+                  [
+                    ...(activeRunnerTest?.submissions || []),
+                    ...(testCompletedSubmission ? [testCompletedSubmission] : []),
+                    ...matchingStandalone
+                  ].forEach((s) => {
+                    if (!s || !s.studentName) return;
+                    const uniqueKey = s.id || `${s.studentName}_${s.score}_${s.timeSpentSeconds}_${s.submittedAt}`;
+                    subMap.set(uniqueKey, s);
+                  });
+
+                  const allSubList = Array.from(subMap.values()).filter(
                     (s) =>
                       s.studentName &&
                       s.studentName !== 'Nguyễn Văn Minh' &&
@@ -3633,9 +3654,16 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                       !s.studentName.toLowerCase().includes('nguyễn văn minh') &&
                       !s.studentName.toLowerCase().includes('phạm nhật nam') &&
                       s.id !== 'sub-1' &&
-                      s.id !== 'sub-rev-1' &&
-                      isSameClass(s.className)
+                      s.id !== 'sub-rev-1'
                   );
+
+                  // Try class filtering first
+                  let subList = allSubList.filter((s) => isSameClass(s.className));
+
+                  // Fallback: if no students matched class filter, show all valid submissions for this test
+                  if (subList.length === 0) {
+                    subList = allSubList;
+                  }
 
                   subList.sort((a, b) => {
                     if (b.score !== a.score) return b.score - a.score;
