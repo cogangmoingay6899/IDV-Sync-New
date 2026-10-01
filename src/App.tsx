@@ -191,6 +191,7 @@ import {
   INITIAL_COURSES,
   INITIAL_KPIS,
   INITIAL_INVENTORY,
+  INITIAL_CLASS_SPREADSHEETS,
 } from './data/mockData';
 
 import {
@@ -461,7 +462,7 @@ export default function App() {
     const unsubCourses = subscribeCollection('courses', INITIAL_COURSES, setCourses);
     const unsubKpis = subscribeCollection('kpis', INITIAL_KPIS, setKpis);
     const unsubInventory = subscribeCollection('inventory', INITIAL_INVENTORY, setInventory);
-    const unsubSpreadsheets = subscribeCollection('class_spreadsheets', [], setClassSpreadsheets);
+    const unsubSpreadsheets = subscribeCollection('class_spreadsheets', INITIAL_CLASS_SPREADSHEETS, setClassSpreadsheets);
 
     // Cross-tab instant synchronization for placement tests (Immediate UI update when candidate submits in separate tab)
     let syncChannel: BroadcastChannel | null = null;

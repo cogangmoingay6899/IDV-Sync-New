@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { evaluatePlacementResult } from '../../utils/placementEvaluation';
 import {
   ClipboardList,
   Plus,
@@ -1671,12 +1672,6 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                       </div>
                     </div>
 
-                    {/* Overall & Recommendation */}
-                    <div className="flex items-center justify-between p-2.5 rounded-2xl bg-purple-50/70 border border-purple-100">
-                      <span className="text-xs font-bold text-purple-900">Overall:</span>
-                      <span className="text-base font-black text-purple-700">{t.overallScore}</span>
-                    </div>
-
                     {(t.speakingAudioUrl || t.testAnswers?.speakingAudioUrl) ? (
                       <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-2xl">
                         <div className="text-[11px] text-blue-900 font-extrabold mb-1.5 flex items-center justify-between">
@@ -2249,22 +2244,38 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+              {(() => {
+                const detailEval = evaluatePlacementResult(
+                  viewingDetailTest.testAnswers?.vocab,
+                  viewingDetailTest.testAnswers?.listening,
+                  viewingDetailTest.testAnswers?.reading,
+                  viewingDetailTest.testAnswers?.writingSentences
+                );
+                const sortQuestions = ([a]: [string, any], [b]: [string, any]) => {
+                  const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+                  const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                  return numA - numB;
+                };
+                const writtenSentencesCount = Object.values(viewingDetailTest?.testAnswers?.writingSentences || {}).filter(v => v && String(v).trim().length > 0).length;
+
+                return (
+                  <>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Từ vựng</p>
-                  <p className="text-xl font-black text-slate-800">{viewingDetailTest.vocabScore || viewingDetailTest.testAnswers?.vocab ? Object.keys(viewingDetailTest.testAnswers?.vocab || {}).length : 0}/10</p>
+                  <p className="text-xl font-black text-slate-800">{detailEval.vocabCorrect}/{detailEval.vocabTotal}</p>
                 </div>
                 <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Nghe</p>
-                  <p className="text-xl font-black text-slate-800">{viewingDetailTest.listeningScore}</p>
+                  <p className="text-xl font-black text-slate-800">{detailEval.listeningCorrect}/{detailEval.listeningTotal}</p>
                 </div>
                 <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Đọc</p>
-                  <p className="text-xl font-black text-slate-800">{viewingDetailTest.readingScore}</p>
+                  <p className="text-xl font-black text-slate-800">{detailEval.readingCorrect}/{detailEval.readingTotal}</p>
                 </div>
                 <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
                   <p className="text-[10px] text-slate-500 uppercase font-bold">Viết</p>
-                  <p className="text-xl font-black text-slate-800">{viewingDetailTest.writingScore}</p>
+                  <p className="text-sm font-black text-slate-800">{writtenSentencesCount} câu ({detailEval.writingErrorLevel === 'lỗi nhiều' ? 'Nhiều lỗi' : 'Ít lỗi'})</p>
                 </div>
               </div>
 
@@ -2293,10 +2304,10 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                   <div className="border border-slate-200 rounded-2xl p-4">
                     <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><Award className="w-4 h-4" /> Đáp án Từ vựng</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                      {Object.entries(viewingDetailTest.testAnswers.vocab).map(([k, v]) => (
+                      {Object.entries(viewingDetailTest.testAnswers.vocab).sort(sortQuestions).map(([k, v]) => (
                         <div key={k} className="flex gap-2 border-b border-slate-100 pb-1">
-                          <span className="font-bold text-slate-500 min-w-8">Câu {k}:</span>
-                          <span className="font-semibold text-slate-800">{v}</span>
+                          <span className="font-bold text-slate-500 min-w-8">Câu {k.replace('q', '')}:</span>
+                          <span className="font-semibold text-slate-800">{String(v)}</span>
                         </div>
                       ))}
                     </div>
@@ -2307,10 +2318,10 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                   <div className="border border-slate-200 rounded-2xl p-4">
                     <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><Award className="w-4 h-4" /> Đáp án Nghe</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                      {Object.entries(viewingDetailTest.testAnswers.listening).map(([k, v]) => (
+                      {Object.entries(viewingDetailTest.testAnswers.listening).sort(sortQuestions).map(([k, v]) => (
                         <div key={k} className="flex gap-2 border-b border-slate-100 pb-1">
-                          <span className="font-bold text-slate-500 min-w-8">Câu {k}:</span>
-                          <span className="font-semibold text-slate-800">{v}</span>
+                          <span className="font-bold text-slate-500 min-w-8">Câu {k.replace('q', '')}:</span>
+                          <span className="font-semibold text-slate-800">{String(v)}</span>
                         </div>
                       ))}
                     </div>
@@ -2321,10 +2332,10 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                   <div className="border border-slate-200 rounded-2xl p-4">
                     <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><Award className="w-4 h-4" /> Đáp án Đọc</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                      {Object.entries(viewingDetailTest.testAnswers.reading).map(([k, v]) => (
+                      {Object.entries(viewingDetailTest.testAnswers.reading).sort(sortQuestions).map(([k, v]) => (
                         <div key={k} className="flex gap-2 border-b border-slate-100 pb-1">
-                          <span className="font-bold text-slate-500 min-w-8">Câu {k}:</span>
-                          <span className="font-semibold text-slate-800">{v}</span>
+                          <span className="font-bold text-slate-500 min-w-8">Câu {k.replace('q', '')}:</span>
+                          <span className="font-semibold text-slate-800">{String(v)}</span>
                         </div>
                       ))}
                     </div>
@@ -2335,10 +2346,10 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                   <div className="border border-slate-200 rounded-2xl p-4">
                     <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><Award className="w-4 h-4" /> Viết câu</h4>
                     <div className="space-y-3 text-xs">
-                      {Object.entries(viewingDetailTest.testAnswers.writingSentences).map(([k, v]) => (
+                      {Object.entries(viewingDetailTest.testAnswers.writingSentences).sort(sortQuestions).map(([k, v]) => (
                         <div key={k} className="border-b border-slate-100 pb-2">
-                          <div className="font-bold text-slate-500 mb-1">Câu {k}:</div>
-                          <div className="font-medium text-slate-900 bg-slate-50 p-2 rounded-lg">{v || '(Để trống)'}</div>
+                          <div className="font-bold text-slate-500 mb-1">Câu {k.replace('q', '')}:</div>
+                          <div className="font-medium text-slate-900 bg-slate-50 p-2 rounded-lg">{String(v) || '(Để trống)'}</div>
                         </div>
                       ))}
                     </div>
@@ -2354,6 +2365,9 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                   </div>
                 )}
               </div>
+                  </>
+                );
+              })()}
             </div>
 
             <div className="pt-4 mt-2 border-t border-slate-200 flex items-center justify-between gap-2 flex-wrap shrink-0">
@@ -2418,10 +2432,6 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
               <div className="flex items-center justify-between">
                 <span className="text-slate-600">Thí sinh:</span>
                 <strong className="text-slate-900 text-sm">{assigningTest.candidateName}</strong>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-600">Điểm Overall:</span>
-                <strong className="text-purple-700 font-extrabold text-sm">{assigningTest.overallScore}</strong>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-600">Khóa đề xuất:</span>
