@@ -248,39 +248,46 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     const splitNames = (fullName: string) => 
       fullName.split(/[,;&+]/).map(n => normalize(n)).filter(n => n.length > 0);
 
-    const sessionTeacherParts = splitNames(session.teacherName);
+    let targetName = '';
+    let targetEmail = '';
 
     if (isTeacher && id === 'logged-in') {
       if (!loggedInTeacherName) return false;
-      const normalizedLoggedIn = normalize(loggedInTeacherName);
-      
-      // Check if logged in name matches any of the split teacher parts, or vice-versa
-      const matchesName = sessionTeacherParts.some(part => 
-        part.includes(normalizedLoggedIn) || normalizedLoggedIn.includes(part)
-      );
-
-      // Check email matching
-      const matchesEmail = loggedInTeacherProfile?.email 
-        ? normalize(session.teacherName).includes(normalize(loggedInTeacherProfile.email))
-        : false;
-
-      return matchesName || matchesEmail;
+      targetName = loggedInTeacherName;
+      targetEmail = loggedInTeacherProfile?.email || '';
+    } else {
+      const targetTeacher = teachers.find((t) => t.id === id);
+      if (!targetTeacher) return false;
+      targetName = targetTeacher.name;
+      targetEmail = targetTeacher.email || '';
     }
 
-    // Filter by specific teacher
-    const targetTeacher = teachers.find((t) => t.id === id);
-    if (!targetTeacher) return false;
+    const normalizedTarget = normalize(targetName);
 
-    const normalizedTargetName = normalize(targetTeacher.name);
-    const matchesTargetName = sessionTeacherParts.some(part => 
-      part.includes(normalizedTargetName) || normalizedTargetName.includes(part)
+    // 1. Check session teacher name
+    const sessionTeacherParts = splitNames(session.teacherName);
+    const matchesTeacherName = sessionTeacherParts.some(part => 
+      part.includes(normalizedTarget) || normalizedTarget.includes(part)
     );
+    const matchesEmail = targetEmail ? normalize(session.teacherName).includes(normalize(targetEmail)) : false;
 
-    const matchesTargetEmail = targetTeacher.email 
-      ? normalize(session.teacherName).includes(normalize(targetTeacher.email))
-      : false;
+    if (matchesTeacherName || matchesEmail) return true;
 
-    return matchesTargetName || matchesTargetEmail;
+    // 2. Check if the class itself is assigned to this target teacher
+    const cls = classes.find(c => c.id === session.classId);
+    if (cls) {
+      const classTeachers = [
+        cls.teacherName || '',
+        ...(Array.isArray(cls.teacherNames) ? cls.teacherNames : [])
+      ].join(', ');
+      const classTeacherParts = splitNames(classTeachers);
+      const matchesClassTeacher = classTeacherParts.some(part =>
+        part.includes(normalizedTarget) || normalizedTarget.includes(part)
+      );
+      if (matchesClassTeacher) return true;
+    }
+
+    return false;
   };
 
   // Get current filtered teacher object (if a specific teacher is selected or logged in)
