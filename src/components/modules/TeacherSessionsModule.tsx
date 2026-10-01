@@ -41,23 +41,25 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
   const isTeacher = currentUser?.role === 'teacher';
   const isAssistant = currentUser?.role === 'assistant';
   const isAdmin = currentUser?.role === 'admin';
+  const canViewAll = isAdmin || isAssistant || (currentUser?.name && currentUser.name.toLowerCase().includes('dương vũ'));
+  const isTeacherView = isTeacher && !canViewAll;
 
   // Find exact teacher profile if logged-in user is a teacher
   const loggedInTeacherProfile = useMemo(() => {
-    if (!isTeacher) return null;
+    if (!isTeacherView) return null;
     return teachers.find(
       (t) =>
         t.id === currentUser?.teacherId ||
         t.email?.toLowerCase() === currentUser?.email?.toLowerCase() ||
         t.name?.toLowerCase() === currentUser?.name?.toLowerCase()
     );
-  }, [isTeacher, currentUser, teachers]);
+  }, [isTeacherView, currentUser, teachers]);
 
   // Fallback name for the logged-in teacher
   const loggedInTeacherName = useMemo(() => {
-    if (!isTeacher) return '';
+    if (!isTeacherView) return '';
     return loggedInTeacherProfile?.name || currentUser?.name || '';
-  }, [isTeacher, loggedInTeacherProfile, currentUser]);
+  }, [isTeacherView, loggedInTeacherProfile, currentUser]);
 
   // Year and Month state - defaults to current month & year
   const currentDate = new Date();
@@ -67,7 +69,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
   // Selected teacher state for admin / assistant
   // Default to "all" (Tất cả giáo viên) for admins/assistants, or the logged-in teacher's name for teachers
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>(
-    isTeacher ? loggedInTeacherProfile?.id || 'logged-in' : 'all'
+    isTeacherView ? loggedInTeacherProfile?.id || 'logged-in' : 'all'
   );
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -657,7 +659,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       {/* 3. Main Views Grid (Summary of all teachers OR detail class breakdown) */}
       <div className="grid grid-cols-1 gap-6">
         {/* Case A: Showing all teachers table (Only for Admin/Assistant when selecting 'all') */}
-        {!isTeacher && selectedTeacherId === 'all' && (
+        {!isTeacherView && selectedTeacherId === 'all' && (
           <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
               <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
@@ -775,7 +777,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
         )}
 
         {/* Case B: Detailed breakdown for a selected teacher (or logged-in teacher) */}
-        {(isTeacher || selectedTeacherId !== 'all') && (
+        {(isTeacherView || selectedTeacherId !== 'all') && (
           <div className="space-y-6">
             {/* Class Breakdown Grid / Table */}
             <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
@@ -784,7 +786,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                   <Layers className="w-4 h-4 text-purple-700" />
                   <span>Chi tiết số buổi đứng lớp giảng dạy</span>
                 </h3>
-                {selectedTeacherId !== 'all' && !isTeacher && (
+                {selectedTeacherId !== 'all' && !isTeacherView && (
                   <button
                     onClick={() => setSelectedTeacherId('all')}
                     className="text-[10px] font-black text-slate-600 hover:text-purple-700 border border-slate-200 hover:border-purple-300 bg-white px-2.5 py-1 rounded-xl transition-all cursor-pointer shadow-2xs"
