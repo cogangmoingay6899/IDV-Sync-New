@@ -585,13 +585,14 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
   const handleStartRunner = (test: VocabTest, forceRestart: boolean = false) => {
     if (!test) return;
 
-    // Check if test has dummy questions and if real questions are available in known custom tests
-    let questionsToUse = Array.isArray(test.questions) ? test.questions : [];
+    // Use test.questions if available, fallback to customTestMatch only if test.questions is empty
+    let questionsToUse = Array.isArray(test.questions) && test.questions.length > 0 ? test.questions : [];
     const customTestMatch = KNOWN_CUSTOM_VOCAB_TESTS[test.id] || KNOWN_CUSTOM_REVIEW_TESTS[test.id];
     if (
+      questionsToUse.length === 0 &&
       customTestMatch &&
       Array.isArray(customTestMatch.questions) &&
-      customTestMatch.questions.length > questionsToUse.length
+      customTestMatch.questions.length > 0
     ) {
       questionsToUse = customTestMatch.questions as VocabQuestion[];
     }

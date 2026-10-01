@@ -279,7 +279,7 @@ export function subscribeCollection<T extends { id: string }>(
         preset &&
         Array.isArray(preset.questions) &&
         preset.questions.length > 0 &&
-        (!Array.isArray(item.questions) || preset.questions.length > item.questions.length)
+        (!Array.isArray(item.questions) || item.questions.length === 0)
       ) {
         return {
           ...item,
