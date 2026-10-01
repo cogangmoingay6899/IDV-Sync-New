@@ -1653,24 +1653,36 @@ export const PlacementModule: React.FC<PlacementModuleProps> = ({
                     </div>
 
                     {/* 4 Skill Scores */}
-                    <div className="grid grid-cols-4 gap-1.5 text-center bg-slate-50 p-2 rounded-2xl border border-slate-200/60">
-                      <div>
-                        <span className="text-[10px] text-slate-400 block font-semibold">Nghe</span>
-                        <span className="text-xs font-extrabold text-slate-800">{t.listeningScore}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-slate-400 block font-semibold">Nói</span>
-                        <span className="text-xs font-extrabold text-slate-800">{t.speakingScore}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-slate-400 block font-semibold">Đọc</span>
-                        <span className="text-xs font-extrabold text-slate-800">{t.readingScore}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-slate-400 block font-semibold">Viết</span>
-                        <span className="text-xs font-extrabold text-slate-800">{t.writingScore}</span>
-                      </div>
-                    </div>
+                    {(() => {
+                      const cardEval = evaluatePlacementResult(
+                        t.testAnswers?.vocab,
+                        t.testAnswers?.listening,
+                        t.testAnswers?.reading,
+                        t.testAnswers?.writingSentences
+                      );
+                      const cardWrittenCount = Object.values(t.testAnswers?.writingSentences || {}).filter(v => v && String(v).trim().length > 0).length;
+
+                      return (
+                        <div className="grid grid-cols-4 gap-1 text-center bg-slate-50 p-2 rounded-2xl border border-slate-200/60 text-[11px]">
+                          <div>
+                            <span className="text-[10px] text-slate-400 block font-semibold">Từ vựng</span>
+                            <span className="font-extrabold text-slate-800">{cardEval.vocabCorrect}/{cardEval.vocabTotal}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 block font-semibold">Nghe</span>
+                            <span className="font-extrabold text-slate-800">{cardEval.listeningCorrect}/{cardEval.listeningTotal}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 block font-semibold">Đọc</span>
+                            <span className="font-extrabold text-slate-800">{cardEval.readingCorrect}/{cardEval.readingTotal}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 block font-semibold">Viết</span>
+                            <span className="font-extrabold text-slate-800 text-[10px]">{cardWrittenCount} câu ({cardEval.writingErrorLevel === 'lỗi nhiều' ? 'Nhiều' : 'Ít'})</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {(t.speakingAudioUrl || t.testAnswers?.speakingAudioUrl) ? (
                       <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-2xl">
