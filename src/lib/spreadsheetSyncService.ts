@@ -4,7 +4,7 @@ import { ClassSpreadsheetData, SpreadsheetStudentRow, SpreadsheetLessonColumn as
 
 /**
  * Automatically syncs attendance & lesson scores directly into the class spreadsheet
- * (sổ sheet của lớp - collection 'class_spreadsheets') whenever a teacher saves daily scores.
+ * (sổ sheet của lớp - collection 'class_spreadsheets') whenever a teacher saves daily scores or attendance.
  */
 export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord[]): Promise<void> {
   if (!records || records.length === 0) return;
@@ -13,12 +13,15 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
   if (!sample || !sample.classId) return;
 
   const classId = sample.classId;
-  const classDigits = classId.replace(/\D/g, '');
+  const classDigits = classId.match(/\d+/)?.[0] || '';
+  const className = (sample as any).className || '';
 
   const candidateSheetIds: string[] = [
     `sheet-${classId}`,
   ];
   if (classDigits) {
+    candidateSheetIds.push(`sheet-class-ielts-${classDigits}`);
+    candidateSheetIds.push(`sheet-cls-${classDigits}`);
     candidateSheetIds.push(`sheet-ielts-${classDigits}`);
     candidateSheetIds.push(`sheet-${classDigits}`);
   }
@@ -34,10 +37,13 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
   if (!sheet) {
     const allSheets = await fetchCollection<ClassSpreadsheetData>('class_spreadsheets');
     sheet = (allSheets.find((s: any) => {
-      if (!s.rows || !s.columns) return false;
-      const sId = (s.id || '').toLowerCase();
-      if (s.classId === classId) return true;
-      if (classDigits && sId.includes(classDigits)) return true;
+      if (!s) return false;
+      const sId = String(s.id || '').toLowerCase();
+      const cId = classId.toLowerCase();
+      if (s.classId === classId || sId === `sheet-${cId}` || sId === cId) return true;
+      if (className && s.classBanner && s.classBanner.toLowerCase().includes(className.toLowerCase())) return true;
+      const sNum = sId.match(/\d+/)?.[0];
+      if (classDigits && sNum && classDigits === sNum) return true;
       return false;
     }) as ClassSpreadsheetData) || null;
   }
@@ -47,7 +53,7 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
     sheet = {
       id: `sheet-${classId}`,
       classId: classId,
-      classBanner: `Bảng điểm Lớp ${(sample as any).className || classId}`,
+      classBanner: `Bảng điểm Lớp ${className || classId}`,
       tagText: 'INSPI',
       courseTuitionTag: '5tr2',
       branch: 'Cơ sở 1 - Tô Hiệu',
@@ -63,13 +69,13 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
   const sessNum = sample.sessionNumber || 1;
   const dateStr = sample.date || new Date().toISOString().split('T')[0];
   const teacherInit = sample.teacherName ? sample.teacherName.split(' ').pop() || 'GV' : 'GV';
-  const skillText = sample.skillsTaught?.join(', ') || sample.skillTaught || 'Điểm bài học';
+  const skillText = sample.skillsTaught?.join(', ') || sample.skillTaught || 'Từ vựng & Điểm danh';
 
   // Find or create matching column for this lesson session
   let col = columns.find(
     (c) =>
       c.sessionNumber === sessNum ||
-      c.lessonLabel.toUpperCase() === `L${sessNum}` ||
+      (c.lessonLabel && c.lessonLabel.toUpperCase() === `L${sessNum}`) ||
       (c.date && c.date === dateStr)
   );
 
@@ -85,7 +91,12 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
     };
     columns.push(col);
   } else {
-    if (!col.subSkill || col.subSkill === 'Từ vựng & Viết') col.subSkill = skillText;
+    col.date = dateStr;
+    col.teacherAndDate = `${dateStr ? dateStr.slice(5) + ' ' : ''}${teacherInit}`;
+    col.sessionNumber = sessNum;
+    if (!col.subSkill || col.subSkill === 'Từ vựng & Viết' || col.subSkill === 'Tổng hợp') {
+      col.subSkill = skillText;
+    }
   }
 
   const normalize = (str: string) =>
@@ -111,13 +122,24 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
       });
     }
 
+    // Determine value to display in the cell:
+    // If scores are entered: show score.
+    // If no score entered: automatically fill 'x' for attendance, 'trễ' for late, 'vắng' for absent.
     let valToSet = 'x';
-    if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
+    if (rec.score !== undefined && rec.score !== null && String(rec.score).trim() !== '' && !isNaN(Number(rec.score))) {
       valToSet = String(rec.score);
     } else if (rec.skillScores && Object.keys(rec.skillScores).length > 0) {
-      const vals = Object.values(rec.skillScores).filter((v) => v !== '' && v !== undefined);
-      if (vals.length > 0) valToSet = vals.join('/');
-    } else if (rec.status === 'Có mặt') {
+      const vals = Object.values(rec.skillScores).filter((v) => v !== '' && v !== undefined && v !== null);
+      if (vals.length > 0) {
+        valToSet = vals.join('/');
+      } else if (rec.status === 'Có mặt' || !rec.status) {
+        valToSet = 'x';
+      } else if (rec.status === 'Đi muộn' || rec.status === 'Đi trễ') {
+        valToSet = 'trễ';
+      } else if (rec.status?.includes('Nghỉ') || rec.status?.includes('vắng')) {
+        valToSet = 'vắng';
+      }
+    } else if (rec.status === 'Có mặt' || !rec.status) {
       valToSet = 'x';
     } else if (rec.status === 'Đi muộn' || rec.status === 'Đi trễ') {
       valToSet = 'trễ';
@@ -131,6 +153,8 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
       highlightColor = 'yellow';
     } else if (valToSet === 'vắng') {
       highlightColor = 'red';
+    } else if (valToSet === 'x') {
+      highlightColor = 'green';
     }
 
     if (rowIdx !== -1) {
@@ -177,5 +201,5 @@ export async function syncAttendanceToClassSpreadsheet(records: AttendanceRecord
   } catch (e) {}
 
   await saveDocument('class_spreadsheets', updatedSheet);
-  console.log(`Successfully synced ${records.length} records into class_spreadsheets for class ${classId}.`);
+  console.log(`✅ [Class Sheet Sync] Synced ${records.length} attendance/score records into class sheet "${updatedSheet.id}".`);
 }

@@ -26,7 +26,7 @@ import {
   Pin
 } from 'lucide-react';
 import { Student, ClassGroup, TuitionTransaction, AttendanceRecord } from '../../types';
-import { saveDocument, fetchCollection } from '../../lib/firestoreService';
+import { saveDocument, fetchCollection, fetchDocument } from '../../lib/firestoreService';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
@@ -379,50 +379,68 @@ export const ClassSpreadsheetGradebookModule: React.FC<Props> = ({
   const [isCloudSyncing, setIsCloudSyncing] = useState<boolean>(false);
   const [lastSyncedTime, setLastSyncedTime] = useState<string>(() => new Date().toLocaleTimeString('vi-VN'));
 
-  // Real-time Cloud Database (Firestore onSnapshot) subscription across all 10 teachers, 2 assistants & management
+  // Real-time VPS-First Database subscription across all teachers & management
   useEffect(() => {
+    let isMounted = true;
     const docId = selectedClassId === 'class-ielts-88' ? 'sheet-ielts-88' : `sheet-${selectedClassId}`;
-    const docRef = doc(db, 'class_spreadsheets', docId);
 
-    setIsCloudSyncing(true);
-    const unsubscribe = onSnapshot(
-      docRef,
-      (snapshot) => {
-        setIsCloudSyncing(false);
-        setLastSyncedTime(new Date().toLocaleTimeString('vi-VN'));
-        if (snapshot.exists()) {
-          const remoteData = snapshot.data() as ClassSpreadsheetData;
+    const loadSheet = async () => {
+      setIsCloudSyncing(true);
+      try {
+        // Try local storage for 0ms instant display
+        const cached = localStorage.getItem(`idv_class_sheet_${selectedClassId}`);
+        if (cached && isMounted) {
+          try {
+            const parsed = JSON.parse(cached);
+            setSheetData(parsed);
+            setTempBanner(parsed.classBanner);
+            setTempTag(parsed.tagText);
+            setTempTuitionTag(parsed.courseTuitionTag);
+          } catch (e) {}
+        }
+
+        const remoteData = await fetchDocument<ClassSpreadsheetData>('class_spreadsheets', docId);
+        if (!isMounted) return;
+
+        if (remoteData && remoteData.columns && remoteData.rows) {
           setSheetData(remoteData);
           setTempBanner(remoteData.classBanner);
           setTempTag(remoteData.tagText);
           setTempTuitionTag(remoteData.courseTuitionTag);
           try {
             localStorage.setItem(`idv_class_sheet_${selectedClassId}`, JSON.stringify(remoteData));
-          } catch (e) {
-            console.warn(e);
-          }
+          } catch (e) {}
         } else {
-          // If document does not exist in Firestore yet, build dynamically and push to Firestore for all users
+          // If document does not exist yet, build dynamically and save to VPS
           const built = buildSheetForClass(selectedClassId, false);
           setSheetData(built);
           setTempBanner(built.classBanner);
           setTempTag(built.tagText);
           setTempTuitionTag(built.courseTuitionTag);
-          saveDocument('class_spreadsheets', built).catch((err) => {
-            console.error('Initial save of spreadsheet to Firestore failed:', err);
-          });
+          saveDocument('class_spreadsheets', built).catch(() => {});
         }
-      },
-      (error) => {
-        setIsCloudSyncing(false);
-        console.error('Firestore real-time subscription error for spreadsheet:', error);
-        // Fallback to local builder if offline or permission error
+      } catch (err) {
+        if (!isMounted) return;
         const built = buildSheetForClass(selectedClassId, false);
         setSheetData(built);
+      } finally {
+        if (isMounted) {
+          setIsCloudSyncing(false);
+          setLastSyncedTime(new Date().toLocaleTimeString('vi-VN'));
+        }
       }
-    );
+    };
 
-    return () => unsubscribe();
+    loadSheet();
+
+    // Listen to window focus for background auto-revalidation
+    const handleFocus = () => { loadSheet(); };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [selectedClassId]);
 
   // Helper to persist sheet state to both Firestore and LocalStorage

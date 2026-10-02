@@ -159,13 +159,28 @@ export async function syncCloudDeletedRecords(): Promise<void> {
 if (typeof window !== 'undefined') {
   syncCloudDeletedRecords();
 
-  // Listen to SSE events for real-time cross-machine deletion sync
+  // Listen to SSE events for real-time instant cross-machine synchronization
   try {
     const sse = new EventSource('/api/storage/events');
     sse.onmessage = (ev) => {
       try {
         const msg = JSON.parse(ev.data);
-        if (msg.type === 'delete' && msg.id) {
+        if (msg.type === 'sync' && msg.collection && Array.isArray(msg.data)) {
+          const clean = msg.data.filter((item: any) => !isRecordDeleted(item.id, msg.collection));
+          cachedCollections.set(msg.collection, clean);
+          try {
+            localStorage.setItem(`vps_col_${msg.collection}`, JSON.stringify(clean));
+          } catch (e) {}
+          const listeners = activeListeners.get(msg.collection);
+          if (listeners) {
+            listeners.forEach((cb) => {
+              try { cb(clean); } catch (e) {}
+            });
+          }
+        } else if (msg.type === 'test_submitted' && msg.collection) {
+          fetchFromVPSServer(msg.collection, [], () => {});
+          fetchFromVPSServer('vocab_test_submissions', [], () => {});
+        } else if (msg.type === 'delete' && msg.id) {
           globalDeletedIdsSet.add(String(msg.id));
           if (msg.collection) {
             purgeDeletedItemFromCache(msg.collection, String(msg.id));
@@ -308,12 +323,12 @@ export function subscribeCollection<T extends { id: string }>(
   cachedCollections.set(collectionName, initialItems);
   onData(initialItems);
 
-  // 3. Sync purely via local VPS Server Storage & LocalStorage cache (Bypassing Firestore completely to avoid quota issues)
+  // 3. Sync via VPS Server Storage & SSE Push (Bypassing Firestore completely to avoid quota and cost issues)
   if (!activeFallbackIntervals.has(collectionName) && typeof window !== 'undefined') {
     fetchFromVPSServer(collectionName, initialData, onData);
     const interval = setInterval(() => {
       fetchFromVPSServer(collectionName, initialData, onData);
-    }, 4000);
+    }, 30000);
     activeFallbackIntervals.set(collectionName, interval);
   }
 
@@ -355,16 +370,36 @@ async function fetchFromVPSServer<T extends { id: string }>(
 }
 
 /**
- * Fetch all documents in a collection from Firestore (with VPS/local cache fallback)
+ * Fetch all documents in a collection (VPS-First Architecture)
  */
 export async function fetchCollection<T extends { id: string }>(
   collectionName: string
 ): Promise<T[]> {
+  // 1. VPS-FIRST: Fetch directly from local VPS server storage
+  try {
+    const res = await fetch(`/api/storage/${encodeURIComponent(collectionName)}?_t=${Date.now()}`, {
+      headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json.data)) {
+        const clean = json.data.filter((item: any) => !isRecordDeleted(item.id, collectionName));
+        cachedCollections.set(collectionName, clean);
+        try {
+          localStorage.setItem(`vps_col_${collectionName}`, JSON.stringify(clean));
+        } catch (e) {}
+        return clean;
+      }
+    }
+  } catch (err) {
+    console.warn(`[VPS Storage] fetchCollection fallback for ${collectionName}:`, err);
+  }
+
+  // 2. Secondary fallback to Firebase Firestore
   try {
     const colRef = collection(db, collectionName);
     const snapshot = await getDocs(colRef);
     if (!snapshot.empty) {
-      // Check for meta_deleted_ids
       const metaDoc = snapshot.docs.find((d) => d.id === 'meta_deleted_ids');
       if (metaDoc && metaDoc.exists()) {
         const metaData = metaDoc.data();
@@ -389,22 +424,7 @@ export async function fetchCollection<T extends { id: string }>(
     console.warn(`[Firebase Firestore] fetchCollection fallback for ${collectionName}:`, err);
   }
 
-  // Fallback to VPS backend
-  try {
-    const res = await fetch(`/api/storage/${encodeURIComponent(collectionName)}?_t=${Date.now()}`, {
-      headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-    });
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json.data) && json.data.length > 0) {
-        const clean = json.data.filter((item: any) => !isRecordDeleted(item.id, collectionName));
-        cachedCollections.set(collectionName, clean);
-        return clean;
-      }
-    }
-  } catch (err) {}
-
-  // Fallback to local memory/cache
+  // 3. Final Fallback to local memory / cache
   const cached = cachedCollections.get(collectionName);
   if (cached) return cached.filter((item: any) => !isRecordDeleted(item.id, collectionName));
 
@@ -420,23 +440,13 @@ export async function fetchCollection<T extends { id: string }>(
 }
 
 /**
- * Fetch a single document by ID from Firestore (with fallback)
+ * Fetch a single document by ID (VPS-First Architecture)
  */
 export async function fetchDocument<T>(
   collectionName: string,
   id: string
 ): Promise<T | null> {
-  try {
-    const docRef = doc(db, collectionName, String(id));
-    const snap = await getDoc(docRef);
-    if (snap.exists()) {
-      return { id: snap.id, ...snap.data() } as T;
-    }
-  } catch (err) {
-    console.warn(`[Firebase Firestore] fetchDocument error for ${collectionName}/${id}:`, err);
-  }
-
-  // 1. Check VPS server storage endpoint for instant recovery
+  // 1. VPS-FIRST: Check VPS server storage endpoint
   try {
     const res = await fetch(`/api/storage/${encodeURIComponent(collectionName)}/${encodeURIComponent(id)}?_t=${Date.now()}`, {
       headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
@@ -447,13 +457,25 @@ export async function fetchDocument<T>(
     }
   } catch (e) {}
 
+  // 2. Secondary fallback to Firebase Firestore
+  try {
+    const docRef = doc(db, collectionName, String(id));
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() } as T;
+    }
+  } catch (err) {
+    console.warn(`[Firebase Firestore] fetchDocument error for ${collectionName}/${id}:`, err);
+  }
+
+  // 3. Fallback to local cache
   const list = cachedCollections.get(collectionName) || [];
   const found = list.find((item) => String(item.id) === String(id));
   return found || null;
 }
 
 /**
- * Save or update a single document in Firestore (Dual persistence to Firebase + VPS)
+ * Save or update a single document (VPS-First Architecture)
  */
 export async function saveDocument<T extends { id: string }>(
   collectionName: string,
@@ -462,7 +484,7 @@ export async function saveDocument<T extends { id: string }>(
   const cleanItem = sanitizeFirestoreData(item);
   const stringId = String(cleanItem.id);
 
-  // 1. Optimistically update client cache and notify local subscribers immediately
+  // 1. Optimistically update client in-memory cache and notify local subscribers immediately
   const existingList = cachedCollections.get(collectionName) || [];
   const index = existingList.findIndex((e) => String(e.id) === stringId);
 
@@ -494,27 +516,27 @@ export async function saveDocument<T extends { id: string }>(
     } catch (e) {}
   }
 
-  // 2. Persist to Firebase Firestore
+  // 2. VPS-FIRST PERSISTENCE: Write directly to VPS filesystem storage
   try {
-    const docRef = doc(db, collectionName, stringId);
-    await setDoc(docRef, cleanItem, { merge: true });
-    console.log(`✅ [Firebase Firestore] Saved ${collectionName}/${stringId}`);
-  } catch (firestoreErr) {
-    console.warn(`⚠️ [Firebase Firestore] Firestore save fallback:`, firestoreErr);
-  }
-
-  // 3. Dual-persist to VPS Server Storage (Guarantees local server & cross-network sync)
-  try {
-    fetch(`/api/storage/${encodeURIComponent(collectionName)}?_t=${Date.now()}`, {
+    await fetch(`/api/storage/${encodeURIComponent(collectionName)}?_t=${Date.now()}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
       body: JSON.stringify(cleanItem),
-    }).catch(() => {});
-  } catch (e) {}
+    });
+    console.log(`✅ [VPS Server Storage] Saved ${collectionName}/${stringId}`);
+  } catch (vpsErr) {
+    console.warn(`⚠️ [VPS Server Storage] VPS save fallback:`, vpsErr);
+  }
+
+  // 3. Background Replication to Firebase Firestore (non-blocking, never fails the user UI)
+  try {
+    const docRef = doc(db, collectionName, stringId);
+    setDoc(docRef, cleanItem, { merge: true }).catch(() => {});
+  } catch (firestoreErr) {}
 }
 
 /**
- * Save multiple items in a batch to Firestore
+ * Save multiple items in a batch (VPS-First Architecture)
  */
 export async function saveBatchDocuments<T extends { id: string }>(
   collectionName: string,
@@ -522,7 +544,7 @@ export async function saveBatchDocuments<T extends { id: string }>(
 ): Promise<void> {
   const cleanItems = items.map((i) => sanitizeFirestoreData(i));
 
-  // 1. Optimistic cache update
+  // 1. Optimistic in-memory cache update
   const existingList = cachedCollections.get(collectionName) || [];
   const map = new Map<string, any>();
   existingList.forEach((e) => map.set(String(e.id), e));
@@ -547,31 +569,31 @@ export async function saveBatchDocuments<T extends { id: string }>(
     });
   }
 
-  // 2. Batch write to Firestore
+  // 2. VPS-FIRST PERSISTENCE: Batch save to VPS backend storage
+  try {
+    await fetch(`/api/storage/${encodeURIComponent(collectionName)}/batch?_t=${Date.now()}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+      body: JSON.stringify(cleanItems),
+    });
+    console.log(`✅ [VPS Server Storage] Batch saved ${cleanItems.length} items to ${collectionName}`);
+  } catch (vpsErr) {
+    console.warn(`⚠️ [VPS Server Storage] Batch save error on ${collectionName}:`, vpsErr);
+  }
+
+  // 3. Background Replication to Firebase Firestore
   try {
     const batch = writeBatch(db);
     cleanItems.slice(0, 450).forEach((item) => {
       const docRef = doc(db, collectionName, String(item.id));
       batch.set(docRef, item, { merge: true });
     });
-    await batch.commit();
-    console.log(`✅ [Firebase Firestore] Batch saved ${cleanItems.length} items to ${collectionName}`);
-  } catch (err) {
-    console.warn(`⚠️ [Firebase Firestore] Batch save error on ${collectionName}:`, err);
-  }
-
-  // 3. Persist batch to VPS backend server
-  try {
-    fetch(`/api/storage/${encodeURIComponent(collectionName)}/batch?_t=${Date.now()}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
-      body: JSON.stringify(cleanItems),
-    }).catch(() => {});
-  } catch (e) {}
+    batch.commit().catch(() => {});
+  } catch (err) {}
 }
 
 /**
- * Delete a document from Firestore and local cache with permanent cross-device sync
+ * Delete a document with permanent cross-device sync (VPS-First Architecture)
  */
 export async function deleteDocument(collectionName: string, id: string): Promise<void> {
   const stringId = String(id);
@@ -616,38 +638,17 @@ export async function deleteDocument(collectionName: string, id: string): Promis
     });
   }
 
-  // Broadcast to other open browser tabs
-  if (broadcastBus) {
-    try {
-      broadcastBus.postMessage({ collection: collectionName, data: filtered });
-    } catch (e) {}
-  }
-
-  // 3. Delete document from Firestore
+  // 3. VPS-FIRST DELETION: Delete from VPS Server Storage
   try {
-    const docRef = doc(db, collectionName, stringId);
-    await deleteDoc(docRef);
-  } catch (err) {
-    console.warn(`[Firebase Firestore] Delete error for ${collectionName}/${stringId}:`, err);
+    await fetch(`/api/storage/${encodeURIComponent(collectionName)}/${encodeURIComponent(stringId)}?_t=${Date.now()}`, {
+      method: 'DELETE',
+    });
+    console.log(`✅ [VPS Server Storage] Deleted ${collectionName}/${stringId}`);
+  } catch (vpsErr) {
+    console.warn(`⚠️ [VPS Server Storage] Delete error for ${collectionName}/${stringId}:`, vpsErr);
   }
 
-  // 4. Save tombstone to Firestore meta_deleted_ids document
-  try {
-    const metaRef = doc(db, collectionName, 'meta_deleted_ids');
-    const metaSnap = await getDoc(metaRef);
-    let currentList: string[] = [];
-    if (metaSnap.exists() && Array.isArray(metaSnap.data()?.deletedIds)) {
-      currentList = metaSnap.data().deletedIds;
-    }
-    if (!currentList.includes(stringId)) {
-      currentList.push(stringId);
-      await setDoc(metaRef, { deletedIds: currentList, updatedAt: new Date().toISOString() }, { merge: true });
-    }
-  } catch (err) {
-    console.warn(`[Firebase Firestore] Could not update meta_deleted_ids for ${collectionName}:`, err);
-  }
-
-  // 5. Post tombstone to VPS server deleted-ids API
+  // 4. Register tombstone to VPS deleted-ids registry
   try {
     fetch('/api/deleted-ids', {
       method: 'POST',
@@ -656,13 +657,20 @@ export async function deleteDocument(collectionName: string, id: string): Promis
     }).catch(() => {});
   } catch (e) {}
 
-  // 6. Delete from VPS backend storage
+  // 5. Broadcast to other open browser tabs
+  if (broadcastBus) {
+    try {
+      broadcastBus.postMessage({ collection: collectionName, data: filtered });
+    } catch (e) {}
+  }
+
+  // 6. Background non-blocking delete on Firestore
   try {
-    fetch(`/api/storage/${encodeURIComponent(collectionName)}/${encodeURIComponent(stringId)}?_t=${Date.now()}`, {
-      method: 'DELETE',
-      headers: { 'Cache-Control': 'no-cache' },
-    }).catch(() => {});
-  } catch (e) {}
+    const docRef = doc(db, collectionName, stringId);
+    deleteDoc(docRef).catch(() => {});
+    const metaRef = doc(db, collectionName, 'meta_deleted_ids');
+    setDoc(metaRef, { deletedIds: Array.from(globalDeletedIdsSet), updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+  } catch (err) {}
 
   // 7. If placement test, also send DELETE to dedicated placement-tests endpoint
   if (collectionName === 'placementTests') {

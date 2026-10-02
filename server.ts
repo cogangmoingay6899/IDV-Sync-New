@@ -166,13 +166,25 @@ async function startServer() {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     });
     res.write('retry: 3000\n');
     res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}\n\n`);
 
     sseClients.add(res);
 
+    // Heartbeat ping every 25 seconds to prevent idle socket drops and proxy timeouts
+    const keepAlive = setInterval(() => {
+      try {
+        res.write(': keepalive\n\n');
+      } catch (e) {
+        clearInterval(keepAlive);
+        sseClients.delete(res);
+      }
+    }, 25000);
+
     req.on('close', () => {
+      clearInterval(keepAlive);
       sseClients.delete(res);
     });
   });

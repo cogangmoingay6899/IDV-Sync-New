@@ -237,6 +237,9 @@ export const HRModule: React.FC<HRModuleProps> = ({
       const uniqueDates = new Set(classRecordsInMonth.map((r) => r.date));
       const sessionCount = uniqueDates.size;
 
+      // Only include classes that were actually taught in this month
+      if (sessionCount === 0) return;
+
       const classStudentsList = students.filter(
         (s) => (s.classId === cls.id || s.className === cls.name) && s.status === 'Đang học'
       );

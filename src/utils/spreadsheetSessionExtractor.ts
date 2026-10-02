@@ -69,13 +69,13 @@ export function extractSessionsFromSpreadsheets(
     // Resolve class ID from sheet ID ("sheet-cls-123" -> "cls-123", or "sheet-class-ielts-73" -> "class-ielts-73")
     const rawClassId = String(sheet.id).replace(/^sheet-/, '');
     const cls = classes.find((c) => {
-      if (!c) return false;
+      if (!c || !c.id) return false;
       const cIdClean = String(c.id).toLowerCase();
       const rawClean = rawClassId.toLowerCase();
       if (cIdClean === rawClean) return true;
       if (cIdClean.endsWith(rawClean) || rawClean.endsWith(cIdClean)) return true;
       // Match class name numbers e.g. "73" in "Ielts 73 Ins"
-      const cNum = c.name.match(/\d+/)?.[0];
+      const cNum = c.name ? c.name.match(/\d+/)?.[0] : undefined;
       const rawNum = rawClean.match(/\d+/)?.[0];
       return cNum && rawNum && cNum === rawNum;
     });
@@ -106,15 +106,44 @@ export function extractSessionsFromSpreadsheets(
     sheet.columns.forEach((col: any) => {
       if (!col) return;
 
-      // 1. Resolve date
-      // ... (keep date logic) ...
+      // 1. Count students who actually attended / received scores for this column
+      let scoredStudentsCount = 0;
+      let hasAnyAttendanceRecorded = false;
+      if (Array.isArray(sheet.rows) && sheet.rows.length > 0) {
+        sheet.rows.forEach((row: any) => {
+          if (
+            row &&
+            row.scores &&
+            row.scores[col.id] !== undefined &&
+            row.scores[col.id] !== null &&
+            String(row.scores[col.id]).trim() !== ''
+          ) {
+            hasAnyAttendanceRecorded = true;
+            const val = String(row.scores[col.id]).trim().toLowerCase();
+            if (val !== 'vắng' && val !== 'nghỉ') {
+              scoredStudentsCount++;
+            }
+          }
+        });
+      }
+
+      // If the column has NO student attendance / scores recorded at all, it is an upcoming or empty template column: DO NOT extract as a taught session!
+      if (!hasAnyAttendanceRecorded) {
+        return;
+      }
+
+      // 2. Resolve session date accurately
       let sessionDate = col.date;
       if (!sessionDate && col.teacherAndDate) {
         const mMatch = col.teacherAndDate.match(/(\d{1,2})[-/](\d{1,2})/);
         if (mMatch) {
-          const month = String(mMatch[1]).padStart(2, '0');
-          const day = String(mMatch[2]).padStart(2, '0');
-          sessionDate = `2026-${month}-${day}`;
+          const p1 = parseInt(mMatch[1], 10);
+          const p2 = parseInt(mMatch[2], 10);
+          let month = p1 <= 12 ? p1 : p2;
+          let day = p1 <= 12 ? p2 : p1;
+          const mStr = String(month).padStart(2, '0');
+          const dStr = String(day).padStart(2, '0');
+          sessionDate = `2026-${mStr}-${dStr}`;
         }
       }
       if (!sessionDate && col.id) {
@@ -125,11 +154,16 @@ export function extractSessionsFromSpreadsheets(
           } catch (e) {}
         }
       }
+      if (!sessionDate && sheet.updatedAt) {
+        try {
+          sessionDate = new Date(sheet.updatedAt).toISOString().split('T')[0];
+        } catch (e) {}
+      }
       if (!sessionDate) {
-        sessionDate = new Date().toISOString().split('T')[0];
+        sessionDate = '2026-09-28';
       }
 
-      // 2. Resolve teacher name
+      // 3. Resolve teacher name
       let teacherName = defaultTeacherName;
       if (col.teacherAndDate) {
         const rawT = col.teacherAndDate
@@ -154,7 +188,7 @@ export function extractSessionsFromSpreadsheets(
         }
       }
 
-      // 3. Resolve session number
+      // 4. Resolve session number
       let sessionNumber = col.sessionNumber;
       if (!sessionNumber && col.lessonLabel) {
         const numMatch = col.lessonLabel.match(/\d+/);
@@ -162,18 +196,8 @@ export function extractSessionsFromSpreadsheets(
       }
       if (!sessionNumber) sessionNumber = 1;
 
-      // 4. Count students present
-      let studentPresentCount = 15;
-      if (Array.isArray(sheet.rows) && sheet.rows.length > 0) {
-        let count = 0;
-        sheet.rows.forEach((row: any) => {
-          if (row && row.scores && row.scores[col.id] !== undefined && row.scores[col.id] !== '') {
-            count++;
-          }
-        });
-        if (count > 0) studentPresentCount = count;
-        else studentPresentCount = sheet.rows.length;
-      }
+      const studentTotalCount = sheet.rows.length || scoredStudentsCount;
+      const studentPresentCount = scoredStudentsCount;
 
       extractedRecords.push({
         id: `att-sheet-${sheet.id}-${col.id}`,
@@ -187,7 +211,7 @@ export function extractSessionsFromSpreadsheets(
         teacherName: teacherName,
         skillTaught: col.subSkill || 'Tổng hợp',
         skillsTaught: col.subSkill ? [col.subSkill] : [],
-        studentTotalCount: sheet.rows.length,
+        studentTotalCount: studentTotalCount,
         studentPresentCount: studentPresentCount
       });
     });
