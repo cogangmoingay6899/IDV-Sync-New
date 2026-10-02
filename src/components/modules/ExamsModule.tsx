@@ -34,7 +34,7 @@ export const ExamsModule: React.FC<ExamsModuleProps> = ({
   onOpenCreateClass,
 }) => {
   const isTeacher = currentUser?.role === 'teacher';
-  const availableClasses = isTeacher && currentUser
+  const teacherFilteredClasses = isTeacher && currentUser
     ? classes.filter((c) => {
         if (!c) return false;
         if (currentUser.teacherId && c.teacherId === currentUser.teacherId) return true;
@@ -46,14 +46,23 @@ export const ExamsModule: React.FC<ExamsModuleProps> = ({
         if (cleanName && (cTeacher.includes(cleanName) || cAssistant.includes(cleanName) || cTeachersList.some((tn) => tn.includes(cleanName)))) {
           return true;
         }
-        if (cleanName.includes('ngần') || cleanName.includes('ngân')) {
-          if (cTeacher.includes('ngần') || cTeacher.includes('ngân') || cTeachersList.some((tn) => tn.includes('ngần') || tn.includes('ngân'))) {
+
+        const normClean = cleanName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+        const normCTeacher = cTeacher.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+        if (normClean.length >= 2 && normCTeacher.includes(normClean)) {
+          return true;
+        }
+
+        if (cleanName.includes('ngần') || cleanName.includes('ngân') || cleanName.includes('ngan')) {
+          if (cTeacher.includes('ngần') || cTeacher.includes('ngân') || cTeacher.includes('ngan') || cTeachersList.some((tn) => tn.includes('ngần') || tn.includes('ngân') || tn.includes('ngan'))) {
             return true;
           }
         }
         return false;
       })
     : classes;
+
+  const availableClasses = teacherFilteredClasses;
 
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
