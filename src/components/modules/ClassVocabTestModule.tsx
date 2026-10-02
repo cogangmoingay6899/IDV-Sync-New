@@ -305,15 +305,25 @@ export const isMatchingVocabTestId = (id1?: string, id2?: string): boolean => {
   const b = id2.trim().toLowerCase();
   if (a === b) return true;
 
-  const parseKey = (id: string) => {
-    const isRev = id.includes('rev');
-    const m = id.match(/k?([1-4])[-_](\d+)/);
-    if (m) {
-      return `${isRev ? 'rev' : 'vt'}-k${m[1]}-${parseInt(m[2], 10)}`;
-    }
-    return id;
+  const extractKeys = (str: string) => {
+    const isRev = str.includes('rev') || str.includes('ôn tập');
+    const courseMatch = str.match(/(?:k|c|khóa|course)[-_ ]?([1-4])/i) || str.match(/k([1-4])/i);
+    const courseNum = courseMatch ? courseMatch[1] : '1';
+    const lessonMatch = str.match(/(?:bài|lesson|vt|rev|k[1-4]|c[1-4])[-_ ]?(\d+)/i) || str.match(/(\d+)/);
+    const lessonNum = lessonMatch ? parseInt(lessonMatch[1], 10) : null;
+    return { isRev, courseNum, lessonNum };
   };
-  return parseKey(a) === parseKey(b);
+
+  const keyA = extractKeys(a);
+  const keyB = extractKeys(b);
+
+  if (keyA.lessonNum !== null && keyB.lessonNum !== null && keyA.lessonNum === keyB.lessonNum) {
+    if (keyA.isRev === keyB.isRev) {
+      if (keyA.courseNum === keyB.courseNum) return true;
+    }
+  }
+
+  return false;
 };
 
 export const isDummyVocabSubmission = (sub: VocabTestSubmission | any): boolean => {
@@ -472,6 +482,7 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
   const [typedAnswers, setTypedAnswers] = useState<Record<number, string>>({});
   const typedAnswersRef = useRef<Record<number, string>>({});
   const selectedAnswersRef = useRef<Record<number, number>>({});
+  const isHandlingTimeoutRef = useRef<boolean>(false);
 
   // New Test Creator / Editor Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -1471,7 +1482,11 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
   useEffect(() => {
     if (!runnerStarted || !activeRunnerTest || testCompletedSubmission) return;
     if (questionTimeLeft === 0) {
+      if (isHandlingTimeoutRef.current) return;
+      isHandlingTimeoutRef.current = true;
       handleNextQuestion(true);
+    } else {
+      isHandlingTimeoutRef.current = false;
     }
   }, [questionTimeLeft, runnerStarted, activeRunnerTest, testCompletedSubmission]);
 
@@ -1516,6 +1531,7 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
   const handleNextQuestion = (isTimeout: boolean = false) => {
     if (!activeRunnerTest) return;
+    isHandlingTimeoutRef.current = false;
     if (currentQuestionIndex < activeRunnerTest.questions.length - 1) {
       const nextQ = activeRunnerTest.questions[currentQuestionIndex + 1];
       const nextLimit = getQuestionTimeLimit(nextQ);
@@ -2372,8 +2388,14 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
         const testIdClean = activeLeaderboardTest.id.toLowerCase();
 
         const matchingStandalone = standaloneSubmissions.filter((s) => {
-          if (!s || !s.testId) return false;
-          return isMatchingVocabTestId(s.testId, testIdClean);
+          if (!s) return false;
+          if (s.testId && isMatchingVocabTestId(s.testId, testIdClean)) return true;
+          const targetLesson = (activeLeaderboardTest.unitName || activeLeaderboardTest.title || '').match(/\d+/)?.[0];
+          const subLesson = (s.testId || '').match(/\d+/)?.[0];
+          if (targetLesson && subLesson && targetLesson === subLesson) {
+            return true;
+          }
+          return false;
         });
 
         const combinedRaw = [

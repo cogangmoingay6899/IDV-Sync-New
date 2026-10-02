@@ -166,6 +166,59 @@ export const isSameSessionNumber = (s1: any, s2: any) => {
   return Number(s1) === Number(s2);
 };
 
+export const getSavedSkillScore = (rec: AttendanceRecord | undefined, targetSkill: string): string => {
+  if (!rec) return '';
+
+  // 1. Check direct skillScores object
+  if (rec.skillScores && typeof rec.skillScores === 'object') {
+    // Direct exact match
+    if (rec.skillScores[targetSkill] !== undefined && rec.skillScores[targetSkill] !== null && rec.skillScores[targetSkill] !== '') {
+      return String(rec.skillScores[targetSkill]);
+    }
+
+    // Alias matching
+    const skLower = targetSkill.toLowerCase().trim();
+    for (const [key, val] of Object.entries(rec.skillScores)) {
+      if (val === undefined || val === null || val === '') continue;
+      const kLower = key.toLowerCase().trim();
+
+      // Exact case-insensitive match
+      if (kLower === skLower) return String(val);
+
+      // Listening / Nghe
+      if ((skLower.includes('nghe') || skLower === 'l' || skLower.includes('listen')) &&
+          (kLower.includes('nghe') || kLower === 'l' || kLower.includes('listen'))) {
+        return String(val);
+      }
+
+      // Reading / Đọc
+      if ((skLower.includes('đọc') || skLower.includes('doc') || skLower === 'r' || skLower.includes('read')) &&
+          (kLower.includes('đọc') || kLower.includes('doc') || kLower === 'r' || kLower.includes('read'))) {
+        return String(val);
+      }
+
+      // Writing / Viết
+      if ((skLower.includes('viết') || skLower.includes('viet') || skLower === 'w' || skLower.includes('write')) &&
+          (kLower.includes('viết') || kLower.includes('viet') || kLower === 'w' || kLower.includes('write'))) {
+        return String(val);
+      }
+
+      // Speaking / Nói
+      if ((skLower.includes('nói') || skLower.includes('noi') || skLower === 's' || skLower.includes('speak')) &&
+          (kLower.includes('nói') || kLower.includes('noi') || kLower === 's' || kLower.includes('speak'))) {
+        return String(val);
+      }
+    }
+  }
+
+  // 2. Fallback to single score if score exists
+  if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
+    return String(rec.score);
+  }
+
+  return '';
+};
+
 export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   classGroup,
   allStudents,
@@ -876,13 +929,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       const rec = matchingRecords.find((r) => r.studentId === st.id);
       const scoresMap: Record<string, string> = {};
       activeSkills.forEach((sk) => {
-        if (rec?.skillScores && rec.skillScores[sk] !== undefined) {
-          scoresMap[sk] = String(rec.skillScores[sk]);
-        } else if (rec?.skillTaught === sk && rec?.score !== undefined) {
-          scoresMap[sk] = String(rec.score);
-        } else {
-          scoresMap[sk] = '';
-        }
+        scoresMap[sk] = getSavedSkillScore(rec, sk);
       });
 
       newRows[st.id] = {
@@ -896,6 +943,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
         penaltyCopies: rec?.penaltyCopies !== undefined ? String(rec.penaltyCopies) : '0',
         penaltyFee: rec?.penaltyFee && rec.penaltyFee !== '0 đ' ? rec.penaltyFee : '',
         previousDebt: rec?.previousDebt && rec.previousDebt !== '0 đ' ? rec.previousDebt : '',
+        note: rec?.note || '',
       };
     });
 
@@ -941,13 +989,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       // Initial skill scores map
       const initialSkillScores: Record<string, string> = {};
       selectedSkills.forEach((sk) => {
-        if (existing?.skillScores && existing.skillScores[sk] !== undefined) {
-          initialSkillScores[sk] = String(existing.skillScores[sk]);
-        } else if (existing?.skillTaught === sk && existing?.score !== undefined) {
-          initialSkillScores[sk] = String(existing.score);
-        } else {
-          initialSkillScores[sk] = '';
-        }
+        initialSkillScores[sk] = getSavedSkillScore(existing, sk);
       });
 
       const initialPenalty = existing?.penaltyCopies !== undefined ? String(existing.penaltyCopies) : '0';
@@ -2635,6 +2677,26 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                 <span className="text-xs text-purple-800 bg-purple-100 px-2 py-0.5 rounded-md font-bold">
                   {selectedSkills.join(' + ')}
                 </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleLoadSavedSessionData(sessionNumber)}
+                  className="px-3 py-1.5 bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
+                  title="Tải & hiển thị toàn bộ điểm đã lưu của buổi học này vào bảng bên dưới"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span>Hiện điểm đã lưu Buổi {sessionNumber}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsClassZaloModalOpen(true)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
+                  title="Xuất bảng tổng hợp điểm lớp, xếp hạng và lưu ảnh gửi Phụ huynh qua Zalo"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span>Xuất Báo Cáo / Gửi PH</span>
+                </button>
               </div>
             </div>
 

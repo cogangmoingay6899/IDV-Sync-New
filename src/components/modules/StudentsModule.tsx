@@ -754,7 +754,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                         return e.jsxs(
                           "div",
                           {
-                            key: B.id,
                             onClick: () => P(B),
                             className:
                               "bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs hover:border-purple-400 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group",
@@ -1537,7 +1536,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                 e.jsxs(
                                   "div",
                                   {
-                                    key: B.id,
                                     className:
                                       "pt-2 pb-1 hover:bg-rose-50/40 rounded-xl px-2 transition-colors flex items-center justify-between gap-2 text-xs group",
                                     children: [
@@ -1808,7 +1806,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                             className: "divide-y divide-slate-100",
                             children: [
                               qt.map((B) => {
-                                const { key: _k, ...restB } = B as any;
+                                
                                 const fe =
                                     B.tuitionStatus !== "Đã đóng đủ" &&
                                     (B.balanceOwed || 0) > 0,
@@ -1825,7 +1823,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                 return e.jsxs(
                                   "tr",
                                   {
-                                    key: B.id,
                                     className:
                                       "hover:bg-slate-50/70 transition-colors",
                                     children: [
