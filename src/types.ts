@@ -322,6 +322,8 @@ export interface AttendanceRecord {
   exemptHomeworkItems?: string[]; // Danh sách đề mục học viên không cần làm
   homeworkStatus?: 'Đã làm' | 'Chưa làm' | 'Thiếu';
   quizletStatus?: 'Đã học' | 'Chưa học';
+  studentTotalCount?: number;
+  studentPresentCount?: number;
 }
 
 export interface TeachingSession {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { evaluatePlacementResult } from '../../utils/placementEvaluation';
 import {
   ClipboardList,
   Plus,

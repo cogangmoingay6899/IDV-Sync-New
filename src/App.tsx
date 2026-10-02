@@ -211,6 +211,8 @@ import {
   KPITarget,
   InventoryItem,
   AuthUser,
+  ClassTransferRecord,
+  StudentPreviousClass,
 } from './types';
 
 import {

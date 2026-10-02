@@ -1163,7 +1163,7 @@ export const OnlinePlacementTestForm: React.FC<OnlinePlacementTestFormProps> = (
       );
 
       const recommendedCourse = evalRes.recommendedCourse;
-      const status = evalRes.status;
+      const status: PlacementTest['status'] = evalRes.status === 'Chờ đánh giá' ? 'Chờ chấm điểm' : (evalRes.status as any);
       const comment = evalRes.comment;
 
       // Calculate test duration & overdue metrics

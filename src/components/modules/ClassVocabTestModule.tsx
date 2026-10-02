@@ -299,6 +299,53 @@ export const checkIsTypeInputCorrect = (studentAnswer: string, question: VocabQu
   return false;
 };
 
+export const isMatchingVocabTestId = (id1?: string, id2?: string): boolean => {
+  if (!id1 || !id2) return false;
+  const a = id1.trim().toLowerCase();
+  const b = id2.trim().toLowerCase();
+  if (a === b) return true;
+
+  const parseKey = (id: string) => {
+    const isRev = id.includes('rev');
+    const m = id.match(/k?([1-4])[-_](\d+)/);
+    if (m) {
+      return `${isRev ? 'rev' : 'vt'}-k${m[1]}-${parseInt(m[2], 10)}`;
+    }
+    return id;
+  };
+  return parseKey(a) === parseKey(b);
+};
+
+export const isDummyVocabSubmission = (sub: VocabTestSubmission | any): boolean => {
+  if (!sub || !sub.studentName) return true;
+  const name = String(sub.studentName).trim().toLowerCase();
+  const cls = String(sub.className || '').trim().toLowerCase();
+  if (name.length < 2) return true;
+  if (sub.id === 'sub-1' || sub.id === 'sub-rev-1') return true;
+  if (name === 'abc' || name.startsWith('abc ') || name === 'test' || name === 'demo') return true;
+  if (cls === '123' || cls === 'abc' || cls === 'test') return true;
+  if (name.includes('nguyễn văn minh') || name.includes('phạm nhật nam')) return true;
+  return false;
+};
+
+export const isSameStudentClass = (subClassName?: string, targetClassName?: string): boolean => {
+  if (!targetClassName || targetClassName === 'all') return true;
+  if (!subClassName) return false;
+  const s = subClassName.trim().toLowerCase();
+  const t = targetClassName.trim().toLowerCase();
+  if (s === t) return true;
+
+  const sNum = s.match(/\d+/)?.[0];
+  const tNum = t.match(/\d+/)?.[0];
+  if (sNum && tNum && sNum === tNum) return true;
+
+  const normS = s.replace(/^(lớp|class|ielts)\s+/gi, '').trim();
+  const normT = t.replace(/^(lớp|class|ielts)\s+/gi, '').trim();
+  if (normS && normT && normS === normT) return true;
+
+  return false;
+};
+
 // Helper to strip lesson topic names or obsolete course titles and filter out mock students
 const sanitizeVocabTest = (test: VocabTest): VocabTest => {
   let cleanTitle = (test.title || '').split(':')[0].trim();
@@ -326,13 +373,7 @@ const sanitizeVocabTest = (test: VocabTest): VocabTest => {
   });
 
   const cleanedSubmissions = (test.submissions || []).filter(
-    (sub) =>
-      sub.studentName !== 'Nguyễn Văn Minh' &&
-      sub.studentName !== 'Phạm Nhật Nam' &&
-      !sub.studentName?.toLowerCase().includes('nguyễn văn minh') &&
-      !sub.studentName?.toLowerCase().includes('phạm nhật nam') &&
-      sub.id !== 'sub-1' &&
-      sub.id !== 'sub-rev-1'
+    (sub) => !isDummyVocabSubmission(sub)
   );
 
   return {
@@ -666,8 +707,13 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       setIsExited(false);
       setActiveRunnerTest(safeTest);
       setSelectedCourseLevel(safeTest.courseLevel);
-      setRunnerStudentName(savedSession.studentName || '');
-      setRunnerClassName(savedSession.className || classFromUrl || (classGroup ? classGroup.name : ''));
+      const restoredName = savedSession.studentName || '';
+      const restoredClass = savedSession.className || '';
+      const isDummyName = isDummyVocabSubmission({ studentName: restoredName } as any);
+      const isDummyClass = ['123', 'abc', 'test'].includes(restoredClass.trim().toLowerCase());
+
+      setRunnerStudentName(isDummyName ? '' : restoredName);
+      setRunnerClassName((isDummyClass ? '' : restoredClass) || classFromUrl || (classGroup ? classGroup.name : ''));
       setRunnerStudentPhone(savedSession.studentPhone || '');
       setRunnerStarted(true);
       setCurrentQuestionIndex(savedSession.currentQuestionIndex || 0);
@@ -1590,12 +1636,24 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       await addSubmissionToTest(collectionName, activeRunnerTest.id, newSub);
       await saveDocument('vocab_test_submissions', newSub);
 
-      // The subscription will automatically update the local state
+      // The subscription and local state will immediately update
       try {
         sessionStorage.removeItem(`idv_active_test_${activeRunnerTest.id}`);
         sessionStorage.setItem(`idv_completed_test_${activeRunnerTest.id}`, 'true');
+        sessionStorage.setItem(`idv_completed_qcount_${activeRunnerTest.id}`, String(totalQ));
+        sessionStorage.setItem(`idv_last_sub_${activeRunnerTest.id}`, JSON.stringify(newSub));
       } catch (e) {}
+      
       setTestCompletedSubmission(newSub);
+      setStandaloneSubmissions((prev) => [newSub, ...(prev || []).filter((s) => s.id !== newSub.id)]);
+      setActiveRunnerTest((prev) => {
+        if (!prev) return null;
+        const currentSubs = Array.isArray(prev.submissions) ? prev.submissions : [];
+        return {
+          ...prev,
+          submissions: [newSub, ...currentSubs.filter((s) => s.id !== newSub.id)],
+        };
+      });
     } catch (error) {
       console.error('Error submitting test:', error);
       showToast('❌ Lỗi khi lưu bài làm. Vui lòng thử lại!');
@@ -2312,16 +2370,10 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       {/* MODAL 1: BẢNG XẾP HẠNG (LEADERBOARD) AI LÀM NHANH NHẤT & CHÍNH XÁC NHẤT */}
       {activeLeaderboardTest && (() => {
         const testIdClean = activeLeaderboardTest.id.toLowerCase();
-        const testNumMatch = testIdClean.match(/(\d+)/);
-        const testLessonNum = testNumMatch ? parseInt(testNumMatch[1], 10) : 0;
 
         const matchingStandalone = standaloneSubmissions.filter((s) => {
           if (!s || !s.testId) return false;
-          const sIdClean = s.testId.toLowerCase();
-          if (sIdClean === testIdClean) return true;
-          const sNumMatch = sIdClean.match(/(\d+)/);
-          const sLessonNum = sNumMatch ? parseInt(sNumMatch[1], 10) : 0;
-          return sLessonNum > 0 && sLessonNum === testLessonNum;
+          return isMatchingVocabTestId(s.testId, testIdClean);
         });
 
         const combinedRaw = [
@@ -2331,42 +2383,31 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
         const subMap = new Map<string, VocabTestSubmission>();
         combinedRaw.forEach((s) => {
-          if (!s || !s.studentName) return;
-          const uniqueKey = s.id || `${s.studentName}_${s.score}_${s.timeSpentSeconds}_${s.submittedAt}`;
+          if (!s || isDummyVocabSubmission(s)) return;
+          const uniqueKey = s.id || `${s.studentName}_${s.className}_${s.submittedAt}`;
           subMap.set(uniqueKey, s);
         });
 
         const allSubmissions = Array.from(subMap.values()).filter(
-          (sub) =>
-            sub.studentName &&
-            sub.studentName !== 'Nguyễn Văn Minh' &&
-            sub.studentName !== 'Phạm Nhật Nam' &&
-            !sub.studentName.toLowerCase().includes('nguyễn văn minh') &&
-            !sub.studentName.toLowerCase().includes('phạm nhật nam') &&
-            sub.id !== 'sub-1' &&
-            sub.id !== 'sub-rev-1'
+          (sub) => !isDummyVocabSubmission(sub)
         );
 
-        // Extract list of unique classes present in submissions
+        // Extract list of unique classes present in submissions (clean and standardized)
         const availableClassList: string[] = Array.from(
           new Set(
             allSubmissions
-              .map((s) => (s.className || '').trim())
-              .filter((c) => Boolean(c))
+              .map((s) => {
+                const raw = (s.className || '').trim();
+                const d = raw.match(/\d+/)?.[0];
+                return d ? d : raw;
+              })
+              .filter((c) => Boolean(c) && c !== '123' && c.toLowerCase() !== 'abc')
           )
         ) as string[];
 
         // Filter submissions by selected class
         const filteredLeaderboardSubmissions = allSubmissions.filter((sub) => {
-          if (leaderboardClassFilter === 'all') return true;
-          const subClass = (sub.className || '').trim().toLowerCase();
-          const filterVal = leaderboardClassFilter.trim().toLowerCase();
-          if (subClass === filterVal) return true;
-          
-          const subNum = subClass.match(/\d+/)?.[0];
-          const filterNum = filterVal.match(/\d+/)?.[0];
-          if (subNum && filterNum && subNum === filterNum) return true;
-          return subClass.includes(filterVal) || filterVal.includes(subClass);
+          return isSameStudentClass(sub.className, leaderboardClassFilter);
         });
 
         return (
@@ -2391,7 +2432,10 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                     type="button"
                     onClick={() => {
                       setExportZaloInitialClass(leaderboardClassFilter);
-                      setExportZaloModalTest(activeLeaderboardTest);
+                      setExportZaloModalTest({
+                        ...activeLeaderboardTest,
+                        submissions: allSubmissions,
+                      });
                     }}
                     className="px-3 py-1.5 bg-purple-900 hover:bg-purple-950 text-amber-300 font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer border border-amber-400/40"
                     title="Tạo ảnh Bảng Xếp Hạng gửi Zalo Phụ Huynh"
@@ -2570,7 +2614,10 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                   type="button"
                   onClick={() => {
                     setExportZaloInitialClass(leaderboardClassFilter);
-                    setExportZaloModalTest(activeLeaderboardTest);
+                    setExportZaloModalTest({
+                      ...activeLeaderboardTest,
+                      submissions: allSubmissions,
+                    });
                   }}
                   className="px-4 py-2.5 bg-purple-900 hover:bg-purple-950 text-amber-300 font-black text-xs rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer border border-amber-400/40 active:scale-95"
                 >
@@ -3609,30 +3656,13 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                 {/* TAB 2: EMBEDDED LEADERBOARD (LỚP CỦA CHÍNH HỌC SINH) */}
                 {resultActiveTab === 'leaderboard' && (() => {
                   const studentClass = (testCompletedSubmission?.className || runnerClassName || '').trim();
-                  const studentClassNum = studentClass.match(/\d+/)?.[0];
-
-                  const isSameClass = (subClassName?: string) => {
-                    if (!subClassName) return !studentClass;
-                    const sClass = subClassName.trim().toLowerCase();
-                    const myClass = studentClass.toLowerCase();
-                    if (sClass === myClass) return true;
-                    const sNum = sClass.match(/\d+/)?.[0];
-                    if (studentClassNum && sNum && studentClassNum === sNum) return true;
-                    return sClass.includes(myClass) || myClass.includes(sClass);
-                  };
 
                   // Combine standaloneSubmissions for this test
                   const testIdClean = (activeRunnerTest?.id || '').toLowerCase();
-                  const testNumMatch = testIdClean.match(/(\d+)/);
-                  const testLessonNum = testNumMatch ? parseInt(testNumMatch[1], 10) : 0;
 
                   const matchingStandalone = standaloneSubmissions.filter((s) => {
                     if (!s || !s.testId) return false;
-                    const sIdClean = s.testId.toLowerCase();
-                    if (sIdClean === testIdClean) return true;
-                    const sNumMatch = sIdClean.match(/(\d+)/);
-                    const sLessonNum = sNumMatch ? parseInt(sNumMatch[1], 10) : 0;
-                    return sLessonNum > 0 && sLessonNum === testLessonNum;
+                    return isMatchingVocabTestId(s.testId, testIdClean);
                   });
 
                   // Deduplicate by ID or unique key
@@ -3642,33 +3672,26 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                     ...(testCompletedSubmission ? [testCompletedSubmission] : []),
                     ...matchingStandalone
                   ].forEach((s) => {
-                    if (!s || !s.studentName) return;
-                    const uniqueKey = s.id || `${s.studentName}_${s.score}_${s.timeSpentSeconds}_${s.submittedAt}`;
+                    if (!s || isDummyVocabSubmission(s)) return;
+                    const uniqueKey = s.id || `${s.studentName}_${s.className}_${s.submittedAt}`;
                     subMap.set(uniqueKey, s);
                   });
 
                   const allSubList = Array.from(subMap.values()).filter(
-                    (s) =>
-                      s.studentName &&
-                      s.studentName !== 'Nguyễn Văn Minh' &&
-                      s.studentName !== 'Phạm Nhật Nam' &&
-                      !s.studentName.toLowerCase().includes('nguyễn văn minh') &&
-                      !s.studentName.toLowerCase().includes('phạm nhật nam') &&
-                      s.id !== 'sub-1' &&
-                      s.id !== 'sub-rev-1'
+                    (s) => !isDummyVocabSubmission(s)
                   );
 
-                  // Try class filtering first
-                  let subList = allSubList.filter((s) => isSameClass(s.className));
+                  // Filter submissions belonging to the student's class
+                  let subList = allSubList.filter((s) => isSameStudentClass(s.className, studentClass));
 
-                  // Fallback: if no students matched class filter, show all valid submissions for this test
-                  if (subList.length === 0) {
-                    subList = allSubList;
+                  // Ensure the current student's completed submission is present
+                  if (testCompletedSubmission && !subList.some((s) => s.id === testCompletedSubmission.id)) {
+                    subList = [testCompletedSubmission, ...subList];
                   }
 
                   subList.sort((a, b) => {
-                    if (b.score !== a.score) return b.score - a.score;
                     if (b.correctCount !== a.correctCount) return b.correctCount - a.correctCount;
+                    if (b.score !== a.score) return b.score - a.score;
                     return a.timeSpentSeconds - b.timeSpentSeconds;
                   });
 

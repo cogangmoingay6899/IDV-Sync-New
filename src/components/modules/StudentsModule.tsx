@@ -8,7 +8,7 @@ import {
   AlertCircle, Bell, Sparkles, Trash2, Search, Check, UserX,
   Plus, History, ArrowLeftRight
 } from "lucide-react";
-import { Student, ClassGroup, Teacher, CurriculumCourse, AttendanceRecord, TuitionTransaction, ExamScore, AuthUser } from "../../types";
+import { Student, ClassGroup, Teacher, CurriculumCourse, AttendanceRecord, TuitionTransaction, ExamScore, AuthUser, PlacementTest } from "../../types";
 import { EditClassModal } from "../modals/EditClassModal";
 import { ClassDetailView } from "./ClassDetailView";
 import { ClassVocabTestModule } from "./ClassVocabTestModule";

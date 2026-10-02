@@ -49,26 +49,34 @@ export const VocabLeaderboardExportModal: React.FC<VocabLeaderboardExportModalPr
   // Filter valid submissions (exclude demo placeholders)
   const validSubmissions = useMemo(() => {
     if (!test || !test.submissions) return [];
-    return test.submissions.filter(
-      (sub) =>
-        sub.studentName &&
-        sub.studentName !== 'Nguyễn Văn Minh' &&
-        sub.studentName !== 'Phạm Nhật Nam' &&
-        !sub.studentName.toLowerCase().includes('nguyễn văn minh') &&
-        !sub.studentName.toLowerCase().includes('phạm nhật nam') &&
-        sub.id !== 'sub-1' &&
-        sub.id !== 'sub-rev-1'
-    );
+    return test.submissions.filter((sub) => {
+      if (!sub || !sub.studentName) return false;
+      const name = String(sub.studentName).trim().toLowerCase();
+      const cls = String(sub.className || '').trim().toLowerCase();
+      if (name.length < 2) return false;
+      if (sub.id === 'sub-1' || sub.id === 'sub-rev-1') return false;
+      if (name === 'abc' || name.startsWith('abc ') || name === 'test' || name === 'demo') return false;
+      if (cls === '123' || cls === 'abc' || cls === 'test') return false;
+      if (name.includes('nguyễn văn minh') || name.includes('phạm nhật nam')) return false;
+      return true;
+    });
   }, [test]);
 
   // Unique classes from submissions
   const availableClassList = useMemo(() => {
     const fromSubs = validSubmissions
-      .map((s) => (s.className || '').trim())
-      .filter((c) => Boolean(c));
+      .map((s) => {
+        const raw = (s.className || '').trim();
+        const d = raw.match(/\d+/)?.[0];
+        return d ? d : raw;
+      })
+      .filter((c) => Boolean(c) && c !== '123' && c.toLowerCase() !== 'abc');
     const set = new Set(fromSubs);
     classes.forEach((c) => {
-      if (c.name) set.add(c.name.trim());
+      if (c.name) {
+        const d = c.name.match(/\d+/)?.[0];
+        set.add(d ? d : c.name.trim());
+      }
     });
     return Array.from(set);
   }, [validSubmissions, classes]);
@@ -85,7 +93,11 @@ export const VocabLeaderboardExportModal: React.FC<VocabLeaderboardExportModalPr
       const filterNum = filterVal.match(/\d+/)?.[0];
       if (subNum && filterNum && subNum === filterNum) return true;
 
-      return subClass.includes(filterVal) || filterVal.includes(subClass);
+      const normS = subClass.replace(/^(lớp|class|ielts)\s+/gi, '').trim();
+      const normF = filterVal.replace(/^(lớp|class|ielts)\s+/gi, '').trim();
+      if (normS && normF && normS === normF) return true;
+
+      return false;
     });
 
     return list.sort((a, b) => {

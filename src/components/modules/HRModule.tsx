@@ -22,7 +22,8 @@ import {
   Sliders,
   Check
 } from 'lucide-react';
-import { Teacher, ClassGroup, Student } from '../../types';
+import { Teacher, ClassGroup, Student, AttendanceRecord } from '../../types';
+import { parseDateParts } from '../../utils/spreadsheetSessionExtractor';
 import {
   TeacherScheduleAvailability,
   isClassTaughtByTeacher,
@@ -227,19 +228,9 @@ export const HRModule: React.FC<HRModuleProps> = ({
       // Find actual attendance sessions for this class in targetM / targetY
       const classRecordsInMonth = combinedRecords.filter((r) => {
         if (!r || r.classId !== cls.id || !r.date) return false;
-        
-        let rYear = 0;
-        let rMonth = 0;
-        if (r.date.includes('-')) {
-          const p = r.date.split('-');
-          rYear = parseInt(p[0], 10);
-          rMonth = parseInt(p[1], 10);
-        } else if (r.date.includes('/')) {
-          const p = r.date.split('/');
-          rYear = parseInt(p[2], 10);
-          rMonth = parseInt(p[1], 10);
-        }
-        return rMonth === targetM && rYear === targetY;
+        const parsed = parseDateParts(r.date);
+        if (!parsed) return false;
+        return parsed.month === targetM && parsed.year === targetY;
       });
 
       // Unique session dates recorded in this month

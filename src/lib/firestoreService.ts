@@ -756,8 +756,26 @@ export async function addSubmissionToTest(
 ) {
   try {
     const cleanSub = sanitizeFirestoreData(submission);
-    
-    // 1. Get current test from local cache or fetch from VPS server
+
+    // 1. VPS-FIRST ATOMIC SUBMISSION: Persist directly to VPS backend filesystem (0 quota, 0 permission error)
+    try {
+      const vpsRes = await fetch('/api/storage/tests/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+        body: JSON.stringify({
+          collectionName,
+          testId,
+          submission: cleanSub,
+        }),
+      });
+      if (vpsRes.ok) {
+        console.log(`✅ [VPS Server Storage] Successfully saved test submission for ${testId}`);
+      }
+    } catch (vpsErr) {
+      console.warn('[VPS Storage] VPS submit request fallback:', vpsErr);
+    }
+
+    // 2. Update local in-memory cache & UI subscribers immediately
     let currentTests = cachedCollections.get(collectionName) || [];
     let test = currentTests.find((t: any) => String(t.id) === String(testId));
     
@@ -776,7 +794,6 @@ export async function addSubmissionToTest(
     }
 
     if (!test) {
-      // Construct fallback test shell if test hasn't been saved to server storage file yet
       test = {
         id: testId,
         title: `Bài kiểm tra ${testId}`,
@@ -790,16 +807,51 @@ export async function addSubmissionToTest(
     }
 
     const existingSubs = Array.isArray(test.submissions) ? test.submissions : [];
-    const filteredSubs = existingSubs.filter((s: any) => s.id !== cleanSub.id);
+    const subMap = new Map<string, any>();
+    existingSubs.forEach((s: any) => {
+      const k = s.id || `${s.studentName}_${s.className}_${s.submittedAt}`;
+      subMap.set(k, s);
+    });
+    subMap.set(cleanSub.id || `${cleanSub.studentName}_${cleanSub.className}_${cleanSub.submittedAt}`, cleanSub);
+
+    const mergedSubs = Array.from(subMap.values());
     const updatedTest = {
       ...test,
-      submissions: [...filteredSubs, cleanSub],
+      submissions: mergedSubs,
       updatedAt: new Date().toISOString(),
     };
 
-    // Save via saveDocument (saves to VPS & localStorage)
-    await saveDocument(collectionName, updatedTest);
-    console.log(`✅ [VPS Storage] Successfully added submission for test ${testId} in ${collectionName}`);
+    const updatedTests = currentTests.map((t: any) => (String(t.id) === String(testId) ? updatedTest : t));
+    if (!currentTests.some((t: any) => String(t.id) === String(testId))) {
+      updatedTests.push(updatedTest);
+    }
+    cachedCollections.set(collectionName, updatedTests);
+    try {
+      localStorage.setItem(`vps_col_${collectionName}`, JSON.stringify(updatedTests));
+    } catch (e) {}
+
+    const listeners = activeListeners.get(collectionName);
+    if (listeners) {
+      listeners.forEach((cb) => {
+        try { cb(updatedTests); } catch (e) {}
+      });
+    }
+
+    // 3. Secondary Background Replication to Firestore (non-blocking, never fails the user UI)
+    try {
+      const docRef = doc(db, collectionName, String(testId));
+      await updateDoc(docRef, {
+        submissions: arrayUnion(cleanSub),
+        updatedAt: new Date().toISOString(),
+      }).catch(async () => {
+        await setDoc(docRef, updatedTest, { merge: true });
+      });
+    } catch (firestoreErr) {
+      // Background Firestore replica warning (does not disrupt user experience)
+    }
+
+    // Also persist individual submission to standalone collection on VPS & background
+    saveDocument('vocab_test_submissions', cleanSub).catch(() => {});
   } catch (err) {
     console.error(`[VPS Storage] Error adding submission to ${collectionName}:`, err);
   }

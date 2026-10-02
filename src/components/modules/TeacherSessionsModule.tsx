@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { ClassGroup, Student, AttendanceRecord, Teacher, AuthUser } from '../../types';
 import { calculateTeacherSessionSalary } from '../../utils/salaryCalculator';
-import { extractSessionsFromSpreadsheets } from '../../utils/spreadsheetSessionExtractor';
+import { extractSessionsFromSpreadsheets, parseDateParts } from '../../utils/spreadsheetSessionExtractor';
 
 interface TeacherSessionsModuleProps {
   classes: ClassGroup[];
@@ -93,25 +93,10 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     }
   };
 
-  // Safe Date parsing helper to handle "YYYY-MM-DD" and "DD/MM/YYYY"
+  // Safe Date parsing helper using parseDateParts
   const parseYearMonth = (dateStr: string) => {
-    if (!dateStr) return null;
-    if (dateStr.includes('-')) {
-      const parts = dateStr.split('-');
-      if (parts.length >= 2) {
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10);
-        if (!isNaN(year) && !isNaN(month)) return { year, month };
-      }
-    }
-    if (dateStr.includes('/')) {
-      const parts = dateStr.split('/');
-      if (parts.length >= 3) {
-        const year = parseInt(parts[2], 10);
-        const month = parseInt(parts[1], 10);
-        if (!isNaN(year) && !isNaN(month)) return { year, month };
-      }
-    }
+    const parsed = parseDateParts(dateStr);
+    if (parsed) return { year: parsed.year, month: parsed.month };
     return null;
   };
 

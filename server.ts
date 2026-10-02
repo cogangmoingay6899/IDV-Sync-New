@@ -221,8 +221,52 @@ async function startServer() {
       let updatedList: any[];
       if (index >= 0) {
         updatedList = [...existing];
-        updatedList[index] = { ...existing[index], ...item };
+        const existingItem = existing[index];
+        let mergedSubmissions = item.submissions;
+
+        // If collection has submissions (vocab_tests, vocab_reviews), merge and deduplicate
+        if (colName === 'vocab_tests' || colName === 'vocab_reviews') {
+          const currentSubs = Array.isArray(existingItem.submissions) ? existingItem.submissions : [];
+          const incomingSubs = Array.isArray(item.submissions) ? item.submissions : [];
+          const subMap = new Map<string, any>();
+          
+          currentSubs.forEach((s: any) => {
+            if (!s || !s.studentName) return;
+            const sName = String(s.studentName).trim().toLowerCase();
+            const sClass = String(s.className || '').trim().toLowerCase();
+            if (sName === 'abc' || sClass === '123' || s.id === 'sub-1' || s.id === 'sub-rev-1') return;
+            const k = s.id || `${s.studentName}_${s.className}_${s.submittedAt}`;
+            subMap.set(k, s);
+          });
+
+          incomingSubs.forEach((s: any) => {
+            if (!s || !s.studentName) return;
+            const sName = String(s.studentName).trim().toLowerCase();
+            const sClass = String(s.className || '').trim().toLowerCase();
+            if (sName === 'abc' || sClass === '123' || s.id === 'sub-1' || s.id === 'sub-rev-1') return;
+            const k = s.id || `${s.studentName}_${s.className}_${s.submittedAt}`;
+            subMap.set(k, s);
+          });
+
+          mergedSubmissions = Array.from(subMap.values());
+        }
+
+        updatedList[index] = {
+          ...existingItem,
+          ...item,
+          ...(mergedSubmissions !== undefined ? { submissions: mergedSubmissions } : {}),
+        };
       } else {
+        if (colName === 'vocab_tests' || colName === 'vocab_reviews') {
+          if (Array.isArray(item.submissions)) {
+            item.submissions = item.submissions.filter((s: any) => {
+              if (!s || !s.studentName) return false;
+              const sName = String(s.studentName).trim().toLowerCase();
+              const sClass = String(s.className || '').trim().toLowerCase();
+              return sName !== 'abc' && sClass !== '123' && s.id !== 'sub-1' && s.id !== 'sub-rev-1';
+            });
+          }
+        }
         updatedList = [item, ...existing];
       }
 
@@ -230,6 +274,98 @@ async function startServer() {
       res.json({ success: true, collection: colName, data: item });
     } catch (err: any) {
       res.status(500).json({ error: err?.message || 'Server storage error' });
+    }
+  });
+
+  // --- DEDICATED ATOMIC TEST SUBMISSION ENDPOINT FOR ULTRA-RELIABLE VPS STORAGE ---
+  app.post('/api/storage/tests/submit', (req, res) => {
+    try {
+      const { collectionName, testId, submission } = req.body;
+      const colName = collectionName || (String(testId).startsWith('rev-') ? 'vocab_reviews' : 'vocab_tests');
+      
+      if (!testId || !submission || !submission.studentName) {
+        return res.status(400).json({ error: 'Missing testId or valid submission' });
+      }
+
+      // Filter dummy test data
+      const studentName = String(submission.studentName).trim();
+      const className = String(submission.className || '').trim();
+      const sNameLower = studentName.toLowerCase();
+      const sClassLower = className.toLowerCase();
+      if (sNameLower === 'abc' || sNameLower.startsWith('abc ') || sClassLower === '123' || sClassLower === 'abc') {
+        return res.json({ success: true, message: 'Filtered dummy submission', submission });
+      }
+
+      const cleanSub = {
+        ...submission,
+        id: submission.id || `sub-${Date.now()}`,
+        studentName,
+        className,
+        submittedAt: submission.submittedAt || new Date().toISOString(),
+      };
+
+      // 1. Update Test Submissions in Test Document (vocab_tests or vocab_reviews)
+      const existingTests = getCollectionData(colName);
+      const targetTestIndex = existingTests.findIndex((t) => String(t.id).toLowerCase() === String(testId).toLowerCase());
+      
+      let targetTest: any;
+      if (targetTestIndex >= 0) {
+        targetTest = { ...existingTests[targetTestIndex] };
+      } else {
+        targetTest = {
+          id: testId,
+          title: `Bài kiểm tra ${testId}`,
+          unitName: 'Tổng hợp',
+          courseLevel: 'Khóa 1',
+          timePerQuestionSeconds: 20,
+          questions: [],
+          submissions: [],
+          createdAt: new Date().toISOString(),
+        };
+      }
+
+      const currentSubs = Array.isArray(targetTest.submissions) ? targetTest.submissions : [];
+      const subMap = new Map<string, any>();
+      currentSubs.forEach((s: any) => {
+        if (!s || !s.studentName) return;
+        const key = s.id || `${s.studentName}_${s.className}_${s.submittedAt}`;
+        subMap.set(key, s);
+      });
+      subMap.set(cleanSub.id || `${cleanSub.studentName}_${cleanSub.className}_${cleanSub.submittedAt}`, cleanSub);
+
+      targetTest.submissions = Array.from(subMap.values());
+      targetTest.updatedAt = new Date().toISOString();
+
+      let updatedTests: any[];
+      if (targetTestIndex >= 0) {
+        updatedTests = [...existingTests];
+        updatedTests[targetTestIndex] = targetTest;
+      } else {
+        updatedTests = [targetTest, ...existingTests];
+      }
+
+      saveCollectionData(colName, updatedTests, true);
+
+      // 2. Also persist individual submission to standalone collection vocab_test_submissions
+      const existingSubsList = getCollectionData('vocab_test_submissions');
+      const subIndex = existingSubsList.findIndex((s) => String(s.id) === String(cleanSub.id));
+      let updatedSubsList: any[];
+      if (subIndex >= 0) {
+        updatedSubsList = [...existingSubsList];
+        updatedSubsList[subIndex] = cleanSub;
+      } else {
+        updatedSubsList = [cleanSub, ...existingSubsList];
+      }
+      saveCollectionData('vocab_test_submissions', updatedSubsList, true);
+
+      // Broadcast specific submission event
+      broadcastEvent({ type: 'test_submitted', collection: colName, id: String(testId), data: cleanSub });
+
+      console.log(`[VPS Server Storage] ✅ Atomic test submission recorded for test "${testId}" by student "${studentName}" (Class: "${className}")`);
+      res.json({ success: true, collection: colName, test: targetTest, submission: cleanSub });
+    } catch (err: any) {
+      console.error('[VPS Server Storage] Error recording test submission:', err);
+      res.status(500).json({ error: err?.message || 'Server error processing test submission' });
     }
   });
 
