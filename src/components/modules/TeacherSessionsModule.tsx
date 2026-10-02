@@ -46,13 +46,25 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
 
   // Find exact teacher profile if logged-in user is a teacher
   const loggedInTeacherProfile = useMemo(() => {
-    if (!isTeacherView) return null;
-    return teachers.find(
-      (t) =>
-        t.id === currentUser?.teacherId ||
-        t.email?.toLowerCase() === currentUser?.email?.toLowerCase() ||
-        t.name?.toLowerCase() === currentUser?.name?.toLowerCase()
-    );
+    if (!isTeacherView || !currentUser) return null;
+    const userEmail = (currentUser.email || '').toLowerCase().trim();
+    const rawName = (currentUser.name || '').toLowerCase().trim();
+    const cleanName = rawName.replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
+
+    return teachers.find((t) => {
+      if (!t) return false;
+      if (currentUser.teacherId && t.id === currentUser.teacherId) return true;
+      if (userEmail && t.email && t.email.toLowerCase().trim() === userEmail) return true;
+
+      const normT = (t.name || '').toLowerCase().replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
+      if (cleanName && normT && (normT === cleanName || normT.includes(cleanName) || cleanName.includes(normT))) {
+        return true;
+      }
+      if (cleanName.includes('ngần') || cleanName.includes('ngân')) {
+        if (normT.includes('ngần') || normT.includes('ngân')) return true;
+      }
+      return false;
+    });
   }, [isTeacherView, currentUser, teachers]);
 
   // Fallback name for the logged-in teacher

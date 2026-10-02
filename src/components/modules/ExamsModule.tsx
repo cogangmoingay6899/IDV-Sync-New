@@ -34,10 +34,25 @@ export const ExamsModule: React.FC<ExamsModuleProps> = ({
   onOpenCreateClass,
 }) => {
   const isTeacher = currentUser?.role === 'teacher';
-  const availableClasses = isTeacher && currentUser?.teacherId
-    ? (classes.some((c) => c.teacherId === currentUser.teacherId)
-        ? classes.filter((c) => c.teacherId === currentUser.teacherId)
-        : classes)
+  const availableClasses = isTeacher && currentUser
+    ? classes.filter((c) => {
+        if (!c) return false;
+        if (currentUser.teacherId && c.teacherId === currentUser.teacherId) return true;
+        const cleanName = (currentUser.name || '').toLowerCase().replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
+        const cTeacher = (c.teacherName || '').toLowerCase();
+        const cAssistant = (c.assistantTeacherName || '').toLowerCase();
+        const cTeachersList = (Array.isArray(c.teacherNames) ? c.teacherNames : []).map((t) => String(t).toLowerCase());
+
+        if (cleanName && (cTeacher.includes(cleanName) || cAssistant.includes(cleanName) || cTeachersList.some((tn) => tn.includes(cleanName)))) {
+          return true;
+        }
+        if (cleanName.includes('ngần') || cleanName.includes('ngân')) {
+          if (cTeacher.includes('ngần') || cTeacher.includes('ngân') || cTeachersList.some((tn) => tn.includes('ngần') || tn.includes('ngân'))) {
+            return true;
+          }
+        }
+        return false;
+      })
     : classes;
 
   const [search, setSearch] = useState('');

@@ -815,18 +815,50 @@ export default function App() {
   }, [students, classes, transactions, leads, placementTests]);
 
   const effectiveClasses = useMemo(() => {
-    if (isTeacher && currentUser?.name) {
-      const tName = currentUser.name.toLowerCase();
+    if (isTeacher && currentUser) {
+      const rawName = (currentUser.name || '').toLowerCase();
+      const cleanName = rawName.replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
+      const userEmail = (currentUser.email || '').toLowerCase().trim();
+      const teacherId = currentUser.teacherId;
+
       return classes.filter((c) => {
-        const match =
-          (c.teacherName && c.teacherName.toLowerCase().includes(tName)) ||
-          (c.assistantTeacherName && c.assistantTeacherName.toLowerCase().includes(tName)) ||
-          (c.teacherNames && c.teacherNames.some((tn) => tn.toLowerCase().includes(tName)));
-        return match;
+        if (!c) return false;
+        if (teacherId && c.teacherId === teacherId) return true;
+
+        const cTeacher = (c.teacherName || '').toLowerCase();
+        const cAssistant = (c.assistantTeacherName || '').toLowerCase();
+        const cTeachersList = (Array.isArray(c.teacherNames) ? c.teacherNames : []).map((t) => String(t).toLowerCase());
+
+        // Name match (both clean without title and full name)
+        if (cleanName && (cTeacher.includes(cleanName) || cAssistant.includes(cleanName) || cTeachersList.some((tn) => tn.includes(cleanName)))) {
+          return true;
+        }
+        if (rawName && (cTeacher.includes(rawName) || cAssistant.includes(rawName) || cTeachersList.some((tn) => tn.includes(rawName)))) {
+          return true;
+        }
+
+        // Handle specific teacher aliases (e.g. Ngần / Ngân)
+        if (cleanName.includes('ngần') || cleanName.includes('ngân')) {
+          if (cTeacher.includes('ngần') || cTeacher.includes('ngân') || cTeachersList.some((tn) => tn.includes('ngần') || tn.includes('ngân'))) {
+            return true;
+          }
+        }
+
+        // Email-linked matching from teachers list
+        if (userEmail && teachers) {
+          const matchedT = teachers.find((t) => t.email && t.email.toLowerCase().trim() === userEmail);
+          if (matchedT) {
+            if (c.teacherId === matchedT.id) return true;
+            const normT = matchedT.name.toLowerCase().replace(/^(cô|thầy|gv)\s+/gi, '').trim();
+            if (cTeacher.includes(normT) || cTeachersList.some((tn) => tn.includes(normT))) return true;
+          }
+        }
+
+        return false;
       });
     }
     return classes;
-  }, [classes, currentUser, isTeacher]);
+  }, [classes, currentUser, isTeacher, teachers]);
 
   const handleBatchClasses = (importedClasses: ClassGroup[]) => {
     const existingIds = new Set(classes.map((c) => c.id));
