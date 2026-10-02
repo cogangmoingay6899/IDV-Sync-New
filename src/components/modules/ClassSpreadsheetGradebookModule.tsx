@@ -312,13 +312,52 @@ export const ClassSpreadsheetGradebookModule: React.FC<Props> = ({
       const scores: Record<string, string> = { ...(savedRow?.scores || {}) };
       const scoresHighlight: Record<string, 'default' | 'yellow' | 'red' | 'green'> = { ...(savedRow?.scoresHighlight || {}) };
 
+      // ROBUST FALLBACK: Map old scores from savedOverrides by lessonLabel or sessionNumber so they never get lost when columns/lessons are adjusted
+      const lessonLabelToScoreMap: Record<string, string> = {};
+      const lessonLabelToHighlightMap: Record<string, 'default' | 'yellow' | 'red' | 'green'> = {};
+      if (savedOverrides && savedOverrides.columns && savedRow && savedRow.scores) {
+        savedOverrides.columns.forEach((oldCol) => {
+          const oldScore = savedRow.scores[oldCol.id];
+          if (oldScore !== undefined && oldScore !== '') {
+            if (oldCol.lessonLabel) lessonLabelToScoreMap[oldCol.lessonLabel.trim().toUpperCase()] = oldScore;
+            if (oldCol.sessionNumber) lessonLabelToScoreMap[`L${oldCol.sessionNumber}`] = oldScore;
+          }
+          const oldHighlight = savedRow.scoresHighlight?.[oldCol.id];
+          if (oldHighlight) {
+            if (oldCol.lessonLabel) lessonLabelToHighlightMap[oldCol.lessonLabel.trim().toUpperCase()] = oldHighlight;
+            if (oldCol.sessionNumber) lessonLabelToHighlightMap[`L${oldCol.sessionNumber}`] = oldHighlight;
+          }
+        });
+      }
+
       columns.forEach((col) => {
-        // If already set manually and not forcing fresh sync, keep it
-        if (!forceFreshSync && scores[col.id] !== undefined && scores[col.id] !== '') {
+        const labelKey = col.lessonLabel ? col.lessonLabel.trim().toUpperCase() : '';
+        const sessKey = col.sessionNumber ? `L${col.sessionNumber}` : '';
+
+        // 1. Check if score already exists for this exact col.id
+        if (scores[col.id] !== undefined && scores[col.id] !== '') {
           return;
         }
 
-        // Search attendance record for this student and session
+        // 2. Fallback to robust lessonLabel map from previous saved overrides (prevents losing data when lesson numbers/columns are adjusted)
+        if (!forceFreshSync) {
+          if (labelKey && lessonLabelToScoreMap[labelKey] !== undefined) {
+            scores[col.id] = lessonLabelToScoreMap[labelKey];
+            if (lessonLabelToHighlightMap[labelKey]) {
+              scoresHighlight[col.id] = lessonLabelToHighlightMap[labelKey];
+            }
+            return;
+          }
+          if (sessKey && lessonLabelToScoreMap[sessKey] !== undefined) {
+            scores[col.id] = lessonLabelToScoreMap[sessKey];
+            if (lessonLabelToHighlightMap[sessKey]) {
+              scoresHighlight[col.id] = lessonLabelToHighlightMap[sessKey];
+            }
+            return;
+          }
+        }
+
+        // 3. Search attendance record for this student and session
         const rec = classAttendance.find(
           (r) =>
             r.studentId === st.id &&
