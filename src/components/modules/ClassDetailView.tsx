@@ -55,6 +55,7 @@ import {
   ListChecks,
   Settings,
   ArrowLeftRight,
+  Table,
 } from 'lucide-react';
 import { Student, ClassGroup, Teacher, AttendanceRecord, ExamScore, CurriculumCourse, AuthUser, SpeakingLog, PlacementTest } from '../../types';
 import { ClassVocabTestModule } from './ClassVocabTestModule';
@@ -243,6 +244,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   const [newTermStartDate, setNewTermStartDate] = useState('');
   const [newTermEndDate, setNewTermEndDate] = useState('');
   const [isUpgradingFormOpen, setIsUpgradingFormOpen] = useState(false);
+  const [isMasterGridModalOpen, setIsMasterGridModalOpen] = useState(false);
 
   // States for dynamic student tuition (joining later / custom tuition)
   const [selectedStudentForEnroll, setSelectedStudentForEnroll] = useState<Student | null>(null);
@@ -1670,6 +1672,15 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                 <span>Sổ lớp Sheet</span>
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => setIsMasterGridModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl transition-all shadow-xs cursor-pointer"
+              title="Xem bảng tổng hợp xuyên suốt tất cả các buổi học tự động cập nhật từ nhật ký buổi học"
+            >
+              <Table className="w-4 h-4 text-purple-600" />
+              <span>Bảng tổng hợp buổi học (Live)</span>
+            </button>
             <button
               onClick={() => setIsClassZaloModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all shadow-xs"
@@ -5237,6 +5248,155 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
           onUpdateStudent={onUpdateStudent}
         />
       )}
+
+      {/* Master Session Grid Modal (Live aggregated from attendance records) */}
+      <MasterSessionGridModal
+        isOpen={isMasterGridModalOpen}
+        onClose={() => setIsMasterGridModalOpen(false)}
+        classGroup={classGroup}
+        classStudents={classStudents}
+        attendanceRecords={attendanceRecords}
+      />
+    </div>
+  );
+};
+
+interface MasterSessionGridModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  classGroup: ClassGroup;
+  classStudents: Student[];
+  attendanceRecords: AttendanceRecord[];
+}
+
+const MasterSessionGridModal: React.FC<MasterSessionGridModalProps> = ({
+  isOpen,
+  onClose,
+  classGroup,
+  classStudents,
+  attendanceRecords,
+}) => {
+  if (!isOpen) return null;
+
+  const classRecords = attendanceRecords.filter((r) => r.classId === classGroup.id);
+
+  const sessionMap = new Map<number, { sessionNumber: number; date: string; teacherName: string; skillTaught: string; records: AttendanceRecord[] }>();
+
+  classRecords.forEach((rec) => {
+    const sessNum = rec.sessionNumber || 1;
+    if (!sessionMap.has(sessNum)) {
+      sessionMap.set(sessNum, {
+        sessionNumber: sessNum,
+        date: rec.date || '',
+        teacherName: rec.teacherName || classGroup.teacherName || 'GV',
+        skillTaught: rec.skillsTaught?.join(', ') || rec.skillTaught || 'Tổng hợp',
+        records: [],
+      });
+    }
+    sessionMap.get(sessNum)!.records.push(rec);
+  });
+
+  const sortedSessions = Array.from(sessionMap.values()).sort((a, b) => a.sessionNumber - b.sessionNumber);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in">
+      <div className="bg-white rounded-3xl max-w-7xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95">
+        <div className="p-5 bg-purple-900 text-white flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+              <Table className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-black tracking-tight">
+                Bảng Tổng Hợp Xuyên Suốt Tất Cả Các Buổi ({classGroup.name})
+              </h3>
+              <p className="text-xs text-purple-200 mt-0.5">
+                Tự động cập nhật trực tiếp từ Nhật ký buổi học • Xem trọn vẹn điểm số từng học viên qua các buổi
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-5 overflow-auto flex-1 bg-slate-50">
+          {sortedSessions.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
+              <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <h4 className="font-bold text-slate-700 text-sm">Chưa có nhật ký buổi học nào được lưu</h4>
+              <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                Khi giáo viên tiến hành điểm danh và chấm điểm các buổi học trong tab Điểm danh, bảng tổng hợp này sẽ tự động hiển thị xuyên suốt.
+              </p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-x-auto">
+              <table className="w-full border-collapse text-xs font-sans text-slate-900 whitespace-nowrap">
+                <thead>
+                  <tr className="bg-slate-200 text-slate-800 font-bold border-b border-slate-300">
+                    <th className="py-2.5 px-3 border-r border-slate-300 text-center w-12 sticky left-0 bg-slate-200 z-20">STT</th>
+                    <th className="py-2.5 px-4 border-r border-slate-300 text-left min-w-[180px] sticky left-12 bg-slate-200 z-20">Học viên</th>
+                    {sortedSessions.map((sess) => (
+                      <th key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-300 text-center min-w-[110px]">
+                        <div className="font-black text-purple-900">Buổi {sess.sessionNumber}</div>
+                        <div className="text-[10px] text-slate-500 font-normal">{sess.date} • {sess.teacherName}</div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {classStudents.map((st, idx) => (
+                    <tr key={st.id} className="hover:bg-purple-50/50 transition-colors">
+                      <td className="py-2 px-3 border-r border-slate-200 text-center font-bold text-slate-600 bg-white sticky left-0 z-10">{idx + 1}</td>
+                      <td className="py-2 px-4 border-r border-slate-200 font-bold text-slate-900 bg-white sticky left-12 z-10">{st.name}</td>
+                      {sortedSessions.map((sess) => {
+                        const rec = sess.records.find((r) => r.studentId === st.id || r.studentName?.toLowerCase() === st.name.toLowerCase());
+                        let displayVal = '-';
+                        let badgeBg = 'text-slate-400';
+                        if (rec) {
+                          if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
+                            displayVal = String(rec.score);
+                            const num = Number(rec.score);
+                            badgeBg = !isNaN(num) && num <= 5.5 ? 'text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-md' : 'text-emerald-800 font-bold';
+                          } else if (rec.status === 'Có mặt' || !rec.status) {
+                            displayVal = 'x';
+                            badgeBg = 'text-emerald-600 font-bold';
+                          } else if (rec.status?.includes('vắng') || rec.status?.includes('Nghỉ')) {
+                            displayVal = 'vắng';
+                            badgeBg = 'text-rose-600 font-bold';
+                          }
+                        }
+                        return (
+                          <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center">
+                            <span className={badgeBg}>{displayVal}</span>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
+          <span className="text-xs text-slate-500">
+            Tổng số buổi đã ghi nhận: <strong className="text-slate-900">{sortedSessions.length} buổi</strong>
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
