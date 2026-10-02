@@ -1325,6 +1325,15 @@ export const OnlinePlacementTestForm: React.FC<OnlinePlacementTestFormProps> = (
         console.warn('onAddTest error:', err);
       }
 
+      // Broadcast to other tabs/windows for instant live sync
+      try {
+        if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+          const bc = new BroadcastChannel('idv_placement_sync_channel');
+          bc.postMessage({ type: 'ADD_PLACEMENT_TEST', test: newTest });
+          bc.close();
+        }
+      } catch (e) {}
+
       showToast(`✅ Đã nộp bài kiểm tra đầu vào của ${candidateName} thành công!`);
 
       setSubmittedTest(newTest);

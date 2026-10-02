@@ -150,6 +150,22 @@ export interface StudentRowState {
   note: string;
 }
 
+export const isRecordForClass = (r: AttendanceRecord, cGroup: ClassGroup) => {
+  if (!r || !cGroup) return false;
+  return (
+    r.classId === cGroup.id ||
+    r.classId === cGroup.name ||
+    r.classId === cGroup.code ||
+    (r as any).className === cGroup.name ||
+    (r as any).className === cGroup.code
+  );
+};
+
+export const isSameSessionNumber = (s1: any, s2: any) => {
+  if (s1 === undefined || s1 === null || s2 === undefined || s2 === null) return false;
+  return Number(s1) === Number(s2);
+};
+
 export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   classGroup,
   allStudents,
@@ -778,12 +794,13 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   // Past sessions of this class
   const pastSessions = useMemo(() => {
     const classHistoryMap = new Map<string, { date: string; sessionNumber: number; teacherName: string; skillsTaught: string[]; records: AttendanceRecord[] }>();
-    attendanceRecords.filter((r) => r.classId === classGroup.id).forEach((r) => {
-      const key = `${r.date}-${r.sessionNumber}`;
+    attendanceRecords.filter((r) => isRecordForClass(r, classGroup)).forEach((r) => {
+      const sessNum = Number(r.sessionNumber) || 1;
+      const key = `${r.date}-s${sessNum}`;
       if (!classHistoryMap.has(key)) {
         classHistoryMap.set(key, {
           date: r.date,
-          sessionNumber: r.sessionNumber,
+          sessionNumber: sessNum,
           teacherName: r.teacherName || classGroup.teacherName || 'Giáo viên IDV',
           skillsTaught: r.skillsTaught && r.skillsTaught.length > 0 ? r.skillsTaught : [r.skillTaught || 'IELTS'],
           records: [],
@@ -791,15 +808,15 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       }
       classHistoryMap.get(key)!.records.push(r);
     });
-    return Array.from(classHistoryMap.values()).sort((a, b) => b.date.localeCompare(a.date));
-  }, [attendanceRecords, classGroup.id, classGroup.teacherName]);
+    return Array.from(classHistoryMap.values()).sort((a, b) => b.sessionNumber - a.sessionNumber || b.date.localeCompare(a.date));
+  }, [attendanceRecords, classGroup]);
 
   const grandTotalReceivable = totalCalculatedPenaltyFee + totalCalculatedPreviousDebt;
   const formattedGrandTotalReceivable = grandTotalReceivable > 0 ? `${grandTotalReceivable / 1000}k` : '0k';
 
   // When sessionNumber is changed manually, check if it matches a past session and load its date/teacher
   useEffect(() => {
-    const matchingSession = pastSessions.find(ps => ps.sessionNumber === sessionNumber);
+    const matchingSession = pastSessions.find(ps => isSameSessionNumber(ps.sessionNumber, sessionNumber));
     if (matchingSession) {
       if (currentDate !== matchingSession.date) {
         setCurrentDate(matchingSession.date);
@@ -808,12 +825,88 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
         setTeacherName(matchingSession.teacherName);
       }
     }
-  }, [sessionNumber]);
+  }, [sessionNumber, pastSessions]);
+
+  // Dedicated function to explicitly load and display saved session scores & log
+  const handleLoadSavedSessionData = (targetSessNum?: number) => {
+    const target = targetSessNum !== undefined ? targetSessNum : sessionNumber;
+    setSessionNumber(target);
+
+    // Find all records for this class & session
+    const matchingRecords = attendanceRecords.filter(
+      (r) => isRecordForClass(r, classGroup) && isSameSessionNumber(r.sessionNumber, target)
+    );
+
+    if (matchingRecords.length === 0) {
+      setToastMessage(`ℹ️ Chưa tìm thấy dữ liệu điểm/nhật ký đã lưu cho Buổi ${target} của lớp ${classGroup.name}`);
+      return;
+    }
+
+    // Clear stale local draft for this class so saved data takes 100% priority
+    try {
+      localStorage.removeItem(`idv_daily_log_draft_${classGroup.id}`);
+    } catch (e) {}
+
+    const sample = matchingRecords[0];
+    if (sample.date) setCurrentDate(sample.date);
+    if (sample.teacherName) setTeacherName(sample.teacherName);
+    if (sample.note) setLessonTopic(sample.note);
+
+    // Collect all skill keys present in matching records
+    const foundSkillsSet = new Set<string>();
+    if (sample.skillsTaught && sample.skillsTaught.length > 0) {
+      sample.skillsTaught.forEach((sk) => foundSkillsSet.add(sk));
+    } else if (sample.skillTaught) {
+      sample.skillTaught.split(',').forEach((sk) => foundSkillsSet.add(sk.trim()));
+    }
+    matchingRecords.forEach((r) => {
+      if (r.skillScores) {
+        Object.keys(r.skillScores).forEach((sk) => foundSkillsSet.add(sk));
+      }
+    });
+
+    const activeSkills = foundSkillsSet.size > 0 ? Array.from(foundSkillsSet) : selectedSkills;
+    if (foundSkillsSet.size > 0) {
+      setSelectedSkills(activeSkills);
+    }
+
+    // Populate studentRows
+    const newRows: Record<string, StudentRowState> = {};
+    classStudents.forEach((st) => {
+      const rec = matchingRecords.find((r) => r.studentId === st.id);
+      const scoresMap: Record<string, string> = {};
+      activeSkills.forEach((sk) => {
+        if (rec?.skillScores && rec.skillScores[sk] !== undefined) {
+          scoresMap[sk] = String(rec.skillScores[sk]);
+        } else if (rec?.skillTaught === sk && rec?.score !== undefined) {
+          scoresMap[sk] = String(rec.score);
+        } else {
+          scoresMap[sk] = '';
+        }
+      });
+
+      newRows[st.id] = {
+        status: rec?.status || 'Có mặt',
+        skillScores: scoresMap,
+        feedback: rec?.teacherNote || '',
+        homeworkStatus: rec?.homeworkStatus || 'Đã làm',
+        quizletStatus: rec?.quizletStatus || 'Đã học',
+        missingHomeworkItems: rec?.missingHomeworkItems || [],
+        exemptHomeworkItems: rec?.exemptHomeworkItems || [],
+        penaltyCopies: rec?.penaltyCopies !== undefined ? String(rec.penaltyCopies) : '0',
+        penaltyFee: rec?.penaltyFee && rec.penaltyFee !== '0 đ' ? rec.penaltyFee : '',
+        previousDebt: rec?.previousDebt && rec.previousDebt !== '0 đ' ? rec.previousDebt : '',
+      };
+    });
+
+    setStudentRows(newRows);
+    setToastMessage(`✅ Đã hiện bảng điểm & nhật ký Buổi ${target} (${formatDateVN(sample.date)}) của ${classGroup.name}!`);
+  };
 
   // Sync session rows when date, class or skills change
   useEffect(() => {
     // If this session number exists in history, optionally load metadata (teacher, skills)
-    const sessionSample = attendanceRecords.find(r => r.classId === classGroup.id && r.sessionNumber === sessionNumber);
+    const sessionSample = attendanceRecords.find(r => isRecordForClass(r, classGroup) && isSameSessionNumber(r.sessionNumber, sessionNumber));
     if (sessionSample) {
       if (sessionSample.teacherName) setTeacherName(sessionSample.teacherName);
       if (sessionSample.skillsTaught && sessionSample.skillsTaught.length > 0) {
@@ -842,7 +935,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       }
 
       const existing = attendanceRecords.find(
-        (r) => r.classId === classGroup.id && r.studentId === st.id && r.sessionNumber === sessionNumber
+        (r) => isRecordForClass(r, classGroup) && r.studentId === st.id && isSameSessionNumber(r.sessionNumber, sessionNumber)
       );
 
       // Initial skill scores map
@@ -2017,17 +2110,62 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  2. Buổi học số:
+                <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>2. Buổi học số:</span>
+                  <span className={`text-[10px] font-bold ${attendanceRecords.some(r => isRecordForClass(r, classGroup) && isSameSessionNumber(r.sessionNumber, sessionNumber)) ? 'text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200' : 'text-slate-500'}`}>
+                    {attendanceRecords.some(r => isRecordForClass(r, classGroup) && isSameSessionNumber(r.sessionNumber, sessionNumber)) ? '✓ Đã lưu điểm' : '• Chưa ghi nhận'}
+                  </span>
                 </label>
-                <input
-                  type="number"
-                  min={1}
-                  max={classGroup.totalSessions || 60}
-                  value={sessionNumber}
-                  onChange={(e) => setSessionNumber(Number(e.target.value))}
-                  className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold text-slate-800 focus:outline-none"
-                />
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={1}
+                    max={classGroup.totalSessions || 60}
+                    value={sessionNumber}
+                    onChange={(e) => setSessionNumber(Number(e.target.value))}
+                    className="w-20 shrink-0 text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleLoadSavedSessionData(sessionNumber)}
+                    className="flex-1 px-2.5 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs rounded-xl transition-all shadow-xs flex items-center justify-center gap-1 cursor-pointer active:scale-98"
+                    title="Bấm để tải lại ngày, tên GV, kỹ năng & điểm số đã lưu của buổi học này"
+                  >
+                    <Search className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">Hiện điểm buổi {sessionNumber}</span>
+                  </button>
+                </div>
+
+                {/* Quick select buttons for saved past sessions */}
+                {pastSessions.length > 0 && (
+                  <div className="pt-1.5 text-[11px]">
+                    <div className="text-slate-500 font-semibold mb-1 text-[10px] flex items-center justify-between">
+                      <span>Lịch sử các buổi đã lưu:</span>
+                      <span className="text-purple-700 font-bold">{pastSessions.length} buổi</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto pr-1">
+                      {pastSessions.map((ps) => {
+                        const isCurrent = Number(ps.sessionNumber) === Number(sessionNumber);
+                        return (
+                          <button
+                            key={`ps-badge-${ps.sessionNumber}-${ps.date}`}
+                            type="button"
+                            onClick={() => handleLoadSavedSessionData(ps.sessionNumber)}
+                            className={`px-2 py-0.5 rounded-md font-bold text-[10.5px] transition-all flex items-center gap-1 cursor-pointer border ${
+                              isCurrent
+                                ? 'bg-purple-700 text-white border-purple-800 shadow-2xs'
+                                : 'bg-purple-50 text-purple-900 border-purple-200 hover:bg-purple-100'
+                            }`}
+                          >
+                            <span>Buổi {ps.sessionNumber}</span>
+                            <span className="text-[9px] opacity-75">({formatDateVN(ps.date)})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {sessionNumber === 29 && (
                   <div className="mt-1.5 p-2 bg-amber-50 border border-amber-300 rounded-xl text-amber-950 text-[11px] flex items-center justify-between gap-1">
                     <span className="font-bold flex items-center gap-1">
@@ -3088,14 +3226,7 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                     <div
                       key={`${ps.date}-${ps.sessionNumber}`}
                       onClick={() => {
-                        setCurrentDate(ps.date);
-                        setSessionNumber(ps.sessionNumber);
-                        setTeacherName(ps.teacherName);
-                        if (ps.skillsTaught && ps.skillsTaught.length > 0) {
-                          setSelectedSkills(ps.skillsTaught);
-                        }
-                        setToastMessage(`Đã nạp lại dữ liệu buổi ${ps.sessionNumber} ngày ${formatDateVN(ps.date)}`);
-                        setTimeout(() => setToastMessage(null), 3000);
+                        handleLoadSavedSessionData(ps.sessionNumber);
                       }}
                       className="p-3 bg-slate-50 hover:bg-purple-50 rounded-2xl border border-slate-200 cursor-pointer transition-colors space-y-1 group"
                     >
