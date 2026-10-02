@@ -22,6 +22,7 @@ export const DEFAULT_DEPARTMENT_EMAILS: DepartmentEmails = {
     'nguyenhailong0507@gmail.com',
     'vuthingan19990365161299@gmail.com',
     'damtrunghieu1803@gmail.com',
+    'ngan109441@st.vimaru.edu.vn',
   ],
   assistants: [
     'kim.anh.19091712@gmail.com',
@@ -119,6 +120,12 @@ export const KNOWN_STAFF_PROFILES: Record<string, StaffProfile> = {
     name: 'Thầy Đàm Trung Hiếu',
     title: 'Giáo viên IELTS (CS2 Kiến An)',
     specialty: 'IELTS Listening & Speaking',
+    branch: 'Cơ sở 2 - Kiến An (Hải Phòng)',
+  },
+  'ngan109441@st.vimaru.edu.vn': {
+    name: 'Vũ Thùy',
+    title: 'Giáo viên IELTS (CS2 Kiến An)',
+    specialty: 'IELTS Foundation',
     branch: 'Cơ sở 2 - Kiến An (Hải Phòng)',
   },
 };

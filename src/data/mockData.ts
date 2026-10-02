@@ -5228,6 +5228,21 @@ export const INITIAL_TEACHERS: Teacher[] = [
     "status": "Đang giảng dạy"
   },
   {
+    "id": "tch-vuthuy",
+    "code": "GV-IDV12",
+    "name": "Vũ Thùy",
+    "type": "Việt Nam",
+    "nationality": "Việt Nam 🇻🇳",
+    "email": "ngan109441@st.vimaru.edu.vn",
+    "phone": "0906 789 012",
+    "specialty": "IELTS Foundation",
+    "degrees": "Cử nhân Ngoại ngữ",
+    "activeClassesCount": 1,
+    "hourlyRate": 400000,
+    "rating": 5.0,
+    "status": "Đang giảng dạy"
+  },
+  {
     "id": "tch-trunghieu",
     "code": "GV-IDV11",
     "name": "Đàm Trung Hiếu",
