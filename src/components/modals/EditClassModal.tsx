@@ -268,11 +268,12 @@ export const EditClassModal: React.FC<EditClassModalProps> = ({
       // Parse existing teachers list
       let initialTeachers: string[] = [];
       if (classGroup.teacherNames && classGroup.teacherNames.length > 0) {
-        initialTeachers = [...classGroup.teacherNames];
+        initialTeachers = classGroup.teacherNames.map((t) => (t === 'Vũ Thị Ngân' ? 'Vũ Thị Ngần' : t));
       } else if (classGroup.teacherName) {
         initialTeachers = classGroup.teacherName
           .split(/[,;&+]/)
           .map((t) => t.trim())
+          .map((t) => (t === 'Vũ Thị Ngân' ? 'Vũ Thị Ngần' : t))
           .filter((t) => t.length > 0);
       }
 
