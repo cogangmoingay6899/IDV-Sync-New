@@ -105,7 +105,6 @@ interface ClassDetailViewProps {
   onRestoreStudent?: (classId: string, studentId: string) => void;
   onUpdateStudent?: (updatedStudent: Student) => void;
   onDeleteClass?: (classId: string) => void;
-  onOpenSheetGradebook?: (classId: string) => void;
   currentUser?: AuthUser;
 }
 
@@ -138,6 +137,7 @@ const SKILL_ICONS: Record<string, string> = {
 export interface StudentRowState {
   status: AttendanceRecord['status'];
   skillScores: Record<string, string>; // e.g. { 'Từ vựng': '9.0', 'Nghe': '8.5', 'Đọc': '8.0' }
+  priorSkillScores?: Record<string, string>;
   penaltyCopies: string; // for 'Viết'
   penaltyFee?: string; // e.g. '50.000 đ'
   previousDebt?: string; // Nợ chưa nộp các buổi trước
@@ -899,9 +899,31 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       const initialExemptHw = (existing?.exemptHomeworkItems as string[]) || [];
       const initialQuizlet = (existing?.quizletStatus as 'Đã học' | 'Chưa học') || 'Đã học';
 
+      // Find immediate prior session record for this student to display previous session scores
+      const priorRecord = attendanceRecords
+        .filter(
+          (r) =>
+            r.classId === classGroup.id &&
+            r.studentId === st.id &&
+            ((r.sessionNumber && r.sessionNumber < sessionNumber) || r.date < currentDate)
+        )
+        .sort((a, b) => (b.sessionNumber || 0) - (a.sessionNumber || 0) || b.date.localeCompare(a.date))[0];
+
+      const priorSkillScores: Record<string, string> = {};
+      if (priorRecord) {
+        selectedSkills.forEach((sk) => {
+          if (priorRecord.skillScores && priorRecord.skillScores[sk] !== undefined) {
+            priorSkillScores[sk] = String(priorRecord.skillScores[sk]);
+          } else if (priorRecord.skillTaught === sk && priorRecord.score !== undefined) {
+            priorSkillScores[sk] = String(priorRecord.score);
+          }
+        });
+      }
+
       initial[st.id] = {
         status: existing?.status || 'Có mặt',
         skillScores: initialSkillScores,
+        priorSkillScores: priorSkillScores,
         penaltyCopies: initialPenalty,
         penaltyFee: initialPenaltyFee,
         previousDebt: initialPreviousDebt,
@@ -1659,17 +1681,6 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
               >
                 <Trash2 className="w-4 h-4" />
                 <span>Xóa lớp</span>
-              </button>
-            )}
-            {onOpenSheetGradebook && (
-              <button
-                type="button"
-                onClick={() => onOpenSheetGradebook(classGroup.id)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all shadow-xs cursor-pointer"
-                title="Mở Sổ lớp & Bảng điểm Google Sheet (xem lịch sử tất cả các buổi học kèm điểm số, không kèm BTVN & nộp phạt)"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                <span>Sổ lớp Sheet</span>
               </button>
             )}
             <button
@@ -2753,6 +2764,16 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                                 <span className="text-[9px] text-purple-700/80 font-bold">
                                   /{skillTotalQuestions[sk]} câu
                                 </span>
+                              )}
+                              {row.priorSkillScores?.[sk] && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleScoreChange(st.id, sk, row.priorSkillScores![sk])}
+                                  className="text-[9px] text-slate-500 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                                  title="Bấm để lấy điểm buổi trước"
+                                >
+                                  Cũ: {row.priorSkillScores[sk]}
+                                </button>
                               )}
                             </div>
                           </td>

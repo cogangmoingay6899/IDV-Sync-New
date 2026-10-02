@@ -1808,6 +1808,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                             className: "divide-y divide-slate-100",
                             children: [
                               qt.map((B) => {
+                                const { key: _k, ...restB } = B as any;
                                 const fe =
                                     B.tuitionStatus !== "Đã đóng đủ" &&
                                     (B.balanceOwed || 0) > 0,
