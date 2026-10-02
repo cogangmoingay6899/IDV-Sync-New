@@ -419,13 +419,14 @@
     "courseLevel": "Khóa 4",
     "currentTermName": "Khóa 4",
     "name": "Lớp 68",
-    "teacherName": "Vũ Thị Ngần, Đàm Trung Hiếu",
+    "teacherName": "Vũ Thị Ngần, Đàm Trung Hiếu, Vũ Thùy",
     "studentCount": 15,
     "teacherId": "tch-vungan",
     "code": "IDV-L68",
     "teacherNames": [
       "Vũ Thị Ngần",
-      "Đàm Trung Hiếu"
+      "Đàm Trung Hiếu",
+      "Vũ Thùy"
     ],
     "status": "Đang diễn ra",
     "offDates": [
