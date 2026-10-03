@@ -338,20 +338,53 @@ export const isDummyVocabSubmission = (sub: VocabTestSubmission | any): boolean 
   return false;
 };
 
-export const isSameStudentClass = (subClassName?: string, targetClassName?: string): boolean => {
+export const isSameStudentClass = (
+  subOrClassName?: VocabTestSubmission | string,
+  targetClassName?: string,
+  classesList: ClassGroup[] = []
+): boolean => {
   if (!targetClassName || targetClassName === 'all') return true;
-  if (!subClassName) return false;
+  if (!subOrClassName) return false;
+
+  let subClassName = '';
+  let subClassId = '';
+  if (typeof subOrClassName === 'string') {
+    subClassName = subOrClassName;
+  } else {
+    subClassName = subOrClassName.className || '';
+    subClassId = subOrClassName.classId || '';
+  }
+
   const s = subClassName.trim().toLowerCase();
   const t = targetClassName.trim().toLowerCase();
+
   if (s === t) return true;
 
+  // Direct match with ID
+  if (subClassId && (subClassId.toLowerCase() === t || subClassId === targetClassName)) return true;
+
+  // Resolve target class from classesList if target is an ID or name
+  const matchedTargetClass = classesList.find(
+    (c) => c.id === targetClassName || c.name.toLowerCase() === t
+  );
+  if (matchedTargetClass) {
+    if (subClassId && subClassId === matchedTargetClass.id) return true;
+    if (s === matchedTargetClass.name.toLowerCase()) return true;
+    const targetDigits = matchedTargetClass.name.match(/\d+/)?.[0];
+    const sDigits = s.match(/\d+/)?.[0];
+    if (targetDigits && sDigits && targetDigits === sDigits) return true;
+  }
+
+  // Match digits (e.g., '89' === 'Lớp 89')
   const sNum = s.match(/\d+/)?.[0];
   const tNum = t.match(/\d+/)?.[0];
   if (sNum && tNum && sNum === tNum) return true;
 
+  // Strip common prefixes
   const normS = s.replace(/^(lớp|class|ielts)\s+/gi, '').trim();
   const normT = t.replace(/^(lớp|class|ielts)\s+/gi, '').trim();
   if (normS && normT && normS === normT) return true;
+  if (normS && normT && (normS.includes(normT) || normT.includes(normS))) return true;
 
   return false;
 };
@@ -2343,7 +2376,10 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
                       <button
                         type="button"
-                        onClick={() => setActiveLeaderboardTest(test)}
+                        onClick={() => {
+                          setLeaderboardClassFilter('all');
+                          setActiveLeaderboardTest(test);
+                        }}
                         className="py-2 px-3 bg-amber-500 hover:bg-amber-600 text-purple-950 font-black text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95"
                       >
                         <Trophy className="w-3.5 h-3.5 text-purple-950 shrink-0" />
@@ -2385,6 +2421,11 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
       {/* MODAL 1: BẢNG XẾP HẠNG (LEADERBOARD) AI LÀM NHANH NHẤT & CHÍNH XÁC NHẤT */}
       {activeLeaderboardTest && (() => {
+        // ALWAYS retrieve the latest test with its live submissions from tests or reviewTests state
+        const liveTest = (activeTestType === 'review' ? reviewTests : tests).find(
+          (t) => t.id === activeLeaderboardTest.id || t.id.toLowerCase() === activeLeaderboardTest.id.toLowerCase()
+        ) || activeLeaderboardTest;
+
         const testIdClean = activeLeaderboardTest.id.toLowerCase();
 
         const matchingStandalone = standaloneSubmissions.filter((s) => {
@@ -2399,6 +2440,7 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
         });
 
         const combinedRaw = [
+          ...(liveTest.submissions || []),
           ...(activeLeaderboardTest.submissions || []),
           ...matchingStandalone
         ];
@@ -2428,9 +2470,14 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
         ) as string[];
 
         // Filter submissions by selected class
-        const filteredLeaderboardSubmissions = allSubmissions.filter((sub) => {
-          return isSameStudentClass(sub.className, leaderboardClassFilter);
+        let filteredLeaderboardSubmissions = allSubmissions.filter((sub) => {
+          return isSameStudentClass(sub, leaderboardClassFilter, classes);
         });
+
+        // Fallback: If filtered list is empty, show all submissions so leaderboard is never blank!
+        if (filteredLeaderboardSubmissions.length === 0 && allSubmissions.length > 0 && leaderboardClassFilter !== 'all') {
+          filteredLeaderboardSubmissions = allSubmissions;
+        }
 
         return (
           <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -3687,9 +3734,15 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                     return isMatchingVocabTestId(s.testId, testIdClean);
                   });
 
+                  // Retrieve live test from tests/reviewTests state to guarantee fresh submissions
+                  const liveTest = (activeTestType === 'review' ? reviewTests : tests).find(
+                    (t) => t.id === activeRunnerTest?.id || t.id.toLowerCase() === activeRunnerTest?.id.toLowerCase()
+                  ) || activeRunnerTest;
+
                   // Deduplicate by ID or unique key
                   const subMap = new Map<string, VocabTestSubmission>();
                   [
+                    ...(liveTest?.submissions || []),
                     ...(activeRunnerTest?.submissions || []),
                     ...(testCompletedSubmission ? [testCompletedSubmission] : []),
                     ...matchingStandalone
@@ -3704,7 +3757,12 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                   );
 
                   // Filter submissions belonging to the student's class
-                  let subList = allSubList.filter((s) => isSameStudentClass(s.className, studentClass));
+                  let subList = allSubList.filter((s) => isSameStudentClass(s, studentClass, classes));
+
+                  // Fallback: If filtered list is empty, show all submissions so student always sees leaderboard!
+                  if (subList.length === 0 && allSubList.length > 0) {
+                    subList = allSubList;
+                  }
 
                   // Ensure the current student's completed submission is present
                   if (testCompletedSubmission && !subList.some((s) => s.id === testCompletedSubmission.id)) {
