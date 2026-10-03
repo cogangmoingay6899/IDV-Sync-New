@@ -322,7 +322,7 @@ export default function App() {
         }
       }
     } catch (e) {}
-    return [];
+    return INITIAL_CLASSES;
   });
   const [teachers, setTeachers] = useState<Teacher[]>(INITIAL_TEACHERS);
   const [classSpreadsheets, setClassSpreadsheets] = useState<any[]>([]);
@@ -378,11 +378,31 @@ export default function App() {
   useEffect(() => {
     const unsubStudents = subscribeCollection('students', INITIAL_STUDENTS, (items) => {
       setStudents(items.filter((s) => !isRecordDeleted(s.id, 'students')));
+      // Ensure initial students are synced to server if missing
+      const serverIds = new Set(items.map(t => t.id));
+      const missing = INITIAL_STUDENTS.filter(t => !serverIds.has(t.id));
+      if (missing.length > 0) {
+        saveBatchDocuments('students', missing).catch(() => {});
+      }
     });
-    const unsubClasses = subscribeCollection('classes', [], (items) => {
+    const unsubClasses = subscribeCollection('classes', INITIAL_CLASSES, (items) => {
       setClasses(items.filter((c) => !isRecordDeleted(c.id, 'classes')));
+      // Ensure initial classes are synced to server if missing
+      const serverIds = new Set(items.map(t => t.id));
+      const missing = INITIAL_CLASSES.filter(t => !serverIds.has(t.id));
+      if (missing.length > 0) {
+        saveBatchDocuments('classes', missing).catch(() => {});
+      }
     });
-    const unsubTeachers = subscribeCollection('teachers', INITIAL_TEACHERS, setTeachers);
+    const unsubTeachers = subscribeCollection('teachers', INITIAL_TEACHERS, (data) => {
+      setTeachers(data);
+      // Ensure initial teachers are synced to server if missing
+      const serverIds = new Set(data.map(t => t.id));
+      const missing = INITIAL_TEACHERS.filter(t => !serverIds.has(t.id));
+      if (missing.length > 0) {
+        saveBatchDocuments('teachers', missing).catch(() => {});
+      }
+    });
     const unsubLeads = subscribeCollection('leads', INITIAL_LEADS, setLeads);
     const unsubPlacement = subscribeCollection('placementTests', INITIAL_PLACEMENT_TESTS, (data) => {
       let cachedSubmissions: PlacementTest[] = [];

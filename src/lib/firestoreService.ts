@@ -47,6 +47,7 @@ try {
     localStorage.removeItem('idv_deleted_placement_test_ids');
     localStorage.removeItem('idv_deleted_student_ids');
     localStorage.removeItem('idv_department_emails');
+    localStorage.removeItem('vps_col_teachers');
     
     // Also fetch the true deleted list from server immediately
     fetch('/api/deleted-ids')
@@ -348,13 +349,13 @@ async function fetchFromVPSServer<T extends { id: string }>(
     if (res.ok) {
       const result = await res.json();
       let serverItems: T[] = Array.isArray(result.data) ? result.data : [];
-      if (serverItems.length > 0) {
-        cachedCollections.set(collectionName, serverItems);
-        try {
-          localStorage.setItem(`vps_col_${collectionName}`, JSON.stringify(serverItems));
-        } catch (e) {}
-        onData(serverItems);
-      }
+      
+      // Always notify subscribers, even if empty, so auto-sync can trigger if needed
+      cachedCollections.set(collectionName, serverItems);
+      try {
+        localStorage.setItem(`vps_col_${collectionName}`, JSON.stringify(serverItems));
+      } catch (e) {}
+      onData(serverItems);
     }
   } catch (e) {}
 }

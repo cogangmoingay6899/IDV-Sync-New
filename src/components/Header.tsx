@@ -188,6 +188,20 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Action Tools */}
           <div className="flex items-center gap-1.5 md:gap-2">
             
+            {/* Sync Data Button (Force Refresh) */}
+            <button
+              onClick={() => {
+                if (window.confirm('Bạn có muốn xóa bộ nhớ tạm và tải lại toàn bộ dữ liệu mới nhất từ máy chủ không?')) {
+                  localStorage.clear();
+                  window.location.reload();
+                }
+              }}
+              className="p-2 text-slate-500 hover:text-purple-700 hover:bg-purple-50 rounded-xl transition-all active:scale-95 group"
+              title="Đồng bộ lại toàn bộ dữ liệu"
+            >
+              <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
+            </button>
+            
             {/* Mobile-Only Toggles for Search & Branch Selection */}
             <button
               onClick={() => {
