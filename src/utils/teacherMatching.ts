@@ -86,7 +86,7 @@ export const isClassAssignedToTeacher = (
     (currentUser.name && (normalizeTeacherName(currentUser.name).includes('ngan') || currentUser.name.toLowerCase().includes('ngần')));
 
   if (isUserNgan) {
-    if (c.teacherId === 'tch-vungan' || c.teacherId === 'tch-vuthuy') return true;
+    if (c.teacherId === 'tch-vuthuy') return true;
     const rawClassT = (c.teacherName || '') + ' ' + (Array.isArray(c.teacherNames) ? c.teacherNames.join(' ') : '');
     if (rawClassT.toLowerCase().includes('ngần') || rawClassT.toLowerCase().includes('ngân') || rawClassT.toLowerCase().includes('vũ thị ngần')) {
       return true;

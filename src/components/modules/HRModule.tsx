@@ -775,7 +775,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
                     className="w-full text-xs bg-white border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-2xs"
                   >
                     <option value="percent_of_amount">% Khoán theo khóa (Diệp Đặng, Trang Nguyễn, Tâm, Thơm...)</option>
-                    <option value="fixed_per_session">Lương cố định theo buổi (Huyền Chi, Long, Hiếu, Ngần...)</option>
+                    <option value="fixed_per_session">Lương cố định theo buổi (Huyền Chi, Long, Hiếu...)</option>
                     <option value="fixed_with_size_condition">Lương cố định theo sỹ số học viên (Ngọc Vũ...)</option>
                     <option value="rate_per_student">Lương tính theo sỹ số học viên (Mặc định học viên thường/học lại)</option>
                   </select>
