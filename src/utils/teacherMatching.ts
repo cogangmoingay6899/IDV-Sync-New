@@ -216,8 +216,8 @@ export const resolveTeacherFromSession = (
     }
   }
 
-  // 5. Fallback: match from class assigned teacher
-  if (classId) {
+  // 5. Fallback: match from class assigned teacher ONLY if rawTeacherName is empty or unspecified
+  if (!rawTeacherName && classId) {
     const cls = classesList.find((c) => c.id === classId);
     if (cls && cls.teacherId) {
       const clsT = teachersList.find((t) => t.id === cls.teacherId);

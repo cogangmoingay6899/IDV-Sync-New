@@ -186,36 +186,43 @@ export const getSavedSkillScore = (rec: AttendanceRecord | undefined, targetSkil
       if (kLower === skLower) return String(val);
 
       // Listening / Nghe
-      if ((skLower.includes('nghe') || skLower === 'l' || skLower.includes('listen')) &&
-          (kLower.includes('nghe') || kLower === 'l' || kLower.includes('listen'))) {
+      if ((skLower === 'nghe' || skLower === 'l' || skLower === 'listening') &&
+          (kLower === 'nghe' || kLower === 'l' || kLower === 'listening')) {
         return String(val);
       }
 
       // Reading / Đọc
-      if ((skLower.includes('đọc') || skLower.includes('doc') || skLower === 'r' || skLower.includes('read')) &&
-          (kLower.includes('đọc') || kLower.includes('doc') || kLower === 'r' || kLower.includes('read'))) {
+      if ((skLower === 'đọc' || skLower === 'doc' || skLower === 'r' || skLower === 'reading') &&
+          (kLower === 'đọc' || kLower === 'doc' || kLower === 'r' || kLower === 'reading')) {
         return String(val);
       }
 
       // Writing / Viết
-      if ((skLower.includes('viết') || skLower.includes('viet') || skLower === 'w' || skLower.includes('write')) &&
-          (kLower.includes('viết') || kLower.includes('viet') || kLower === 'w' || kLower.includes('write'))) {
+      if ((skLower === 'viết' || skLower === 'viet' || skLower === 'w' || skLower === 'writing') &&
+          (kLower === 'viết' || kLower === 'viet' || kLower === 'w' || kLower === 'writing')) {
         return String(val);
       }
 
       // Speaking / Nói
-      if ((skLower.includes('nói') || skLower.includes('noi') || skLower === 's' || skLower.includes('speak')) &&
-          (kLower.includes('nói') || kLower.includes('noi') || kLower === 's' || kLower.includes('speak'))) {
+      if ((skLower === 'nói' || skLower === 'noi' || skLower === 's' || skLower === 'speaking') &&
+          (kLower === 'nói' || kLower === 'noi' || kLower === 's' || kLower === 'speaking')) {
         return String(val);
       }
     }
   }
 
-  // 2. Fallback to single score if score exists
-  if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
-    return String(rec.score);
+  // 2. Only fallback to single score if the session was explicitly recorded for ONLY THIS single skill
+  if (rec.skillsTaught && rec.skillsTaught.length === 1 && rec.skillsTaught[0].toLowerCase().trim() === targetSkill.toLowerCase().trim()) {
+    if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
+      return String(rec.score);
+    }
+  } else if (!rec.skillsTaught && rec.skillTaught && rec.skillTaught.toLowerCase().trim() === targetSkill.toLowerCase().trim()) {
+    if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
+      return String(rec.score);
+    }
   }
 
+  // Never copy a score from one skill to a different unentered skill!
   return '';
 };
 
@@ -689,10 +696,27 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   };
 
   const handleSkillTotalQuestionsChange = (skill: string, total: string) => {
-    setSkillTotalQuestions((prev) => ({
-      ...prev,
-      [skill]: total,
-    }));
+    setSkillTotalQuestions((prev) => {
+      const next = {
+        ...prev,
+        [skill]: total,
+      };
+      try {
+        const rawDraft = localStorage.getItem(`idv_daily_log_draft_${classGroup.id}`);
+        const draft = rawDraft ? JSON.parse(rawDraft) : {};
+        localStorage.setItem(
+          `idv_daily_log_draft_${classGroup.id}`,
+          JSON.stringify({
+            ...draft,
+            sessionNumber,
+            currentDate,
+            skillTotalQuestions: next,
+            studentRows,
+          })
+        );
+      } catch (e) {}
+      return next;
+    });
   };
 
   const handleSetAllPenaltyFees = (amount: string) => {
@@ -905,16 +929,34 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
     if (sample.teacherName) setTeacherName(sample.teacherName);
     if (sample.note) setLessonTopic(sample.note);
 
-    // Collect all skill keys present in matching records
+    // Collect all individual skill keys present in matching records (split comma-separated skills and exclude combined totals)
     const foundSkillsSet = new Set<string>();
     if (sample.skillsTaught && sample.skillsTaught.length > 0) {
-      sample.skillsTaught.forEach((sk) => foundSkillsSet.add(sk));
+      sample.skillsTaught.forEach((sk) => {
+        if (sk.includes(',')) {
+          sk.split(',').forEach((subSk) => {
+            const clean = subSk.trim();
+            if (clean && clean !== 'Tổng' && clean !== 'Điểm tổng') foundSkillsSet.add(clean);
+          });
+        } else {
+          const clean = sk.trim();
+          if (clean && clean !== 'Tổng' && clean !== 'Điểm tổng') foundSkillsSet.add(clean);
+        }
+      });
     } else if (sample.skillTaught) {
-      sample.skillTaught.split(',').forEach((sk) => foundSkillsSet.add(sk.trim()));
+      sample.skillTaught.split(',').forEach((sk) => {
+        const clean = sk.trim();
+        if (clean && clean !== 'Tổng' && clean !== 'Điểm tổng') foundSkillsSet.add(clean);
+      });
     }
     matchingRecords.forEach((r) => {
       if (r.skillScores) {
-        Object.keys(r.skillScores).forEach((sk) => foundSkillsSet.add(sk));
+        Object.keys(r.skillScores).forEach((sk) => {
+          const clean = sk.trim();
+          if (clean && !clean.includes(',') && clean !== 'Tổng' && clean !== 'Điểm tổng') {
+            foundSkillsSet.add(clean);
+          }
+        });
       }
     });
 
@@ -922,6 +964,24 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
     if (foundSkillsSet.size > 0) {
       setSelectedSkills(activeSkills);
     }
+
+    // Restore skillTotalQuestions so it appears immediately under each skill header
+    let restoredSkillTotals: Record<string, string> = {};
+    if (sample.skillTotalQuestions && typeof sample.skillTotalQuestions === 'object') {
+      restoredSkillTotals = Object.fromEntries(
+        Object.entries(sample.skillTotalQuestions).map(([k, v]) => [k, String(v)])
+      );
+    } else {
+      const recWithTotals = matchingRecords.find(
+        (r) => r.skillTotalQuestions && Object.keys(r.skillTotalQuestions).length > 0
+      );
+      if (recWithTotals && recWithTotals.skillTotalQuestions) {
+        restoredSkillTotals = Object.fromEntries(
+          Object.entries(recWithTotals.skillTotalQuestions).map(([k, v]) => [k, String(v)])
+        );
+      }
+    }
+    setSkillTotalQuestions(restoredSkillTotals);
 
     // Populate studentRows
     const newRows: Record<string, StudentRowState> = {};
@@ -953,12 +1013,19 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
 
   // Sync session rows when date, class or skills change
   useEffect(() => {
-    // If this session number exists in history, optionally load metadata (teacher, skills)
+    // If this session number exists in history, optionally load metadata (teacher, skills, skillTotalQuestions)
     const sessionSample = attendanceRecords.find(r => isRecordForClass(r, classGroup) && isSameSessionNumber(r.sessionNumber, sessionNumber));
     if (sessionSample) {
       if (sessionSample.teacherName) setTeacherName(sessionSample.teacherName);
       if (sessionSample.skillsTaught && sessionSample.skillsTaught.length > 0) {
         setSelectedSkills(sessionSample.skillsTaught);
+      }
+      if (sessionSample.skillTotalQuestions && typeof sessionSample.skillTotalQuestions === 'object') {
+        setSkillTotalQuestions(
+          Object.fromEntries(
+            Object.entries(sessionSample.skillTotalQuestions).map(([k, v]) => [k, String(v)])
+          )
+        );
       }
     }
 
@@ -968,8 +1035,11 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
       const raw = localStorage.getItem(`idv_daily_log_draft_${classGroup.id}`);
       if (raw) {
         const draft = JSON.parse(raw);
-        if (draft && draft.sessionNumber === sessionNumber && draft.currentDate === currentDate && draft.studentRows) {
-          draftRows = draft.studentRows;
+        if (draft && draft.sessionNumber === sessionNumber && draft.currentDate === currentDate) {
+          if (draft.studentRows) draftRows = draft.studentRows;
+          if (draft.skillTotalQuestions && typeof draft.skillTotalQuestions === 'object') {
+            setSkillTotalQuestions(draft.skillTotalQuestions);
+          }
         }
       }
     } catch (e) {}
@@ -1468,6 +1538,7 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
         skillTaught: selectedSkills.join(', '),
         skillsTaught: selectedSkills,
         skillScores: parsedScores,
+        skillTotalQuestions: skillTotalQuestions,
         score: avgScore,
         penaltyCopies: hasWritingSkill ? parsedPenalty : undefined,
         penaltyFee: row?.penaltyFee || '0 đ',

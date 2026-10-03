@@ -178,24 +178,20 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       const branch = cls?.branch || 'Chưa rõ';
       const schedule = cls?.schedule || 'Chưa ghi nhận lịch';
 
-      // Determine all teachers associated with this session (from record and class assignment)
-      let recordTeacher = record.teacherName?.trim() || '';
-      if (cls) {
-        const clsTeachers = Array.isArray(cls.teacherNames) && cls.teacherNames.length > 0
-          ? cls.teacherNames.join(', ')
+      // 1. Determine EXACT teacher who taught this session (from record or fallback to class teacher if unassigned)
+      let sessionTeacher = record.teacherName?.trim() || '';
+      if (!sessionTeacher && cls) {
+        sessionTeacher = Array.isArray(cls.teacherNames) && cls.teacherNames.length > 0
+          ? cls.teacherNames[0]
           : (cls.teacherName || '');
-        if (!recordTeacher) {
-          recordTeacher = clsTeachers;
-        } else if (clsTeachers && !recordTeacher.toLowerCase().includes(clsTeachers.toLowerCase()) && !clsTeachers.toLowerCase().includes(recordTeacher.toLowerCase())) {
-          recordTeacher = `${recordTeacher}, ${clsTeachers}`;
-        }
       }
-      if (!recordTeacher) {
-        recordTeacher = 'IELTS DƯƠNG VŨ';
+      if (!sessionTeacher) {
+        sessionTeacher = 'IELTS DƯƠNG VŨ';
       }
 
       // Initialize session entry if not exists
       if (!sessionsMap.has(sessionKey)) {
+        const initialTotal = (record as any).studentTotalCount || cls?.currentStudents || cls?.studentCount || 0;
         sessionsMap.set(sessionKey, {
           key: sessionKey,
           classId: record.classId,
@@ -205,22 +201,32 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
           schedule,
           date: record.date,
           sessionNumber: record.sessionNumber,
-          teacherName: recordTeacher,
+          teacherName: sessionTeacher,
           studentPresentCount: 0,
-          studentTotalCount: 0,
+          studentTotalCount: initialTotal,
           skillsTaught: record.skillsTaught || (record.skillTaught ? [record.skillTaught] : []),
         });
       }
 
       const session = sessionsMap.get(sessionKey)!;
       
-      const stTotal = (record as any).studentTotalCount || 1;
-      const stPresent = (record as any).studentPresentCount !== undefined 
-        ? (record as any).studentPresentCount 
-        : (record.status === 'Có mặt' || record.status === 'Đi muộn' || record.status === 'Đi trễ' ? 1 : 0);
+      // If record is an aggregated session (e.g. from spreadsheet extractor):
+      if ((record as any).studentPresentCount !== undefined) {
+        session.studentPresentCount = (record as any).studentPresentCount;
+        if ((record as any).studentTotalCount) {
+          session.studentTotalCount = (record as any).studentTotalCount;
+        }
+      } else {
+        // Per-student attendance record: increment present count
+        const isPresent = record.status === 'Có mặt' || record.status === 'Đi muộn' || record.status === 'Đi trễ';
+        if (isPresent) {
+          session.studentPresentCount += 1;
+        }
+        if (!session.studentTotalCount || session.studentTotalCount <= 0) {
+          session.studentTotalCount = (session.studentTotalCount || 0) + 1;
+        }
+      }
 
-      session.studentTotalCount += stTotal;
-      session.studentPresentCount += stPresent;
       // Combine skills
       if (record.skillsTaught && record.skillsTaught.length > 0) {
         record.skillsTaught.forEach((skill) => {
@@ -258,34 +264,38 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       targetTeacherId = targetTeacher.id;
     }
 
-    // Resolve teacher from session using robust matching
+    // 1. Resolve exact teacher who taught this session
     const matchedTeacher = resolveTeacherFromSession(session.teacherName, session.classId, teachers, classes);
     if (matchedTeacher) {
       if (matchedTeacher.id === targetTeacherId) return true;
       if (targetName && matchedTeacher.name.toLowerCase() === targetName.toLowerCase()) return true;
+      return false; // Matched another distinct teacher
     }
 
-    // Direct name comparison
-    if (targetName) {
+    // 2. Direct name comparison if teacher object resolution was ambiguous
+    if (targetName && session.teacherName) {
       const targetNorm = normalizeTeacherName(targetName);
       const sessNorm = normalizeTeacherName(session.teacherName);
       if (sessNorm === targetNorm || sessNorm.includes(targetNorm) || targetNorm.includes(sessNorm)) {
         return true;
       }
+      return false;
     }
 
-    // Check if the class itself is assigned to this target teacher
-    const cls = classes.find((c) => c.id === session.classId);
-    if (cls) {
-      const authUserLike = {
-        id: targetTeacherId,
-        name: targetName,
-        email: targetEmail,
-        role: 'teacher' as const,
-        teacherId: targetTeacherId,
-      };
-      if (isClassAssignedToTeacher(cls, authUserLike, teachers)) {
-        return true;
+    // 3. Fallback ONLY if session has no teacher name at all
+    if (!session.teacherName && session.classId) {
+      const cls = classes.find((c) => c.id === session.classId);
+      if (cls) {
+        const authUserLike = {
+          id: targetTeacherId,
+          name: targetName,
+          email: targetEmail,
+          role: 'teacher' as const,
+          teacherId: targetTeacherId,
+        };
+        if (isClassAssignedToTeacher(cls, authUserLike, teachers)) {
+          return true;
+        }
       }
     }
 

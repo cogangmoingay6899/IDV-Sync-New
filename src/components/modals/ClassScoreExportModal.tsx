@@ -473,7 +473,7 @@ export const ClassScoreExportModal: React.FC<ClassScoreExportModalProps> = ({
       });
       const scoresStr = scoresArr.length > 0 ? scoresArr.join(' | ') : 'Chưa có điểm';
       const avg = calculateStudentAverage(row);
-      const avgStr = avg !== '-' ? ` | ${overallScoreType === 'ielts_band' ? 'Band' : 'ĐTB'}: ${avg}` : '';
+      const avgStr = (enableOverallScore && avg !== '-') ? ` | ${overallScoreType === 'ielts_band' ? 'Band' : 'ĐTB'}: ${avg}` : '';
       
       const activeItems = activeHomeworkItems;
       const activeMissing = (row?.missingHomeworkItems || []).filter((i) => activeItems.includes(i));
