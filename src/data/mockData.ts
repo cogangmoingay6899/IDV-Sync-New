@@ -5216,7 +5216,7 @@ export const INITIAL_TEACHERS: Teacher[] = [
     "name": "Vũ Thùy",
     "type": "Việt Nam",
     "nationality": "Việt Nam 🇻🇳",
-    "email": "ngan109441@st.vimaru.edu.vn",
+    "email": "vuthingan19990365161299@gmail.com",
     "phone": "0906 789 012",
     "specialty": "IELTS Foundation",
     "degrees": "Cử nhân Ngoại ngữ",
