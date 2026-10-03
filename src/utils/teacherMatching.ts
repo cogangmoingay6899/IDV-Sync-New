@@ -17,22 +17,35 @@ export const normalizeTeacherName = (name: string): string => {
 };
 
 const KNOWN_ALIASES: Record<string, string[]> = {
-  'hoang minh tam': ['hoang minh tam', 'minh tam', 'tam'],
-  'minh tam': ['hoang minh tam', 'minh tam', 'tam'],
+  'hoang minh tam': ['hoang minh tam', 'minh tam', 'hoang tam', 'tam'],
+  'minh tam': ['hoang minh tam', 'minh tam', 'hoang tam', 'tam'],
   'dam trung hieu': ['dam trung hieu', 'dam hieu', 'trung hieu', 'hieu'],
   'dam hieu': ['dam trung hieu', 'dam hieu', 'trung hieu', 'hieu'],
   'trung hieu': ['dam trung hieu', 'dam hieu', 'trung hieu', 'hieu'],
-  'vu thi ngan': ['vu thi ngan', 'vu thi ngan', 'ngan'],
-  'vu thuy': ['vu thuy', 'thuy'],
-  'duong vu': ['duong vu', 'vu'],
-  'diep dang': ['diep dang', 'diep'],
-  'tam vuong': ['tam vuong', 'tam'],
-  'thom nguyen': ['thom nguyen', 'thom'],
-  'trang nguyen': ['trang nguyen', 'trang'],
-  'vu ngoc': ['vu ngoc', 'ngoc'],
+  'vu thi ngan': ['vu thi ngan', 'vu ngan', 'ngan', 'vuthingan', 'vungan'],
+  'vu ngan': ['vu thi ngan', 'vu ngan', 'ngan', 'vuthingan', 'vungan'],
+  'ngan': ['vu thi ngan', 'vu ngan', 'ngan', 'vuthingan', 'vungan'],
+  'vu thuy': ['vu thuy', 'vu thi thuy', 'thuy'],
+  'thuy': ['vu thuy', 'vu thi thuy', 'thuy'],
+  'duong vu': ['duong vu', 'vu duong', 'vu'],
+  'diep dang': ['diep dang', 'dang diep', 'diep'],
+  'tam vuong': ['tam vuong', 'vuong tam', 'tam'],
+  'thom nguyen': ['thom nguyen', 'nguyen thom', 'thom'],
+  'trang nguyen': ['trang nguyen', 'nguyen trang', 'trang'],
+  'vu ngoc': ['vu ngoc', 'vu thi ngoc', 'ngoc'],
   'huyen chi': ['huyen chi', 'chi'],
   'nguyen hai long': ['nguyen hai long', 'hai long', 'long'],
   'hai long': ['nguyen hai long', 'hai long', 'long'],
+};
+
+/**
+ * Strips common Vietnamese middle names (thị, văn, đức, hữu, đình, etc.) for flexible matching
+ */
+const stripMiddleNames = (name: string): string => {
+  return name
+    .replace(/\b(thi|van|duc|huu|dinh|xuan|trung|ngoc|hoang|nguyen)\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 /**
@@ -49,31 +62,51 @@ export const isClassAssignedToTeacher = (
   const userEmail = (currentUser.email || '').toLowerCase().trim();
   const userTeacherId = currentUser.teacherId;
 
-  // 1. Check direct ID matching
+  // 1. Direct teacherId check
   if (userTeacherId) {
     if (c.teacherId === userTeacherId) return true;
     if (Array.isArray((c as any).teacherIds) && (c as any).teacherIds.includes(userTeacherId)) return true;
   }
 
-  // 2. Find teacher profile by email
+  // 2. Find teacher profile by email or ID
   const matchedTeacher = teachersList.find(
-    (t) => t.email && t.email.toLowerCase().trim() === userEmail
+    (t) => (t.email && t.email.toLowerCase().trim() === userEmail) || (userTeacherId && t.id === userTeacherId)
   );
   if (matchedTeacher?.id) {
     if (c.teacherId === matchedTeacher.id) return true;
     if (Array.isArray((c as any).teacherIds) && (c as any).teacherIds.includes(matchedTeacher.id)) return true;
   }
 
-  // 3. Gather candidate normalized names for the current user
+  // 3. Special check for Vu Thi Ngan / Ngan
+  const isUserNgan = 
+    userEmail.includes('vuthingan') ||
+    userEmail.includes('ngan109441') ||
+    (currentUser.name && (normalizeTeacherName(currentUser.name).includes('ngan') || currentUser.name.toLowerCase().includes('ngần')));
+
+  if (isUserNgan) {
+    if (c.teacherId === 'tch-vungan' || c.teacherId === 'tch-vuthuy') return true;
+    const rawClassT = (c.teacherName || '') + ' ' + (Array.isArray(c.teacherNames) ? c.teacherNames.join(' ') : '');
+    if (rawClassT.toLowerCase().includes('ngần') || rawClassT.toLowerCase().includes('ngân') || rawClassT.toLowerCase().includes('vũ thị ngần')) {
+      return true;
+    }
+  }
+
+  // 4. Gather candidate normalized names for the current user
   const userCandidates = new Set<string>();
   
   if (currentUser.name) {
     const norm = normalizeTeacherName(currentUser.name);
-    if (norm) userCandidates.add(norm);
+    if (norm) {
+      userCandidates.add(norm);
+      userCandidates.add(stripMiddleNames(norm));
+    }
   }
   if (matchedTeacher?.name) {
     const norm = normalizeTeacherName(matchedTeacher.name);
-    if (norm) userCandidates.add(norm);
+    if (norm) {
+      userCandidates.add(norm);
+      userCandidates.add(stripMiddleNames(norm));
+    }
   }
 
   // Expand with aliases
@@ -86,7 +119,7 @@ export const isClassAssignedToTeacher = (
     }
   }
 
-  // 4. Gather class teacher names
+  // 5. Gather class teacher names
   const classTeacherStrings: string[] = [];
   if (c.teacherName) classTeacherStrings.push(c.teacherName);
   if (c.assistantTeacherName) classTeacherStrings.push(c.assistantTeacherName);
@@ -102,13 +135,19 @@ export const isClassAssignedToTeacher = (
     const parts = raw.split(/[,;&+]/).map((p) => p.trim());
     for (const part of parts) {
       const norm = normalizeTeacherName(part);
-      if (norm) classTokens.add(norm);
+      if (norm) {
+        classTokens.add(norm);
+        classTokens.add(stripMiddleNames(norm));
+      }
     }
     const fullNorm = normalizeTeacherName(raw);
-    if (fullNorm) classTokens.add(fullNorm);
+    if (fullNorm) {
+      classTokens.add(fullNorm);
+      classTokens.add(stripMiddleNames(fullNorm));
+    }
   }
 
-  // 5. Compare candidate names with class tokens
+  // 6. Compare candidate names with class tokens
   for (const uCand of expandedUserCandidates) {
     if (uCand.length < 2) continue;
 
