@@ -136,3 +136,102 @@ export const isClassAssignedToTeacher = (
 
   return false;
 };
+
+/**
+ * Resolves the Teacher object for a given session teacher string or alias.
+ */
+export const resolveTeacherFromSession = (
+  rawTeacherName: string,
+  classId?: string,
+  teachersList: Teacher[] = [],
+  classesList: ClassGroup[] = []
+): Teacher | null => {
+  if (!rawTeacherName) return null;
+  const raw = rawTeacherName.trim();
+  const lower = raw.toLowerCase();
+
+  // 1. Direct match by ID
+  const byId = teachersList.find((t) => t.id === raw);
+  if (byId) return byId;
+
+  // 2. Direct match by exact name or email
+  const byExact = teachersList.find(
+    (t) => t.name.toLowerCase().trim() === lower || (t.email && t.email.toLowerCase().trim() === lower)
+  );
+  if (byExact) return byExact;
+
+  // 3. Known aliases & initials
+  if (lower === 'dv' || lower.includes('dương vũ') || lower === 'vu' || lower.includes('thầy vũ')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('dương vũ'));
+    if (t) return t;
+  }
+  if (lower.includes('minh tâm') || lower.includes('m.tâm') || lower.includes('mtâm') || lower === 'tâm') {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('minh tâm'));
+    if (t) return t;
+  }
+  if (lower.includes('ngần') || lower.includes('ngân')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('ngần') || x.name.toLowerCase().includes('ngân'));
+    if (t) return t;
+  }
+  if (lower.includes('hiếu') || lower.includes('hieu')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('hiếu') || x.name.toLowerCase().includes('hieu'));
+    if (t) return t;
+  }
+  if (lower.includes('vũ thùy') || lower.includes('thùy') || lower.includes('thuy')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('thùy') || x.name.toLowerCase().includes('thuy'));
+    if (t) return t;
+  }
+  if (lower.includes('vũ ngọc') || lower.includes('ngọc') || lower.includes('ngoc')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('vũ ngọc') || x.name.toLowerCase().includes('ngọc'));
+    if (t) return t;
+  }
+  if (lower.includes('hải long') || lower.includes('long')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('long'));
+    if (t) return t;
+  }
+  if (lower.includes('diệp') || lower.includes('diep')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('diệp') || x.name.toLowerCase().includes('diep'));
+    if (t) return t;
+  }
+  if (lower.includes('huyền chi') || lower.includes('chi')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('chi'));
+    if (t) return t;
+  }
+  if (lower.includes('thơm') || lower.includes('thom')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('thơm') || x.name.toLowerCase().includes('thom'));
+    if (t) return t;
+  }
+  if (lower.includes('trang')) {
+    const t = teachersList.find((x) => x.name.toLowerCase().includes('trang'));
+    if (t) return t;
+  }
+
+  // 4. Normalized name comparison
+  const normRaw = normalizeTeacherName(raw);
+  for (const t of teachersList) {
+    const normT = normalizeTeacherName(t.name);
+    if (normT === normRaw) return t;
+    if (normT.length >= 3 && normRaw.length >= 3) {
+      if (normT.includes(normRaw) || normRaw.includes(normT)) return t;
+    }
+  }
+
+  // 5. Fallback: match from class assigned teacher
+  if (classId) {
+    const cls = classesList.find((c) => c.id === classId);
+    if (cls && cls.teacherId) {
+      const clsT = teachersList.find((t) => t.id === cls.teacherId);
+      if (clsT) return clsT;
+    }
+    if (cls && cls.teacherName) {
+      const clsT = teachersList.find(
+        (t) =>
+          normalizeTeacherName(t.name) === normalizeTeacherName(cls.teacherName!) ||
+          cls.teacherName!.toLowerCase().includes(t.name.toLowerCase())
+      );
+      if (clsT) return clsT;
+    }
+  }
+
+  return null;
+};

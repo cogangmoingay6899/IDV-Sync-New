@@ -19,7 +19,7 @@ import {
 import { ClassGroup, Student, AttendanceRecord, Teacher, AuthUser } from '../../types';
 import { calculateTeacherSessionSalary } from '../../utils/salaryCalculator';
 import { extractSessionsFromSpreadsheets, parseDateParts } from '../../utils/spreadsheetSessionExtractor';
-import { isClassAssignedToTeacher, normalizeTeacherName } from '../../utils/teacherMatching';
+import { isClassAssignedToTeacher, normalizeTeacherName, resolveTeacherFromSession } from '../../utils/teacherMatching';
 
 interface TeacherSessionsModuleProps {
   classes: ClassGroup[];
@@ -241,10 +241,6 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     // 1. If "Tất cả giáo viên" (all) is selected, include all sessions!
     if (id === 'all') return true;
 
-    // Split names by common separators (comma, and, semicolon, plus)
-    const splitNames = (fullName: string) => 
-      fullName.split(/[,;&+]/).map(n => n.trim()).filter(n => n.length > 0);
-
     let targetName = '';
     let targetEmail = '';
     let targetTeacherId = '';
@@ -262,24 +258,23 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       targetTeacherId = targetTeacher.id;
     }
 
-    const targetNorm = normalizeTeacherName(targetName);
+    // Resolve teacher from session using robust matching
+    const matchedTeacher = resolveTeacherFromSession(session.teacherName, session.classId, teachers, classes);
+    if (matchedTeacher) {
+      if (matchedTeacher.id === targetTeacherId) return true;
+      if (targetName && matchedTeacher.name.toLowerCase() === targetName.toLowerCase()) return true;
+    }
 
-    // 1. Check session teacher name with normalized name & alias matching
-    const sessionTeacherParts = splitNames(session.teacherName);
-    const matchesTeacherName = sessionTeacherParts.some((part) => {
-      const pNorm = normalizeTeacherName(part);
-      if (pNorm === targetNorm) return true;
-      if (pNorm.includes(targetNorm) || targetNorm.includes(pNorm)) {
-        if (pNorm.length >= 3 || targetNorm.length >= 3) return true;
+    // Direct name comparison
+    if (targetName) {
+      const targetNorm = normalizeTeacherName(targetName);
+      const sessNorm = normalizeTeacherName(session.teacherName);
+      if (sessNorm === targetNorm || sessNorm.includes(targetNorm) || targetNorm.includes(sessNorm)) {
+        return true;
       }
-      return false;
-    });
+    }
 
-    const matchesEmail = targetEmail && session.teacherName ? session.teacherName.toLowerCase().includes(targetEmail.toLowerCase()) : false;
-
-    if (matchesTeacherName || matchesEmail) return true;
-
-    // 2. Check if the class itself is assigned to this target teacher
+    // Check if the class itself is assigned to this target teacher
     const cls = classes.find((c) => c.id === session.classId);
     if (cls) {
       const authUserLike = {
@@ -371,82 +366,96 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     return list.sort((a, b) => b.totalSessions - a.totalSessions);
   }, [filteredSessions]);
 
-  // 2. Global summary stats of ALL teachers (Only for Admin & Assistant when selecting "all")
+  // 2. Global summary stats of ALL teachers
   const globalTeachersSummary = useMemo(() => {
-    if (isTeacher || selectedTeacherId !== 'all') return [];
-
     const summaryMap = new Map<
       string,
       {
         teacherName: string;
         teacherId: string | null;
+        teacherProfile: Teacher | null;
         totalSessions: number;
         totalSalary: number;
         classesTaught: Set<string>;
         classesBreakdown: Record<string, number>; // classId -> count
+        sessions: typeof processedSessions;
       }
     >();
 
     // Pre-fill all teachers registered in the center so every teacher is visible
     teachers.forEach((t) => {
-      summaryMap.set(t.name, {
+      summaryMap.set(t.id, {
         teacherName: t.name,
         teacherId: t.id,
+        teacherProfile: t,
         totalSessions: 0,
         totalSalary: 0,
         classesTaught: new Set<string>(),
         classesBreakdown: {},
+        sessions: [],
       });
     });
 
     processedSessions.forEach((session) => {
-      // Find ALL teachers matching this session (by name or assigned class)
-      const matchingTeachers = teachers.filter((t) => {
-        const normSession = session.teacherName.toLowerCase();
-        const normTName = t.name.toLowerCase();
-        const normTEmail = t.email ? t.email.toLowerCase() : '';
-        return normSession.includes(normTName) || (normTEmail && normSession.includes(normTEmail));
-      });
+      // Find matching teacher profile using robust resolution
+      const matchedTeacher = resolveTeacherFromSession(session.teacherName, session.classId, teachers, classes);
+      const key = matchedTeacher ? matchedTeacher.id : session.teacherName;
+      const displayName = matchedTeacher ? matchedTeacher.name : session.teacherName;
 
-      const targetProfiles = matchingTeachers.length > 0 ? matchingTeachers : [null];
+      if (!summaryMap.has(key)) {
+        summaryMap.set(key, {
+          teacherName: displayName,
+          teacherId: matchedTeacher ? matchedTeacher.id : null,
+          teacherProfile: matchedTeacher,
+          totalSessions: 0,
+          totalSalary: 0,
+          classesTaught: new Set<string>(),
+          classesBreakdown: {},
+          sessions: [],
+        });
+      }
 
-      targetProfiles.forEach((tProfile) => {
-        const nameKey = tProfile ? tProfile.name : session.teacherName;
-        const idKey = tProfile ? tProfile.id : null;
+      const summary = summaryMap.get(key)!;
+      summary.totalSessions += 1;
+      summary.classesTaught.add(session.classId);
+      summary.classesBreakdown[session.classId] = (summary.classesBreakdown[session.classId] || 0) + 1;
+      summary.sessions.push(session);
 
-        if (!summaryMap.has(nameKey)) {
-          summaryMap.set(nameKey, {
-            teacherName: nameKey,
-            teacherId: idKey,
-            totalSessions: 0,
-            totalSalary: 0,
-            classesTaught: new Set<string>(),
-            classesBreakdown: {},
-          });
-        }
-
-        const summary = summaryMap.get(nameKey)!;
-        summary.totalSessions += 1;
-        summary.classesTaught.add(session.classId);
-        summary.classesBreakdown[session.classId] = (summary.classesBreakdown[session.classId] || 0) + 1;
-
-        // Calculate session salary
-        const cls = classes.find((c) => c.id === session.classId);
-        const level = cls?.courseLevel || 'Khóa 1';
-        const classStudents = students.filter((st) => st.classId === session.classId);
-        const rate = calculateTeacherSessionSalary(
-          tProfile,
-          level,
-          session.studentTotalCount || 20,
-          session.sessionNumber,
-          classStudents
-        );
-        summary.totalSalary += rate;
-      });
+      // Calculate session salary
+      const cls = classes.find((c) => c.id === session.classId);
+      const level = cls?.courseLevel || 'Khóa 1';
+      const classStudents = students.filter((st) => st.classId === session.classId);
+      const rate = calculateTeacherSessionSalary(
+        matchedTeacher,
+        level,
+        session.studentTotalCount || 20,
+        session.sessionNumber,
+        classStudents
+      );
+      summary.totalSalary += rate;
     });
 
-    return Array.from(summaryMap.values()).sort((a, b) => b.totalSessions - a.totalSessions);
-  }, [processedSessions, teachers, classes, students, isTeacher, selectedTeacherId]);
+    const allSummaries = Array.from(summaryMap.values());
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      return allSummaries.filter(
+        (s) =>
+          s.teacherName.toLowerCase().includes(q) ||
+          Array.from(s.classesTaught).some((cId) => {
+            const c = classes.find((cls) => cls.id === cId);
+            return c && c.name.toLowerCase().includes(q);
+          })
+      );
+    }
+
+    // Sort: teachers with sessions > 0 first, sorted by total sessions and total salary
+    return allSummaries.sort((a, b) => {
+      if (b.totalSessions !== a.totalSessions) {
+        return b.totalSessions - a.totalSessions;
+      }
+      return b.totalSalary - a.totalSalary;
+    });
+  }, [processedSessions, teachers, classes, students, searchQuery]);
 
   // Total payroll across all teachers for the selected month
   const totalGlobalPayroll = useMemo(() => {
@@ -650,7 +659,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                     : 'Chưa có phát sinh'}
                 </div>
                 <span className="text-[10px] text-slate-500 block">
-                  Tổng {globalTeachersSummary.length} giảng viên hệ thống
+                  Tổng {globalTeachersSummary.filter(s => s.totalSessions > 0).length} giảng viên có ca dạy
                 </span>
               </>
             )}
@@ -661,19 +670,34 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
         </div>
       </div>
 
-      {/* 3. Main Views Grid (Summary of all teachers OR detail class breakdown) */}
-      <div className="grid grid-cols-1 gap-6">
-        {/* Case A: Showing all teachers table (Only for Admin/Assistant when selecting 'all') */}
-        {!isTeacherView && selectedTeacherId === 'all' && (
+      {/* 3. Main Views Grid (Summary of all teachers AND detail class breakdown) */}
+      <div className="space-y-6">
+        {/* Section 1: Summary table of all teachers */}
+        {!isTeacherView && (
           <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                <Users className="w-4 h-4 text-purple-700" />
-                <span>Bảng tổng hợp buổi dạy của toàn bộ giáo viên</span>
-              </h3>
-              <span className="text-[11px] bg-purple-50 text-purple-700 font-bold px-2.5 py-1 rounded-full border border-purple-100">
-                Tháng {selectedMonth}/{selectedYear}
-              </span>
+            <div className="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-purple-50/20 to-white">
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                  <Users className="w-4 h-4 text-purple-700" />
+                  <span>Bảng tổng hợp buổi dạy của toàn bộ giáo viên</span>
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Tự động tổng hợp từ Nhật ký chấm điểm live & Sổ lớp • Tính đúng lương theo ca dạy của từng giáo viên
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {selectedTeacherId !== 'all' && (
+                  <button
+                    onClick={() => setSelectedTeacherId('all')}
+                    className="text-[11px] font-black text-purple-700 hover:text-white bg-purple-50 hover:bg-purple-700 border border-purple-200 px-3 py-1 rounded-xl transition-all cursor-pointer shadow-2xs flex items-center gap-1"
+                  >
+                    <span>← Xem tất cả giáo viên</span>
+                  </button>
+                )}
+                <span className="text-[11px] bg-purple-50 text-purple-700 font-bold px-2.5 py-1 rounded-full border border-purple-100">
+                  Tháng {selectedMonth}/{selectedYear}
+                </span>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -686,24 +710,31 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                     <th className="py-3 px-4 text-center">Tổng lương ước tính</th>
                     <th className="py-3 px-4 text-center">Số lớp đứng dạy</th>
                     <th className="py-3 px-4">Danh sách các lớp giảng dạy</th>
-                    <th className="py-3 px-4 text-center w-28">Thao tác</th>
+                    <th className="py-3 px-4 text-center w-32">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
                   {globalTeachersSummary.map((summary, idx) => {
-                    const matchedProfile = teachers.find((t) => t.name === summary.teacherName);
+                    const matchedProfile = summary.teacherProfile || teachers.find((t) => t.name === summary.teacherName);
+                    const isSelected = selectedTeacherId === (summary.teacherId || summary.teacherName);
+
                     return (
-                      <tr key={summary.teacherName} className="hover:bg-slate-50/50 transition-colors">
+                      <tr
+                        key={summary.teacherName}
+                        className={`transition-colors ${
+                          isSelected ? 'bg-purple-50/70 border-l-4 border-l-purple-600' : 'hover:bg-slate-50/60'
+                        }`}
+                      >
                         <td className="py-4 px-5 text-center font-bold text-slate-400">
                           {idx + 1}
                         </td>
                         <td className="py-4 px-4 font-bold text-slate-900">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-800 text-xs font-black flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-xs font-black flex items-center justify-center shadow-xs">
                               {summary.teacherName.charAt(0)}
                             </div>
                             <div>
-                              <span>{summary.teacherName}</span>
+                              <span className="font-extrabold text-slate-900">{summary.teacherName}</span>
                               {matchedProfile && (
                                 <span className={`ml-1.5 inline-block text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
                                   matchedProfile.type === 'Bản ngữ (Native)'
@@ -717,49 +748,60 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                           </div>
                         </td>
                         <td className="py-4 px-4 text-center">
-                          <span className="inline-block px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-black rounded-lg border border-purple-100">
+                          <span className={`inline-block px-2.5 py-1 text-xs font-black rounded-lg border ${
+                            summary.totalSessions > 0
+                              ? 'bg-purple-50 text-purple-800 border-purple-200'
+                              : 'bg-slate-50 text-slate-400 border-slate-200'
+                          }`}>
                             {summary.totalSessions} buổi
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-center font-extrabold text-emerald-700">
-                          {summary.totalSalary.toLocaleString('vi-VN')} đ
+                        <td className="py-4 px-4 text-center font-black text-sm text-emerald-700">
+                          {summary.totalSalary > 0 ? `${summary.totalSalary.toLocaleString('vi-VN')} đ` : '0 đ'}
                         </td>
                         <td className="py-4 px-4 text-center text-slate-800 font-bold">
                           {summary.classesTaught.size} lớp
                         </td>
                         <td className="py-4 px-4">
-                          <div className="flex flex-wrap gap-1.5 max-w-lg">
-                            {Array.from(summary.classesTaught).map((cId) => {
-                              const targetClass = classes.find((c) => c.id === cId);
-                              const count = summary.classesBreakdown[cId as string] || 0;
-                              return (
-                                <span
-                                  key={cId}
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-semibold rounded-md border border-slate-200"
-                                >
-                                  <strong>{targetClass ? targetClass.name : 'Lớp ẩn'}</strong>
-                                  <span className="bg-slate-200/80 text-slate-800 px-1 py-0.1 rounded font-bold">
-                                    {count}b
+                          {summary.classesTaught.size > 0 ? (
+                            <div className="flex flex-wrap gap-1.5 max-w-lg">
+                              {Array.from(summary.classesTaught).map((cId) => {
+                                const targetClass = classes.find((c) => c.id === cId);
+                                const count = summary.classesBreakdown[cId as string] || 0;
+                                return (
+                                  <span
+                                    key={cId}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-semibold rounded-md border border-slate-200"
+                                  >
+                                    <strong>{targetClass ? targetClass.name : 'Lớp'}</strong>
+                                    <span className="bg-slate-200/90 text-slate-800 px-1 py-0.1 rounded font-bold">
+                                      {count}b
+                                    </span>
                                   </span>
-                                </span>
-                              );
-                            })}
-                          </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 italic text-[11px]">Chưa có ca dạy trong tháng</span>
+                          )}
                         </td>
                         <td className="py-4 px-4 text-center">
                           <button
                             onClick={() => {
-                              if (summary.teacherId) {
-                                setSelectedTeacherId(summary.teacherId);
+                              const tId = summary.teacherId || summary.teacherName;
+                              if (selectedTeacherId === tId) {
+                                setSelectedTeacherId('all');
                               } else {
-                                // Match by name
-                                const matched = teachers.find((t) => t.name === summary.teacherName);
-                                if (matched) setSelectedTeacherId(matched.id);
+                                setSelectedTeacherId(tId);
                               }
                             }}
-                            className="text-[10px] font-bold text-purple-700 hover:text-white bg-purple-50 hover:bg-purple-700 border border-purple-200 px-2.5 py-1 rounded-lg transition-all cursor-pointer"
+                            className={`text-[10px] font-black px-2.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs ${
+                              isSelected
+                                ? 'bg-purple-700 text-white shadow-xs'
+                                : 'text-purple-700 hover:text-white bg-purple-50 hover:bg-purple-700 border border-purple-200'
+                            }`}
                           >
-                            Xem chi tiết
+                            {isSelected ? 'Đang lọc xem' : 'Xem buổi & lương'}
                           </button>
                         </td>
                       </tr>
@@ -781,206 +823,141 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
           </div>
         )}
 
-        {/* Case B: Detailed breakdown for a selected teacher (or logged-in teacher) */}
-        {(isTeacherView || selectedTeacherId !== 'all') && (
-          <div className="space-y-6">
-            {/* Class Breakdown Grid / Table */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
-              <div className="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-purple-50/20 to-white">
-                <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-purple-700" />
-                  <span>Chi tiết số buổi đứng lớp giảng dạy</span>
-                </h3>
-                {selectedTeacherId !== 'all' && !isTeacherView && (
-                  <button
-                    onClick={() => setSelectedTeacherId('all')}
-                    className="text-[10px] font-black text-slate-600 hover:text-purple-700 border border-slate-200 hover:border-purple-300 bg-white px-2.5 py-1 rounded-xl transition-all cursor-pointer shadow-2xs"
-                  >
-                    ← Quay về bảng tổng hợp toàn bộ giáo viên
-                  </button>
-                )}
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200/80">
-                    <tr>
-                      <th className="py-3 px-5 w-12 text-center">STT</th>
-                      <th className="py-3 px-4 min-w-[150px]">Lớp học</th>
-                      <th className="py-3 px-4 min-w-[180px]">Khóa học & Lịch học</th>
-                      <th className="py-3 px-4 text-center min-w-[100px]">Chi nhánh</th>
-                      <th className="py-3 px-4 text-center min-w-[120px]">Số buổi dạy trong tháng</th>
-                      <th className="py-3 px-4">Chi tiết các ngày dạy</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium">
-                    {classBreakdown.map((item, idx) => {
-                      return (
-                        <tr key={item.classId} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-4 px-5 text-center font-bold text-slate-400">
-                            {idx + 1}
-                          </td>
-                          <td className="py-4 px-4 font-extrabold text-slate-900">
-                            <div className="space-y-0.5">
-                              <span className="text-xs font-black">{item.className}</span>
-                              <div className="text-[9px] font-bold text-purple-700 font-mono tracking-wider">Mã: {item.classId.substring(0, 8).toUpperCase()}</div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 text-slate-700">
-                            <div className="space-y-0.5">
-                              <span className="font-semibold block text-[11px] text-slate-800">{item.courseName}</span>
-                              <span className="text-[10px] text-slate-400 block font-normal">{item.schedule}</span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-100">
-                              <MapPin className="w-3 h-3 text-purple-500 shrink-0" />
-                              <span>{item.branch}</span>
-                            </span>
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <span className="inline-block px-3 py-1 bg-purple-50 text-purple-700 text-xs font-black rounded-lg border border-purple-100 animate-pulse">
-                              {item.totalSessions} buổi
-                            </span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex flex-wrap gap-1.5 max-w-md">
-                              {item.sessions.map((sess, sIdx) => (
-                                <span
-                                  key={sess.date}
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-50 border border-slate-200 hover:border-purple-300 text-[10px] text-slate-700 rounded-lg font-mono transition-colors"
-                                  title={`Sĩ số đi học: ${sess.presentCount}/${sess.totalCount}`}
-                                >
-                                  <Clock className="w-3 h-3 text-slate-400 shrink-0" />
-                                  <span>{formatShortDate(sess.date)}</span>
-                                  <span className="bg-slate-200 text-slate-800 text-[9px] px-1 rounded font-bold">
-                                    B.{sess.sessionNumber}
-                                  </span>
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-
-                    {classBreakdown.length === 0 && (
-                      <tr>
-                        <td colSpan={6} className="py-12 text-center text-slate-400">
-                          <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                          <p className="font-semibold text-slate-600 text-xs">Không có lớp học phát sinh buổi dạy</p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Vui lòng kiểm tra lại tháng đã chọn hoặc dữ liệu điểm danh.</p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+        {/* Section 2: Detailed History Log Table of All Sessions Taught with Session Salary */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div className="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-emerald-50/20 via-purple-50/10 to-white">
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>
+                  Nhật ký chi tiết các buổi dạy & Lương từng ca đứng lớp ({filteredSessions.length} ca)
+                </span>
+              </h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {selectedTeacherId !== 'all'
+                  ? `Đang lọc các buổi dạy của giảng viên: ${
+                      teachers.find((t) => t.id === selectedTeacherId)?.name || selectedTeacherId
+                    }`
+                  : `Hiển thị toàn bộ các buổi học live phát sinh trong Tháng ${selectedMonth}/${selectedYear} kèm mức lương từng ca`}
+              </p>
             </div>
-
-            {/* 4. Detailed History Log Table of All Sessions Taught */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
-              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Nhật ký chi tiết các buổi dạy ({filteredSessions.length} ca)</span>
-                </h3>
-                <span className="text-[10px] text-slate-400 font-bold">Thứ tự gần đây nhất xếp trên</span>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200/80">
-                    <tr>
-                      <th className="py-3 px-5 w-12 text-center">STT</th>
-                      <th className="py-3 px-4">Ngày dạy</th>
-                      <th className="py-3 px-4">Lớp học</th>
-                      <th className="py-3 px-4 text-center">Buổi số</th>
-                      <th className="py-3 px-4">Nội dung / Kỹ năng giảng dạy</th>
-                      <th className="py-3 px-4 text-center">Sĩ số lớp</th>
-                      <th className="py-3 px-4 text-right">Lương buổi dạy</th>
-                      <th className="py-3 px-4">Giảng viên ghi nhận</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium">
-                    {filteredSessions.map((sess, idx) => {
-                      const sessionCls = classes.find((c) => c.id === sess.classId);
-                      const level = sessionCls?.courseLevel || 'Khóa 1';
-                      const sessTeacher = teachers.find(t => t.name === sess.teacherName) || activeTeacher;
-                      const classStudents = students.filter((st) => st.classId === sess.classId);
-                      const sessionSalary = sessTeacher 
-                        ? calculateTeacherSessionSalary(sessTeacher, level, sess.studentTotalCount || 20, sess.sessionNumber, classStudents)
-                        : 0;
-
-                      return (
-                        <tr key={sess.key} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-3.5 px-5 text-center font-bold text-slate-400">
-                            {idx + 1}
-                          </td>
-                          <td className="py-3.5 px-4 font-bold text-slate-900">
-                            <span className="font-mono text-purple-700 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded">
-                              {sess.date}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4 font-bold text-slate-800">
-                            {sess.className}
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            <span className="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">
-                              Buổi {sess.sessionNumber}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4">
-                            {sess.skillsTaught && sess.skillsTaught.length > 0 ? (
-                              <div className="flex flex-wrap gap-1">
-                                {sess.skillsTaught.map((skill) => (
-                                  <span
-                                    key={skill}
-                                    className="px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 text-[9px] font-black border border-indigo-100 uppercase"
-                                  >
-                                    {skill}
-                                  </span>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-slate-400 italic">Chưa ghi nhận kỹ năng</span>
-                            )}
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            <span className="inline-flex items-center gap-1 font-bold text-slate-700">
-                              <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span>{sess.studentPresentCount}</span>
-                              <span className="text-slate-300 font-normal">/</span>
-                              <span className="text-slate-400 font-normal">{sess.studentTotalCount}</span>
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4 text-right font-black text-emerald-700 font-mono">
-                            {sessionSalary > 0 
-                              ? new Intl.NumberFormat('vi-VN').format(sessionSalary) + 'đ'
-                              : 'Chưa tính'}
-                          </td>
-                          <td className="py-3.5 px-4 text-slate-700 font-semibold italic">
-                            {sess.teacherName}
-                          </td>
-                        </tr>
-                      );
-                    })}
-
-                    {filteredSessions.length === 0 && (
-                      <tr>
-                        <td colSpan={8} className="py-12 text-center text-slate-400">
-                          <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                          <p className="font-semibold text-slate-600 text-xs">Không có nhật ký buổi dạy nào</p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">Dữ liệu ghi chép đang trống trong thời gian đã chọn.</p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {selectedTeacherId !== 'all' && !isTeacherView && (
+              <button
+                onClick={() => setSelectedTeacherId('all')}
+                className="text-[11px] font-black text-slate-600 hover:text-purple-700 border border-slate-200 hover:border-purple-300 bg-white px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs self-start sm:self-auto"
+              >
+                ← Xem toàn bộ buổi dạy của tất cả GV
+              </button>
+            )}
           </div>
-        )}
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200/80">
+                <tr>
+                  <th className="py-3 px-5 w-12 text-center">STT</th>
+                  <th className="py-3 px-4">Ngày dạy</th>
+                  <th className="py-3 px-4">Giảng viên đứng lớp</th>
+                  <th className="py-3 px-4">Lớp học</th>
+                  <th className="py-3 px-4 text-center">Buổi số</th>
+                  <th className="py-3 px-4">Nội dung / Kỹ năng</th>
+                  <th className="py-3 px-4 text-center">Sĩ số lớp</th>
+                  <th className="py-3 px-4 text-right">Lương buổi dạy</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium">
+                {filteredSessions.map((sess, idx) => {
+                  const sessionCls = classes.find((c) => c.id === sess.classId);
+                  const level = sessionCls?.courseLevel || 'Khóa 1';
+                  const matchedTeacher = resolveTeacherFromSession(sess.teacherName, sess.classId, teachers, classes) || activeTeacher;
+                  const classStudents = students.filter((st) => st.classId === sess.classId);
+                  const sessionSalary = matchedTeacher
+                    ? calculateTeacherSessionSalary(
+                        matchedTeacher,
+                        level,
+                        sess.studentTotalCount || (classStudents.length > 0 ? classStudents.length : 20),
+                        sess.sessionNumber,
+                        classStudents
+                      )
+                    : 0;
+
+                  return (
+                    <tr key={sess.key} className="hover:bg-purple-50/30 transition-colors">
+                      <td className="py-3.5 px-5 text-center font-bold text-slate-400">
+                        {idx + 1}
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-slate-900">
+                        <span className="font-mono text-purple-800 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md font-bold">
+                          {sess.date}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 font-extrabold text-slate-900">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-700 text-[10px] font-black flex items-center justify-center shrink-0">
+                            {(matchedTeacher ? matchedTeacher.name : sess.teacherName).charAt(0)}
+                          </span>
+                          <span>{matchedTeacher ? matchedTeacher.name : sess.teacherName}</span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-slate-800">
+                        <div>
+                          <span>{sess.className}</span>
+                          <span className="text-[10px] text-slate-400 block font-normal">{sess.branch}</span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="font-bold text-purple-900 bg-purple-50 px-2 py-0.5 rounded-lg border border-purple-200">
+                          Buổi {sess.sessionNumber}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {sess.skillsTaught && sess.skillsTaught.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {sess.skillsTaught.map((skill) => (
+                              <span
+                                key={skill}
+                                className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 text-[10px] font-extrabold border border-amber-200"
+                              >
+                                🎯 {skill}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 italic">Tổng hợp</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="inline-flex items-center gap-1 font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg">
+                          <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{sess.studentPresentCount}</span>
+                          <span className="text-slate-300 font-normal">/</span>
+                          <span className="text-slate-500 font-normal">{sess.studentTotalCount}</span>
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <span className="font-black text-emerald-800 font-mono text-xs bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                          {sessionSalary > 0
+                            ? `${sessionSalary.toLocaleString('vi-VN')} đ`
+                            : 'Chưa tính'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+
+                {filteredSessions.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-slate-400">
+                      <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                      <p className="font-semibold text-slate-600 text-xs">Không có nhật ký buổi dạy nào</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Dữ liệu ghi chép đang trống trong thời gian đã chọn.</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

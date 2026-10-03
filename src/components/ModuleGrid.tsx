@@ -102,7 +102,7 @@ export const ModuleGrid: React.FC<ModuleGridProps> = ({
       id: 'students',
       title: 'Quản lý học viên & Lớp',
       icon: <GraduationCap className="w-6 h-6" />,
-      subtitle: 'Hồ sơ học viên, danh sách lớp học, Sổ lớp & Bảng điểm từng buổi (L1, L2...)',
+      subtitle: 'Hồ sơ học viên, danh sách lớp học & Bảng điểm từng buổi',
       badge: `${stats.totalStudents} học viên`,
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     },

@@ -5553,18 +5553,79 @@ const MasterSessionGridModal: React.FC<MasterSessionGridModalProps> = ({
                   <tr className="bg-slate-200 text-slate-800 font-bold border-b border-slate-300">
                     <th className="py-2.5 px-3 border-r border-slate-300 text-center w-12 sticky left-0 bg-slate-200 z-20">STT</th>
                     <th className="py-2.5 px-4 border-r border-slate-300 text-left min-w-[180px] sticky left-12 bg-slate-200 z-20">Học viên</th>
-                    {sortedSessions.map((sess) => (
-                      <th key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-300 text-center min-w-[125px]">
-                        <div className="font-black text-purple-900 text-xs">Buổi {sess.sessionNumber}</div>
-                        <div
-                          className="mt-0.5 inline-block px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-extrabold max-w-[130px] truncate"
-                          title={sess.skillTaught || 'Kỹ năng kiểm tra'}
-                        >
-                          🎯 {sess.skillTaught || 'Kỹ năng kiểm tra'}
-                        </div>
-                        <div className="text-[10px] text-slate-500 font-normal mt-0.5">{sess.date} • {sess.teacherName}</div>
-                      </th>
-                    ))}
+                    {sortedSessions.map((sess) => {
+                      // Extract skill total questions if available
+                      const skillTotals: Record<string, string | number> = {};
+                      sess.records.forEach((r) => {
+                        if (r.skillTotalQuestions && typeof r.skillTotalQuestions === 'object') {
+                          Object.entries(r.skillTotalQuestions).forEach(([k, v]) => {
+                            if (v !== undefined && v !== null && String(v).trim()) {
+                              skillTotals[k.trim()] = String(v).trim();
+                            }
+                          });
+                        }
+                        if (r.totalQuestions) {
+                          const mainSk = (r.skillTaught || sess.skillTaught || 'Đọc').trim();
+                          if (!skillTotals[mainSk]) skillTotals[mainSk] = r.totalQuestions;
+                        }
+                        if (r.rawScore && String(r.rawScore).includes('/')) {
+                          const parts = String(r.rawScore).split('/');
+                          const denom = parts[1]?.trim();
+                          if (denom) {
+                            const mainSk = (r.skillTaught || sess.skillTaught || 'Đọc').trim();
+                            if (!skillTotals[mainSk]) skillTotals[mainSk] = denom;
+                          }
+                        }
+                      });
+
+                      const rawSkillList = sess.skillTaught
+                        ? sess.skillTaught.split(/[,;&+•/]/).map((s) => s.trim()).filter(Boolean)
+                        : ['Đọc'];
+
+                      const skillHeaderParts = rawSkillList.map((skillName) => {
+                        if (/\/\s*\d+/.test(skillName) || /\d+\s*câu/i.test(skillName)) {
+                          return skillName;
+                        }
+                        const embedMatch = skillName.match(/^([a-zA-ZÀ-ỹ\s]+?)\s+(\d+)$/);
+                        if (embedMatch) {
+                          return `${embedMatch[1].trim()}/${embedMatch[2].trim()} câu`;
+                        }
+
+                        let totalQ = skillTotals[skillName];
+                        if (!totalQ) {
+                          const foundKey = Object.keys(skillTotals).find(
+                            (k) =>
+                              k.toLowerCase() === skillName.toLowerCase() ||
+                              skillName.toLowerCase().includes(k.toLowerCase()) ||
+                              k.toLowerCase().includes(skillName.toLowerCase())
+                          );
+                          if (foundKey) totalQ = skillTotals[foundKey];
+                        }
+                        if (!totalQ && Object.keys(skillTotals).length === 1 && rawSkillList.length === 1) {
+                          totalQ = Object.values(skillTotals)[0];
+                        }
+                        if (totalQ) {
+                          return `${skillName}/${totalQ} câu`;
+                        }
+                        return skillName;
+                      });
+
+                      const skillHeader = skillHeaderParts.join(' • ');
+
+                      return (
+                        <th key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-300 text-center min-w-[125px]">
+                          <div className="font-black text-purple-900 text-xs">Buổi {sess.sessionNumber}</div>
+                          <div
+                            className="mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-950 border border-amber-300 text-[11px] font-black max-w-[160px] shadow-2xs"
+                            title={skillHeader}
+                          >
+                            <span>🎯</span>
+                            <span className="truncate">{skillHeader}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 font-normal mt-0.5">{sess.date} • {sess.teacherName}</div>
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
@@ -5576,26 +5637,29 @@ const MasterSessionGridModal: React.FC<MasterSessionGridModalProps> = ({
                         const rec = sess.records.find((r) => r.studentId === st.id || r.studentName?.toLowerCase() === st.name.toLowerCase());
                         if (!rec) {
                           return (
-                            <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center text-slate-400">
+                            <td key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-200 text-center text-slate-400">
                               -
                             </td>
                           );
                         }
 
-                        if (rec.status?.includes('vắng') || rec.status?.includes('Nghỉ')) {
+                        const statusStr = String(rec.status || '');
+                        if (statusStr.includes('vắng') || statusStr.includes('Nghỉ') || statusStr.includes('Vắng')) {
                           return (
-                            <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center">
-                              <span className="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded-md">vắng</span>
+                            <td key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-200 text-center">
+                              <span className="text-rose-600 font-black bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-lg text-xs">vắng</span>
                             </td>
                           );
                         }
 
-                        // If multiple skill scores recorded, render all 2 or 3 skills
-                        if (rec.skillScores && Object.keys(rec.skillScores).length > 0) {
+                        const skillEntries = rec.skillScores ? Object.entries(rec.skillScores) : [];
+
+                        // If multiple skill scores recorded in the same session (2 or more distinct skills), render breakdown
+                        if (skillEntries.length >= 2) {
                           return (
-                            <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center">
+                            <td key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-200 text-center">
                               <div className="flex flex-col gap-0.5 items-center justify-center">
-                                {Object.entries(rec.skillScores).map(([skill, sVal]) => (
+                                {skillEntries.map(([skill, sVal]) => (
                                   <span key={skill} className="text-[10px] font-bold text-slate-800 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded whitespace-nowrap">
                                     {skill}: <strong className="text-purple-700">{sVal}</strong>
                                   </span>
@@ -5605,20 +5669,37 @@ const MasterSessionGridModal: React.FC<MasterSessionGridModalProps> = ({
                           );
                         }
 
+                        // Single skill (e.g. Đọc): Do not repeat the skill name "Đọc:" in every single row!
+                        // Just display the score number cleanly.
                         let displayVal = '-';
-                        let badgeBg = 'text-slate-400';
-                        if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
+                        if (skillEntries.length === 1) {
+                          displayVal = String(skillEntries[0][1]);
+                        } else if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
                           displayVal = String(rec.score);
-                          const num = Number(rec.score);
-                          badgeBg = !isNaN(num) && num <= 5.5 ? 'text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-md' : 'text-emerald-800 font-bold';
                         } else if (rec.status === 'Có mặt' || !rec.status) {
                           displayVal = 'x';
-                          badgeBg = 'text-emerald-600 font-bold';
                         }
 
+                        const num = Number(displayVal);
+                        const isNumeric = !isNaN(num) && displayVal !== 'x' && displayVal !== '-';
+
                         return (
-                          <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center">
-                            <span className={badgeBg}>{displayVal}</span>
+                          <td key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-200 text-center font-sans">
+                            {displayVal === 'x' ? (
+                              <span className="text-emerald-600 font-black text-sm">x</span>
+                            ) : isNumeric ? (
+                              <span
+                                className={`font-black text-sm px-2 py-0.5 rounded-md inline-block min-w-[28px] ${
+                                  num <= 5.5
+                                    ? 'text-amber-700 font-black bg-amber-50 border border-amber-200'
+                                    : 'text-purple-950 font-black'
+                                }`}
+                              >
+                                {displayVal}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 font-medium">{displayVal}</span>
+                            )}
                           </td>
                         );
                       })}

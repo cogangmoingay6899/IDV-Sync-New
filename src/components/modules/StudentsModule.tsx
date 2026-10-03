@@ -428,15 +428,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
             ],
           }),
 
-          !isNhungPhan &&
-            e.jsxs("button", {
-              onClick: () => k("sheet_gradebook"),
-              className: `px-4 py-2 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 ${j === "sheet_gradebook" ? "bg-emerald-700 text-white shadow-xs" : "text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200"}`,
-              children: [
-                e.jsx(Kr, { className: "w-3.5 h-3.5 text-emerald-600" }),
-                e.jsx("span", { children: "Sổ lớp Sheet" }),
-              ],
-            }),
 
           !isNhungPhan &&
             e.jsxs("button", {
@@ -1115,27 +1106,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                       e.jsxs("div", {
                                         className: "flex items-center gap-1.5",
                                         children: [
-                                          !isNhungPhan && e.jsxs("button", {
-                                            type: "button",
-                                            onClick: (ct) => {
-                                              (ct.stopPropagation(),
-                                                F(B.id),
-                                                k("sheet_gradebook"));
-                                            },
-                                            className:
-                                              "text-[11px] text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-2 py-1 rounded-lg font-bold flex items-center gap-1 transition-colors",
-                                            title:
-                                              "Mở Sổ lớp & Bảng điểm dạng Google Sheet của lớp này",
-                                            children: [
-                                              e.jsx(Kr, {
-                                                className:
-                                                  "w-3.5 h-3.5 text-emerald-600",
-                                              }),
-                                              e.jsx("span", {
-                                                children: "Sổ lớp Sheet",
-                                              }),
-                                            ],
-                                          }),
                                           e.jsxs("button", {
                                             type: "button",
                                             onClick: (ct) => {
@@ -1643,20 +1613,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                 }),
             ],
           })
-        : j === "sheet_gradebook"
-          ? e.jsx("div", {
-              className: "space-y-4",
-              children: e.jsx(SG, {
-                classes: t,
-                students: n,
-                attendanceRecords: l,
-                transactions: o,
-                initialClassId: R || (t.length > 0 ? t[0].id : undefined),
-                onOpenQuickTuition: le,
-                onBackToClasses: () => k("classes"),
-              }),
-            })
-          : j === "vocab_tests"
+        : j === "vocab_tests"
             ? e.jsx("div", {
                 className: "space-y-4",
                 children: e.jsx(EB, {
