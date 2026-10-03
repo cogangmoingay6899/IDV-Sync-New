@@ -189,23 +189,6 @@
     "status": "Đang giảng dạy"
   },
   {
-    "id": "tch-vungan",
-    "type": "Việt Nam",
-    "activeClassesCount": 3,
-    "name": "Vũ Thị Ngần",
-    "nationality": "Việt Nam 🇻🇳",
-    "hourlyRate": 420000,
-    "fixedRate": 500000,
-    "salaryCalcType": "fixed_per_session",
-    "rating": 4.9,
-    "code": "GV-IDV10",
-    "status": "Đang giảng dạy",
-    "degrees": "Cử nhân Sư phạm Tiếng Anh, TESOL Quốc tế",
-    "phone": "0910 234 567",
-    "email": "vuthingan19990365161299@gmail.com",
-    "specialty": "IELTS Foundation & Junior, Ngữ pháp & Phản xạ"
-  },
-  {
     "id": "tch-vungoc",
     "degrees": "Cử nhân Ngôn ngữ Anh, Chứng chỉ Giảng dạy Quốc tế TKT",
     "fixedRate": 500000,
@@ -241,7 +224,7 @@
     "degrees": "Cử nhân Ngoại ngữ",
     "activeClassesCount": 1,
     "hourlyRate": 400000,
-    "rating": 5.0,
+    "rating": 5,
     "status": "Đang giảng dạy"
   }
 ]

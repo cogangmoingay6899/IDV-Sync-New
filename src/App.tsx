@@ -2047,6 +2047,13 @@ export default function App() {
     saveDocument('teachers', teacher);
   };
 
+  // Handler: Delete Teacher
+  const handleDeleteTeacher = async (teacherId: string) => {
+    setTeachers((prev) => prev.filter((t) => t.id !== teacherId));
+    await deleteDocument('teachers', teacherId);
+    showToast('Đã xóa giảng viên khỏi hệ thống thành công!');
+  };
+
   // Handler: Add Exam Score
   const handleAddExamScore = (exam: ExamScore) => {
     setExams((prev) => {
@@ -2741,6 +2748,7 @@ export default function App() {
                 onAddTeacher={handleAddTeacher}
                 onUpdateTeacher={handleUpdateTeacher}
                 onUpdateClass={handleUpdateClass}
+                onDeleteTeacher={handleDeleteTeacher}
               />
             )}
 

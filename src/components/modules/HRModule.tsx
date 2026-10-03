@@ -43,6 +43,7 @@ interface HRModuleProps {
   onAddTeacher: (teacher: Teacher) => void;
   onUpdateTeacher?: (updatedTeacher: Teacher) => void;
   onUpdateClass?: (updatedClass: ClassGroup) => void;
+  onDeleteTeacher?: (id: string) => void;
 }
 
 export interface TeacherPayrollRow {
@@ -63,6 +64,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
   onAddTeacher,
   onUpdateTeacher,
   onUpdateClass,
+  onDeleteTeacher,
 }) => {
   const [activeTab, setActiveTab] = useState<'payroll' | 'list' | 'schedule'>('schedule');
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>(teachers[0]?.id || 'tch-1');
@@ -1213,6 +1215,21 @@ export const HRModule: React.FC<HRModuleProps> = ({
                         <Calculator className="w-3.5 h-3.5" />
                         <span>Xem bảng lương</span>
                       </button>
+
+                      {onDeleteTeacher && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Bạn có chắc chắn muốn xóa giáo viên "${tch.name}" khỏi hệ thống? Tất cả lớp phân công cho giáo viên này sẽ được chuyển giao.`)) {
+                              onDeleteTeacher(tch.id);
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 text-rose-600 hover:text-rose-800 font-bold hover:underline cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Xóa</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

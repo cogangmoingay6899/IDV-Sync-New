@@ -5211,23 +5211,6 @@ export const INITIAL_TEACHERS: Teacher[] = [
     "status": "Đang giảng dạy"
   },
   {
-    "id": "tch-vungan",
-    "code": "GV-IDV10",
-    "name": "Vũ Thị Ngần",
-    "type": "Việt Nam",
-    "nationality": "Việt Nam 🇻🇳",
-    "email": "vuthingan19990365161299@gmail.com",
-    "phone": "0910 234 567",
-    "specialty": "IELTS Foundation & Junior, Ngữ pháp & Phản xạ",
-    "degrees": "Cử nhân Sư phạm Tiếng Anh, TESOL Quốc tế",
-    "activeClassesCount": 2,
-    "salaryCalcType": "fixed_per_session",
-    "fixedRate": 500000,
-    "hourlyRate": 500000,
-    "rating": 4.90,
-    "status": "Đang giảng dạy"
-  },
-  {
     "id": "tch-vuthuy",
     "code": "GV-IDV12",
     "name": "Vũ Thùy",
