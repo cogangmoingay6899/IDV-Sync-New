@@ -271,25 +271,44 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
       targetTeacherId = targetTeacher.id;
     }
 
-    // 1. Resolve exact teacher who taught this session
-    const matchedTeacher = resolveTeacherFromSession(session.teacherName, session.classId, teachers, classes);
-    if (matchedTeacher) {
-      if (matchedTeacher.id === targetTeacherId) return true;
-      if (targetName && matchedTeacher.name.toLowerCase() === targetName.toLowerCase()) return true;
-      return false; // Matched another distinct teacher
+    const targetNorm = normalizeTeacherName(targetName);
+
+    // 1. Gather all individual teacher names in this session
+    const sessionTeacherParts: string[] = [];
+    if (session.teacherName) {
+      session.teacherName.split(/[,;&+]/).forEach(p => sessionTeacherParts.push(p.trim()));
     }
 
-    // 2. Direct name comparison if teacher object resolution was ambiguous
-    if (targetName && session.teacherName) {
-      const targetNorm = normalizeTeacherName(targetName);
-      const sessNorm = normalizeTeacherName(session.teacherName);
-      if (sessNorm === targetNorm || sessNorm.includes(targetNorm) || targetNorm.includes(sessNorm)) {
-        return true;
-      }
+    const normalizedSessionTeachers = sessionTeacherParts.map(p => normalizeTeacherName(p)).filter(Boolean);
+
+    // Check if the target teacher matches any normalized part
+    const matchesAny = normalizedSessionTeachers.some(part => {
+      if (part === targetNorm) return true;
+      
+      // Also match by specific aliases / exact parts
+      if (targetNorm === 'tam vuong' && (part === 'tam' || part === 'tam vuong' || part === 'vuong tam')) return true;
+      if (targetNorm === 'hoang minh tam' && (part === 'tam' || part === 'minh tam' || part === 'hoang tam' || part === 'hoang minh tam')) return true;
+      if (targetNorm === 'thom nguyen' && (part === 'thom' || part === 'thom nguyen')) return true;
+      if (targetNorm === 'trang nguyen' && (part === 'trang' || part === 'trang nguyen')) return true;
+      if (targetNorm === 'diep dang' && (part === 'diep' || part === 'diep dang')) return true;
+      if (targetNorm === 'duong vu' && (part === 'vu' || part === 'duong vu')) return true;
+      if (targetNorm === 'vu ngoc' && (part === 'ngoc' || part === 'vu ngoc')) return true;
+      if (targetNorm === 'huyen chi' && (part === 'chi' || part === 'huyen chi')) return true;
+      if (targetNorm === 'nguyen hai long' && (part === 'long' || part === 'hai long' || part === 'nguyen hai long')) return true;
+      if (targetNorm === 'vu thi ngan' && (part === 'ngan' || part === 'vu ngan' || part === 'vu thi ngan')) return true;
+      if (targetNorm === 'vu thuy' && (part === 'thuy' || part === 'vu thuy')) return true;
+      if (targetNorm === 'dam trung hieu' && (part === 'hieu' || part === 'trung hieu' || part === 'dam trung hieu')) return true;
+
+      // Generics
+      if (part.includes(targetNorm) && targetNorm.length >= 7) return true;
+      if (targetNorm.includes(part) && part.length >= 7) return true;
+
       return false;
-    }
+    });
 
-    // 3. Fallback ONLY if session has no teacher name at all
+    if (matchesAny) return true;
+
+    // 2. Fallback ONLY if session has no teacher name at all
     if (!session.teacherName && session.classId) {
       const cls = classes.find((c) => c.id === session.classId);
       if (cls) {
@@ -414,42 +433,89 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     });
 
     processedSessions.forEach((session) => {
-      // Find matching teacher profile using robust resolution
-      const matchedTeacher = resolveTeacherFromSession(session.teacherName, session.classId, teachers, classes);
-      const key = matchedTeacher ? matchedTeacher.id : session.teacherName;
-      const displayName = matchedTeacher ? matchedTeacher.name : session.teacherName;
-
-      if (!summaryMap.has(key)) {
-        summaryMap.set(key, {
-          teacherName: displayName,
-          teacherId: matchedTeacher ? matchedTeacher.id : null,
-          teacherProfile: matchedTeacher,
-          totalSessions: 0,
-          totalSalary: 0,
-          classesTaught: new Set<string>(),
-          classesBreakdown: {},
-          sessions: [],
-        });
+      // Find all individual teacher names mentioned in this session
+      const sessionTeacherParts: string[] = [];
+      if (session.teacherName) {
+        session.teacherName.split(/[,;&+]/).forEach(p => sessionTeacherParts.push(p.trim()));
       }
 
-      const summary = summaryMap.get(key)!;
-      summary.totalSessions += 1;
-      summary.classesTaught.add(session.classId);
-      summary.classesBreakdown[session.classId] = (summary.classesBreakdown[session.classId] || 0) + 1;
-      summary.sessions.push(session);
+      // Resolve each part to a Teacher object
+      const matchedTeachers: Teacher[] = [];
+      sessionTeacherParts.forEach(part => {
+        const matched = resolveTeacherFromSession(part, session.classId, teachers, classes);
+        if (matched && !matchedTeachers.some(t => t.id === matched.id)) {
+          matchedTeachers.push(matched);
+        }
+      });
 
-      // Calculate session salary
-      const cls = classes.find((c) => c.id === session.classId);
-      const level = cls?.courseLevel || 'Khóa 1';
-      const classStudents = students.filter((st) => st.classId === session.classId);
-      const rate = calculateTeacherSessionSalary(
-        matchedTeacher,
-        level,
-        session.studentTotalCount || 20,
-        session.sessionNumber,
-        classStudents
-      );
-      summary.totalSalary += rate;
+      // If no registered teacher matches, fallback to session.teacherName
+      if (matchedTeachers.length === 0) {
+        const key = session.teacherName || 'IELTS DƯƠNG VŨ';
+        if (!summaryMap.has(key)) {
+          summaryMap.set(key, {
+            teacherName: key,
+            teacherId: null,
+            teacherProfile: null,
+            totalSessions: 0,
+            totalSalary: 0,
+            classesTaught: new Set<string>(),
+            classesBreakdown: {},
+            sessions: [],
+          });
+        }
+        const summary = summaryMap.get(key)!;
+        summary.totalSessions += 1;
+        summary.classesTaught.add(session.classId);
+        summary.classesBreakdown[session.classId] = (summary.classesBreakdown[session.classId] || 0) + 1;
+        summary.sessions.push(session);
+
+        const cls = classes.find((c) => c.id === session.classId);
+        const level = cls?.courseLevel || 'Khóa 1';
+        const classStudents = students.filter((st) => st.classId === session.classId);
+        const rate = calculateTeacherSessionSalary(
+          null,
+          level,
+          session.studentTotalCount || 20,
+          session.sessionNumber,
+          classStudents
+        );
+        summary.totalSalary += rate;
+      } else {
+        // Attribute to each of the matched teachers
+        matchedTeachers.forEach(matchedTeacher => {
+          const key = matchedTeacher.id;
+          if (!summaryMap.has(key)) {
+            summaryMap.set(key, {
+              teacherName: matchedTeacher.name,
+              teacherId: matchedTeacher.id,
+              teacherProfile: matchedTeacher,
+              totalSessions: 0,
+              totalSalary: 0,
+              classesTaught: new Set<string>(),
+              classesBreakdown: {},
+              sessions: [],
+            });
+          }
+          const summary = summaryMap.get(key)!;
+          summary.totalSessions += 1;
+          summary.classesTaught.add(session.classId);
+          summary.classesBreakdown[session.classId] = (summary.classesBreakdown[session.classId] || 0) + 1;
+          summary.sessions.push(session);
+
+          // Calculate session salary
+          const cls = classes.find((c) => c.id === session.classId);
+          const level = cls?.courseLevel || 'Khóa 1';
+          const classStudents = students.filter((st) => st.classId === session.classId);
+          const rate = calculateTeacherSessionSalary(
+            matchedTeacher,
+            level,
+            session.studentTotalCount || 20,
+            session.sessionNumber,
+            classStudents
+          );
+          summary.totalSalary += rate;
+        });
+      }
     });
 
     const allSummaries = Array.from(summaryMap.values());

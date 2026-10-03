@@ -57,7 +57,7 @@ export const isClassAssignedToTeacher = (
   teachersList: Teacher[] = []
 ): boolean => {
   if (!c || !currentUser) return false;
-  if (currentUser.role === 'admin') return true;
+  if (currentUser.role === 'admin' || currentUser.role === 'assistant') return true;
 
   const userEmail = (currentUser.email || '').toLowerCase().trim();
   const userTeacherId = currentUser.teacherId;
@@ -72,9 +72,11 @@ export const isClassAssignedToTeacher = (
   const matchedTeacher = teachersList.find(
     (t) => (t.email && t.email.toLowerCase().trim() === userEmail) || (userTeacherId && t.id === userTeacherId)
   );
-  if (matchedTeacher?.id) {
-    if (c.teacherId === matchedTeacher.id) return true;
-    if (Array.isArray((c as any).teacherIds) && (c as any).teacherIds.includes(matchedTeacher.id)) return true;
+  const teacherId = matchedTeacher?.id || userTeacherId;
+
+  if (teacherId) {
+    if (c.teacherId === teacherId) return true;
+    if (Array.isArray((c as any).teacherIds) && (c as any).teacherIds.includes(teacherId)) return true;
   }
 
   // 3. Special check for Vu Thi Ngan / Ngan
@@ -92,84 +94,77 @@ export const isClassAssignedToTeacher = (
   }
 
   // 4. Gather candidate normalized names for the current user
-  const userCandidates = new Set<string>();
-  
+  const teacherNamesToMatch = new Set<string>();
   if (currentUser.name) {
-    const norm = normalizeTeacherName(currentUser.name);
-    if (norm) {
-      userCandidates.add(norm);
-      userCandidates.add(stripMiddleNames(norm));
-    }
+    teacherNamesToMatch.add(normalizeTeacherName(currentUser.name));
   }
   if (matchedTeacher?.name) {
-    const norm = normalizeTeacherName(matchedTeacher.name);
-    if (norm) {
-      userCandidates.add(norm);
-      userCandidates.add(stripMiddleNames(norm));
-    }
+    teacherNamesToMatch.add(normalizeTeacherName(matchedTeacher.name));
   }
 
-  // Expand with aliases
-  const expandedUserCandidates = new Set<string>(userCandidates);
-  for (const cand of userCandidates) {
-    for (const [key, variants] of Object.entries(KNOWN_ALIASES)) {
-      if (cand.includes(key) || key.includes(cand)) {
-        variants.forEach((v) => expandedUserCandidates.add(v));
-      }
-    }
+  // Expand with specific multi-word exact sub-names or aliases to prevent short letters (like "vu", "tam") from colliding
+  const userEmailLower = userEmail.toLowerCase();
+  if (userEmailLower.includes('tamvuong') || (matchedTeacher && matchedTeacher.name.includes('Tâm Vương'))) {
+    teacherNamesToMatch.add('tam vuong');
+    teacherNamesToMatch.add('vuong tam');
+  } else if (userEmailLower.includes('hoangminhtam') || (matchedTeacher && matchedTeacher.name.includes('Minh Tâm'))) {
+    teacherNamesToMatch.add('hoang minh tam');
+    teacherNamesToMatch.add('minh tam');
+    teacherNamesToMatch.add('hoang tam');
+  } else if (userEmailLower.includes('vuthingan') || (matchedTeacher && matchedTeacher.name.includes('Ngần'))) {
+    teacherNamesToMatch.add('vu thi ngan');
+    teacherNamesToMatch.add('vu ngan');
+  } else if (userEmailLower.includes('vuthuy') || userEmailLower.includes('ngan109441') || (matchedTeacher && matchedTeacher.name.includes('Thùy'))) {
+    teacherNamesToMatch.add('vu thuy');
+    teacherNamesToMatch.add('thuy');
+  } else if (userEmailLower.includes('damtrunghieu') || (matchedTeacher && matchedTeacher.name.includes('Trung Hiếu'))) {
+    teacherNamesToMatch.add('dam trung hieu');
+    teacherNamesToMatch.add('trung hieu');
+    teacherNamesToMatch.add('dam hieu');
+  } else if (userEmailLower.includes('vungoc') || (matchedTeacher && matchedTeacher.name.includes('Vũ Ngọc'))) {
+    teacherNamesToMatch.add('vu ngoc');
+    teacherNamesToMatch.add('ngoc');
+  } else if (userEmailLower.includes('dangdiep') || (matchedTeacher && matchedTeacher.name.includes('Diệp Đặng'))) {
+    teacherNamesToMatch.add('diep dang');
+    teacherNamesToMatch.add('diep');
+  } else if (userEmailLower.includes('thomthom') || (matchedTeacher && matchedTeacher.name.includes('Thơm Nguyễn'))) {
+    teacherNamesToMatch.add('thom nguyen');
+    teacherNamesToMatch.add('thom');
+  } else if (userEmailLower.includes('t.nguyen') || (matchedTeacher && matchedTeacher.name.includes('Trang Nguyễn'))) {
+    teacherNamesToMatch.add('trang nguyen');
+    teacherNamesToMatch.add('trang');
+  } else if (userEmailLower.includes('huyenchi') || (matchedTeacher && matchedTeacher.name.includes('Huyền Chi'))) {
+    teacherNamesToMatch.add('huyen chi');
+    teacherNamesToMatch.add('chi');
+  } else if (userEmailLower.includes('hailong') || (matchedTeacher && matchedTeacher.name.includes('Hải Long'))) {
+    teacherNamesToMatch.add('nguyen hai long');
+    teacherNamesToMatch.add('hai long');
   }
 
   // 5. Gather class teacher names
-  const classTeacherStrings: string[] = [];
-  if (c.teacherName) classTeacherStrings.push(c.teacherName);
-  if (c.assistantTeacherName) classTeacherStrings.push(c.assistantTeacherName);
+  const classTeacherParts: string[] = [];
+  if (c.teacherName) {
+    c.teacherName.split(/[,;&+]/).forEach(p => classTeacherParts.push(p.trim()));
+  }
+  if (c.assistantTeacherName) {
+    c.assistantTeacherName.split(/[,;&+]/).forEach(p => classTeacherParts.push(p.trim()));
+  }
   if (Array.isArray(c.teacherNames)) {
-    c.teacherNames.forEach((t) => {
-      if (t) classTeacherStrings.push(String(t));
+    c.teacherNames.forEach(t => {
+      if (t) classTeacherParts.push(String(t).trim());
     });
   }
 
-  // Split multi-teacher strings like "Vũ Thị Ngần, Đàm Trung Hiếu, Vũ Thùy"
-  const classTokens = new Set<string>();
-  for (const raw of classTeacherStrings) {
-    const parts = raw.split(/[,;&+]/).map((p) => p.trim());
-    for (const part of parts) {
-      const norm = normalizeTeacherName(part);
-      if (norm) {
-        classTokens.add(norm);
-        classTokens.add(stripMiddleNames(norm));
-      }
-    }
-    const fullNorm = normalizeTeacherName(raw);
-    if (fullNorm) {
-      classTokens.add(fullNorm);
-      classTokens.add(stripMiddleNames(fullNorm));
-    }
-  }
+  const normalizedClassTeacherParts = classTeacherParts.map(p => normalizeTeacherName(p)).filter(Boolean);
 
   // 6. Compare candidate names with class tokens
-  for (const uCand of expandedUserCandidates) {
-    if (uCand.length < 2) continue;
-
-    for (const cToken of classTokens) {
-      if (cToken.length < 2) continue;
-
-      // Exact match
-      if (uCand === cToken) return true;
-
-      // Bidirectional substring match
-      if (cToken.includes(uCand) || uCand.includes(cToken)) {
-        if (uCand.length >= 3 || cToken.length >= 3) {
-          return true;
-        }
-      }
-
-      // Alias matching on class token
-      for (const [key, variants] of Object.entries(KNOWN_ALIASES)) {
-        if (cToken.includes(key) || key.includes(cToken)) {
-          if (variants.includes(uCand)) return true;
-        }
-      }
+  for (const userCand of teacherNamesToMatch) {
+    if (userCand.length < 2) continue;
+    for (const classPart of normalizedClassTeacherParts) {
+      if (classPart === userCand) return true;
+      // Handle sub-name exact word match, e.g. "hoang minh tam" contains "minh tam"
+      if (classPart.includes(userCand) && userCand.length >= 7) return true;
+      if (userCand.includes(classPart) && classPart.length >= 7) return true;
     }
   }
 

@@ -790,6 +790,17 @@ export const CreateClassModal: React.FC<CreateClassModalProps> = ({
                     </button>
                   );
                 })}
+                {selectedTeachers.filter(name => !teachers.some(t => t.name === name)).map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => handleToggleTeacher(name)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                  >
+                    <Check className="w-3 h-3" />
+                    <span>{name} (Đã xóa khỏi hệ thống)</span>
+                  </button>
+                ))}
               </div>
             </div>
 

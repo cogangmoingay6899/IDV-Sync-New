@@ -1073,6 +1073,17 @@ export const EditClassModal: React.FC<EditClassModalProps> = ({
                           </button>
                         );
                       })}
+                      {selectedTeachers.filter(name => !teachers.some(t => t.name === name)).map((name) => (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => handleToggleTeacher(name)}
+                          className="px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1 bg-purple-700 text-white border-purple-700 shadow-2xs"
+                        >
+                          <Check className="w-3 h-3 text-white" />
+                          <span>{name} (Đã xóa khỏi hệ thống)</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
