@@ -15,6 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { ExamScore, ClassGroup, Student, AuthUser } from '../../types';
+import { isClassAssignedToTeacher } from '../../utils/teacherMatching';
 
 interface ExamsModuleProps {
   exams: ExamScore[];
@@ -35,31 +36,7 @@ export const ExamsModule: React.FC<ExamsModuleProps> = ({
 }) => {
   const isTeacher = currentUser?.role === 'teacher';
   const teacherFilteredClasses = isTeacher && currentUser
-    ? classes.filter((c) => {
-        if (!c) return false;
-        if (currentUser.teacherId && c.teacherId === currentUser.teacherId) return true;
-        const cleanName = (currentUser.name || '').toLowerCase().replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
-        const cTeacher = (c.teacherName || '').toLowerCase();
-        const cAssistant = (c.assistantTeacherName || '').toLowerCase();
-        const cTeachersList = (Array.isArray(c.teacherNames) ? c.teacherNames : []).map((t) => String(t).toLowerCase());
-
-        if (cleanName && (cTeacher.includes(cleanName) || cAssistant.includes(cleanName) || cTeachersList.some((tn) => tn.includes(cleanName)))) {
-          return true;
-        }
-
-        const normClean = cleanName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
-        const normCTeacher = cTeacher.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
-        if (normClean.length >= 2 && normCTeacher.includes(normClean)) {
-          return true;
-        }
-
-        if (cleanName.includes('ngần') || cleanName.includes('ngân') || cleanName.includes('ngan')) {
-          if (cTeacher.includes('ngần') || cTeacher.includes('ngân') || cTeacher.includes('ngan') || cTeachersList.some((tn) => tn.includes('ngần') || tn.includes('ngân') || tn.includes('ngan'))) {
-            return true;
-          }
-        }
-        return false;
-      })
+    ? classes.filter((c) => isClassAssignedToTeacher(c, currentUser))
     : classes;
 
   const availableClasses = teacherFilteredClasses;

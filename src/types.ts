@@ -297,6 +297,7 @@ export interface TrialStudent {
 export interface AttendanceRecord {
   id: string;
   classId: string;
+  className?: string;
   date: string;
   sessionNumber: number;
   studentId: string;
@@ -324,6 +325,7 @@ export interface AttendanceRecord {
   quizletStatus?: 'Đã học' | 'Chưa học';
   studentTotalCount?: number;
   studentPresentCount?: number;
+  createdAt?: string;
 }
 
 export interface TeachingSession {

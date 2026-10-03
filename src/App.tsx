@@ -36,6 +36,7 @@ import { SpeakingPracticeModule } from './components/modules/SpeakingPracticeMod
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { exportCenterDataToExcel } from './lib/excelExportService';
 import { syncAttendanceToClassSpreadsheet } from './lib/spreadsheetSyncService';
+import { isClassAssignedToTeacher } from './utils/teacherMatching';
 
 // Helper to check if URL is requesting the Online Placement Test Portal
 const isPlacementTestUrl = () => {
@@ -816,72 +817,7 @@ export default function App() {
 
   const effectiveClasses = useMemo(() => {
     if (isTeacher && currentUser) {
-      const rawName = (currentUser.name || '').toLowerCase().trim();
-      const cleanName = rawName.replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
-      const userEmail = (currentUser.email || '').toLowerCase().trim();
-      const teacherId = currentUser.teacherId;
-
-      // Find matched teacher profile in teachers state
-      const matchedTeacher = teachers.find((t) => {
-        if (!t) return false;
-        if (userEmail && t.email && t.email.toLowerCase().trim() === userEmail) return true;
-        if (teacherId && t.id === teacherId) return true;
-        const tCleanName = (t.name || '').toLowerCase().replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
-        if (cleanName && tCleanName && (cleanName === tCleanName || cleanName.includes(tCleanName) || tCleanName.includes(cleanName))) return true;
-        return false;
-      });
-
-      return classes.filter((c) => {
-        if (!c) return false;
-
-        // 1. Direct ID match
-        if (teacherId && c.teacherId === teacherId) return true;
-        if (matchedTeacher?.id && c.teacherId === matchedTeacher.id) return true;
-
-        const cTeacher = (c.teacherName || '').toLowerCase();
-        const cAssistant = (c.assistantTeacherName || '').toLowerCase();
-        const cTeachersList = (Array.isArray(c.teacherNames) ? c.teacherNames : []).map((t) => String(t).toLowerCase());
-
-        // Helper to check string match against class teacher fields
-        const matchesName = (targetName: string) => {
-          if (!targetName || targetName.length < 2) return false;
-
-          // Substring match
-          if (cTeacher.includes(targetName) || cAssistant.includes(targetName) || cTeachersList.some((tn) => tn.includes(targetName))) {
-            return true;
-          }
-
-          // Accent / Tone removal normalization
-          const normTarget = targetName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
-          const normCTeacher = cTeacher.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
-          const normCAssistant = cAssistant.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
-          const normCTeachersList = cTeachersList.map((tn) => tn.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'));
-
-          if (normTarget.length >= 2) {
-            if (normCTeacher.includes(normTarget) || normCAssistant.includes(normTarget) || normCTeachersList.some((tn) => tn.includes(normTarget))) {
-              return true;
-            }
-          }
-
-          // Special alias for Ngần / Ngân / ngan
-          if (targetName.includes('ngần') || targetName.includes('ngân') || targetName.includes('ngan')) {
-            if (cTeacher.includes('ngần') || cTeacher.includes('ngân') || cTeacher.includes('ngan') || cTeachersList.some((tn) => tn.includes('ngần') || tn.includes('ngân') || tn.includes('ngan'))) {
-              return true;
-            }
-          }
-
-          return false;
-        };
-
-        if (cleanName && matchesName(cleanName)) return true;
-        if (rawName && matchesName(rawName)) return true;
-        if (matchedTeacher?.name) {
-          const mtClean = matchedTeacher.name.toLowerCase().replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
-          if (matchesName(mtClean)) return true;
-        }
-
-        return false;
-      });
+      return classes.filter((c) => isClassAssignedToTeacher(c, currentUser, teachers));
     }
     return classes;
   }, [classes, currentUser, isTeacher, teachers]);

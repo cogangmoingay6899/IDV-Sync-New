@@ -38,6 +38,7 @@ import { AttendanceRecord, ClassGroup, Student, AuthUser, Teacher, ExamScore } f
 import { CreateTeacherModal } from '../modals/CreateTeacherModal';
 import { ClassScoreExportModal } from '../modals/ClassScoreExportModal';
 import { HomeworkConfigModal } from '../modals/HomeworkConfigModal';
+import { isClassAssignedToTeacher } from '../../utils/teacherMatching';
 import { formatDateVN } from '../../utils/courseSchedule';
 
 import { DEFAULT_PENALTY_BANK_STR } from '../../utils/paymentConfig';
@@ -106,31 +107,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({
   // If teacher, filter classes taught by the current teacher
   const isTeacher = currentUser?.role === 'teacher';
   const teacherFilteredClasses = isTeacher && currentUser
-    ? classes.filter((c) => {
-        if (!c) return false;
-        if (currentUser.teacherId && c.teacherId === currentUser.teacherId) return true;
-        const cleanName = (currentUser.name || '').toLowerCase().replace(/^(cô|thầy|gv|mr|ms|mrs)\s+/gi, '').trim();
-        const cTeacher = (c.teacherName || '').toLowerCase();
-        const cAssistant = (c.assistantTeacherName || '').toLowerCase();
-        const cTeachersList = (Array.isArray(c.teacherNames) ? c.teacherNames : []).map((t) => String(t).toLowerCase());
-
-        if (cleanName && (cTeacher.includes(cleanName) || cAssistant.includes(cleanName) || cTeachersList.some((tn) => tn.includes(cleanName)))) {
-          return true;
-        }
-
-        const normClean = cleanName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
-        const normCTeacher = cTeacher.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
-        if (normClean.length >= 2 && normCTeacher.includes(normClean)) {
-          return true;
-        }
-
-        if (cleanName.includes('ngần') || cleanName.includes('ngân') || cleanName.includes('ngan')) {
-          if (cTeacher.includes('ngần') || cTeacher.includes('ngân') || cTeacher.includes('ngan') || cTeachersList.some((tn) => tn.includes('ngần') || tn.includes('ngân') || tn.includes('ngan'))) {
-            return true;
-          }
-        }
-        return false;
-      })
+    ? classes.filter((c) => isClassAssignedToTeacher(c, currentUser, teachers))
     : classes;
 
   const availableClasses = teacherFilteredClasses;

@@ -5554,9 +5554,15 @@ const MasterSessionGridModal: React.FC<MasterSessionGridModalProps> = ({
                     <th className="py-2.5 px-3 border-r border-slate-300 text-center w-12 sticky left-0 bg-slate-200 z-20">STT</th>
                     <th className="py-2.5 px-4 border-r border-slate-300 text-left min-w-[180px] sticky left-12 bg-slate-200 z-20">Học viên</th>
                     {sortedSessions.map((sess) => (
-                      <th key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-300 text-center min-w-[110px]">
-                        <div className="font-black text-purple-900">Buổi {sess.sessionNumber}</div>
-                        <div className="text-[10px] text-slate-500 font-normal">{sess.date} • {sess.teacherName}</div>
+                      <th key={sess.sessionNumber} className="py-2.5 px-3 border-r border-slate-300 text-center min-w-[125px]">
+                        <div className="font-black text-purple-900 text-xs">Buổi {sess.sessionNumber}</div>
+                        <div
+                          className="mt-0.5 inline-block px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-extrabold max-w-[130px] truncate"
+                          title={sess.skillTaught || 'Kỹ năng kiểm tra'}
+                        >
+                          🎯 {sess.skillTaught || 'Kỹ năng kiểm tra'}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-normal mt-0.5">{sess.date} • {sess.teacherName}</div>
                       </th>
                     ))}
                   </tr>
@@ -5568,21 +5574,48 @@ const MasterSessionGridModal: React.FC<MasterSessionGridModalProps> = ({
                       <td className="py-2 px-4 border-r border-slate-200 font-bold text-slate-900 bg-white sticky left-12 z-10">{st.name}</td>
                       {sortedSessions.map((sess) => {
                         const rec = sess.records.find((r) => r.studentId === st.id || r.studentName?.toLowerCase() === st.name.toLowerCase());
+                        if (!rec) {
+                          return (
+                            <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center text-slate-400">
+                              -
+                            </td>
+                          );
+                        }
+
+                        if (rec.status?.includes('vắng') || rec.status?.includes('Nghỉ')) {
+                          return (
+                            <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center">
+                              <span className="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded-md">vắng</span>
+                            </td>
+                          );
+                        }
+
+                        // If multiple skill scores recorded, render all 2 or 3 skills
+                        if (rec.skillScores && Object.keys(rec.skillScores).length > 0) {
+                          return (
+                            <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center">
+                              <div className="flex flex-col gap-0.5 items-center justify-center">
+                                {Object.entries(rec.skillScores).map(([skill, sVal]) => (
+                                  <span key={skill} className="text-[10px] font-bold text-slate-800 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                    {skill}: <strong className="text-purple-700">{sVal}</strong>
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                          );
+                        }
+
                         let displayVal = '-';
                         let badgeBg = 'text-slate-400';
-                        if (rec) {
-                          if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
-                            displayVal = String(rec.score);
-                            const num = Number(rec.score);
-                            badgeBg = !isNaN(num) && num <= 5.5 ? 'text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-md' : 'text-emerald-800 font-bold';
-                          } else if (rec.status === 'Có mặt' || !rec.status) {
-                            displayVal = 'x';
-                            badgeBg = 'text-emerald-600 font-bold';
-                          } else if (rec.status?.includes('vắng') || rec.status?.includes('Nghỉ')) {
-                            displayVal = 'vắng';
-                            badgeBg = 'text-rose-600 font-bold';
-                          }
+                        if (rec.score !== undefined && rec.score !== null && rec.score !== '') {
+                          displayVal = String(rec.score);
+                          const num = Number(rec.score);
+                          badgeBg = !isNaN(num) && num <= 5.5 ? 'text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-md' : 'text-emerald-800 font-bold';
+                        } else if (rec.status === 'Có mặt' || !rec.status) {
+                          displayVal = 'x';
+                          badgeBg = 'text-emerald-600 font-bold';
                         }
+
                         return (
                           <td key={sess.sessionNumber} className="py-2 px-3 border-r border-slate-200 text-center">
                             <span className={badgeBg}>{displayVal}</span>

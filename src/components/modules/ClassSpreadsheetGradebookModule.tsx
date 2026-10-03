@@ -1009,16 +1009,21 @@ export const ClassSpreadsheetGradebookModule: React.FC<Props> = ({
                     key={col.id}
                     className="border border-slate-400 py-1.5 px-2 text-center font-black text-slate-900 bg-slate-200 min-w-[85px] sticky top-0 z-30"
                   >
-                    <div className="flex items-center justify-center gap-1">
-                      <span>{col.lessonLabel}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteColumn(col.id)}
-                        className="text-slate-400 hover:text-rose-600 transition-colors p-0.5 rounded-sm"
-                        title="Xóa cột buổi học này"
-                      >
-                        <Trash2 className="w-2.5 h-2.5" />
-                      </button>
+                    <div className="flex flex-col items-center justify-center gap-0.5">
+                      <div className="flex items-center justify-center gap-1">
+                        <span>{col.lessonLabel}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteColumn(col.id)}
+                          className="text-slate-400 hover:text-rose-600 transition-colors p-0.5 rounded-sm"
+                          title="Xóa cột buổi học này"
+                        >
+                          <Trash2 className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-800 uppercase tracking-tighter truncate max-w-[80px] bg-amber-100 px-1 rounded-sm border border-amber-200">
+                        {col.subSkill || 'Chưa rõ kỹ năng'}
+                      </span>
                     </div>
                   </th>
                 ))}

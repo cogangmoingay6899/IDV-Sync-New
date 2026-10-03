@@ -32,6 +32,7 @@ import {
 } from './TeacherScheduleAvailability';
 import { calculateTeacherSessionSalary, getTeacherDefaultSalaryConfig } from '../../utils/salaryCalculator';
 import { extractSessionsFromSpreadsheets } from '../../utils/spreadsheetSessionExtractor';
+import { isClassAssignedToTeacher, normalizeTeacherName } from '../../utils/teacherMatching';
 
 interface HRModuleProps {
   teachers: Teacher[];
@@ -211,26 +212,55 @@ export const HRModule: React.FC<HRModuleProps> = ({
     const targetM = parts.length >= 2 ? parseInt(parts[0], 10) : new Date().getMonth() + 1;
     const targetY = parts.length >= 2 ? parseInt(parts[1], 10) : new Date().getFullYear();
 
-    const teacherClasses = classes.filter(
-      (c) =>
-        c.teacherId === selectedTeacher.id ||
-        (selectedTeacher.name && (c.teacherName || '').toLowerCase().includes(selectedTeacher.name.toLowerCase())) ||
-        (Array.isArray(c.teacherNames) && c.teacherNames.some((tn) => tn.toLowerCase().includes(selectedTeacher.name.toLowerCase())))
+    const teacherClasses = classes.filter((c) =>
+      isClassAssignedToTeacher(
+        c,
+        {
+          id: selectedTeacher.id,
+          name: selectedTeacher.name,
+          email: selectedTeacher.email,
+          role: 'teacher',
+          teacherId: selectedTeacher.id,
+        },
+        teachers
+      )
     );
 
     const rows: TeacherPayrollRow[] = [];
     const calcType = selectedTeacher.salaryCalcType || getTeacherDefaultSalaryConfig(selectedTeacher.name).salaryCalcType || 'rate_per_student';
 
+    // Extract sessions directly from Live Class Spreadsheets + Attendance Records
     const spreadsheetRecords = extractSessionsFromSpreadsheets(classSpreadsheets, classes, teachers);
     const combinedRecords = [...attendanceRecords, ...spreadsheetRecords];
 
+    const tchNorm = normalizeTeacherName(selectedTeacher.name);
+    const coveredClassIds = new Set<string>();
+
     teacherClasses.forEach((cls) => {
+      coveredClassIds.add(cls.id);
+
       // Find actual attendance sessions for this class in targetM / targetY
       const classRecordsInMonth = combinedRecords.filter((r) => {
         if (!r || r.classId !== cls.id || !r.date) return false;
         const parsed = parseDateParts(r.date);
         if (!parsed) return false;
-        return parsed.month === targetM && parsed.year === targetY;
+        if (parsed.month !== targetM || parsed.year !== targetY) return false;
+
+        // If a specific teacher is recorded on this session, verify it belongs to selectedTeacher
+        if (r.teacherName) {
+          const recNorm = normalizeTeacherName(r.teacherName);
+          const isCurrent = recNorm.includes(tchNorm) || tchNorm.includes(recNorm);
+          if (!isCurrent) {
+            // Check if it specifically matches another distinct teacher
+            const belongsToOther = teachers.some((t) => {
+              if (t.id === selectedTeacher.id) return false;
+              const oNorm = normalizeTeacherName(t.name);
+              return oNorm.length >= 3 && (recNorm.includes(oNorm) || oNorm.includes(recNorm));
+            });
+            if (belongsToOther) return false;
+          }
+        }
+        return true;
       });
 
       // Unique session dates recorded in this month
@@ -265,7 +295,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
               studentCount: regularStudents.length,
               sessionCount,
               unitRate: rate,
-              note: 'Học viên chính thức (Đồng bộ)',
+              note: 'Học viên chính thức (Đồng bộ Sổ live)',
             });
           }
 
@@ -278,7 +308,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
               studentCount: retakeStudents.length,
               sessionCount,
               unitRate: rate,
-              note: `${names} học lại (Đồng bộ)`,
+              note: `${names} học lại (Đồng bộ Sổ live)`,
             });
           }
 
@@ -291,7 +321,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
               studentCount: newStudents.length,
               sessionCount,
               unitRate: rate,
-              note: `${names} thêm mới (Đồng bộ)`,
+              note: `${names} thêm mới (Đồng bộ Sổ live)`,
             });
           }
         } else {
@@ -316,7 +346,66 @@ export const HRModule: React.FC<HRModuleProps> = ({
           studentCount: studentCount,
           sessionCount,
           unitRate: sessionRate,
-          note: `Lương khoán tính theo buổi (${levelLabel})`,
+          note: `Lương khoán tính theo buổi (${levelLabel}) - Đồng bộ Sổ live`,
+        });
+      }
+    });
+
+    // Also pick up any extra sessions taught by this teacher for other classes (substitute teaching or live sheet)
+    const extraSessionsByClass = new Map<string, AttendanceRecord[]>();
+    combinedRecords.forEach((r) => {
+      if (!r || !r.date || !r.classId) return;
+      if (coveredClassIds.has(r.classId)) return;
+      const parsed = parseDateParts(r.date);
+      if (!parsed || parsed.month !== targetM || parsed.year !== targetY) return;
+
+      if (r.teacherName) {
+        const recNorm = normalizeTeacherName(r.teacherName);
+        if (recNorm.includes(tchNorm) || tchNorm.includes(recNorm)) {
+          if (!extraSessionsByClass.has(r.classId)) {
+            extraSessionsByClass.set(r.classId, []);
+          }
+          extraSessionsByClass.get(r.classId)!.push(r);
+        }
+      }
+    });
+
+    extraSessionsByClass.forEach((records, extraClassId) => {
+      const cls = classes.find((c) => c.id === extraClassId) || ({
+        id: extraClassId,
+        name: records[0]?.className || `Lớp ${extraClassId}`,
+        courseLevel: 'Khóa 1',
+        currentStudents: records[0]?.studentTotalCount || 15,
+      } as ClassGroup);
+
+      const uniqueDates = new Set(records.map((r) => r.date));
+      const sessionCount = uniqueDates.size;
+      if (sessionCount === 0) return;
+
+      const classStudentsList = students.filter(
+        (s) => (s.classId === cls.id || s.className === cls.name) && s.status === 'Đang học'
+      );
+      const studentCount = classStudentsList.length || cls.currentStudents || 15;
+
+      if (calcType === 'rate_per_student') {
+        const rate = selectedTeacher.rateRegularStudent || (selectedTeacher.type === 'Bản ngữ (Native)' ? 39000 : 36000);
+        rows.push({
+          id: `auto-${cls.id}-extra`,
+          className: cls.name,
+          studentCount,
+          sessionCount,
+          unitRate: rate,
+          note: 'Dạy buổi học bổ sung / Sổ live (Tự động)',
+        });
+      } else {
+        const sessionRate = calculateTeacherSessionSalary(selectedTeacher, cls.courseLevel, studentCount, undefined, classStudentsList);
+        rows.push({
+          id: `auto-${cls.id}-extra-session`,
+          className: cls.name,
+          studentCount,
+          sessionCount,
+          unitRate: sessionRate,
+          note: 'Dạy buổi học bổ sung / Sổ live (Tự động)',
         });
       }
     });

@@ -19,6 +19,7 @@ import {
 import { ClassGroup, Student, AttendanceRecord, Teacher, AuthUser } from '../../types';
 import { calculateTeacherSessionSalary } from '../../utils/salaryCalculator';
 import { extractSessionsFromSpreadsheets, parseDateParts } from '../../utils/spreadsheetSessionExtractor';
+import { isClassAssignedToTeacher, normalizeTeacherName } from '../../utils/teacherMatching';
 
 interface TeacherSessionsModuleProps {
   classes: ClassGroup[];
@@ -240,50 +241,57 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     // 1. If "Tất cả giáo viên" (all) is selected, include all sessions!
     if (id === 'all') return true;
 
-    // Normalization helper for accurate Vietnamese comparison
-    const normalize = (name: string) => name.toLowerCase().normalize('NFC').trim();
-    
     // Split names by common separators (comma, and, semicolon, plus)
     const splitNames = (fullName: string) => 
-      fullName.split(/[,;&+]/).map(n => normalize(n)).filter(n => n.length > 0);
+      fullName.split(/[,;&+]/).map(n => n.trim()).filter(n => n.length > 0);
 
     let targetName = '';
     let targetEmail = '';
+    let targetTeacherId = '';
 
     if (isTeacher && id === 'logged-in') {
       if (!loggedInTeacherName) return false;
       targetName = loggedInTeacherName;
       targetEmail = loggedInTeacherProfile?.email || '';
+      targetTeacherId = loggedInTeacherProfile?.id || '';
     } else {
       const targetTeacher = teachers.find((t) => t.id === id);
       if (!targetTeacher) return false;
       targetName = targetTeacher.name;
       targetEmail = targetTeacher.email || '';
+      targetTeacherId = targetTeacher.id;
     }
 
-    const normalizedTarget = normalize(targetName);
+    const targetNorm = normalizeTeacherName(targetName);
 
-    // 1. Check session teacher name
+    // 1. Check session teacher name with normalized name & alias matching
     const sessionTeacherParts = splitNames(session.teacherName);
-    const matchesTeacherName = sessionTeacherParts.some(part => 
-      part.includes(normalizedTarget) || normalizedTarget.includes(part)
-    );
-    const matchesEmail = targetEmail ? normalize(session.teacherName).includes(normalize(targetEmail)) : false;
+    const matchesTeacherName = sessionTeacherParts.some((part) => {
+      const pNorm = normalizeTeacherName(part);
+      if (pNorm === targetNorm) return true;
+      if (pNorm.includes(targetNorm) || targetNorm.includes(pNorm)) {
+        if (pNorm.length >= 3 || targetNorm.length >= 3) return true;
+      }
+      return false;
+    });
+
+    const matchesEmail = targetEmail && session.teacherName ? session.teacherName.toLowerCase().includes(targetEmail.toLowerCase()) : false;
 
     if (matchesTeacherName || matchesEmail) return true;
 
     // 2. Check if the class itself is assigned to this target teacher
-    const cls = classes.find(c => c.id === session.classId);
+    const cls = classes.find((c) => c.id === session.classId);
     if (cls) {
-      const classTeachers = [
-        cls.teacherName || '',
-        ...(Array.isArray(cls.teacherNames) ? cls.teacherNames : [])
-      ].join(', ');
-      const classTeacherParts = splitNames(classTeachers);
-      const matchesClassTeacher = classTeacherParts.some(part =>
-        part.includes(normalizedTarget) || normalizedTarget.includes(part)
-      );
-      if (matchesClassTeacher) return true;
+      const authUserLike = {
+        id: targetTeacherId,
+        name: targetName,
+        email: targetEmail,
+        role: 'teacher' as const,
+        teacherId: targetTeacherId,
+      };
+      if (isClassAssignedToTeacher(cls, authUserLike, teachers)) {
+        return true;
+      }
     }
 
     return false;
