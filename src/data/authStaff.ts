@@ -20,7 +20,6 @@ export const DEFAULT_DEPARTMENT_EMAILS: DepartmentEmails = {
   teachersKienAn: [
     'work.huyenchi@gmail.com',
     'nguyenhailong0507@gmail.com',
-    'vuthingan19990365161299@gmail.com',
     'damtrunghieu1803@gmail.com',
     'ngan109441@st.vimaru.edu.vn',
   ],
@@ -110,12 +109,6 @@ export const KNOWN_STAFF_PROFILES: Record<string, StaffProfile> = {
     specialty: 'IELTS Writing & Listening',
     branch: 'Cơ sở 2 - Kiến An (Hải Phòng)',
   },
-  'vuthingan19990365161299@gmail.com': {
-    name: 'Cô Vũ Thị Ngần',
-    title: 'Giáo viên IELTS (CS2 Kiến An)',
-    specialty: 'IELTS Foundation & Junior',
-    branch: 'Cơ sở 2 - Kiến An (Hải Phòng)',
-  },
   'damtrunghieu1803@gmail.com': {
     name: 'Thầy Đàm Trung Hiếu',
     title: 'Giáo viên IELTS (CS2 Kiến An)',
@@ -123,7 +116,7 @@ export const KNOWN_STAFF_PROFILES: Record<string, StaffProfile> = {
     branch: 'Cơ sở 2 - Kiến An (Hải Phòng)',
   },
   'ngan109441@st.vimaru.edu.vn': {
-    name: 'Vũ Thùy',
+    name: 'Cô Vũ Thùy',
     title: 'Giáo viên IELTS (CS2 Kiến An)',
     specialty: 'IELTS Foundation',
     branch: 'Cơ sở 2 - Kiến An (Hải Phòng)',
@@ -135,29 +128,15 @@ export const loadDepartmentEmails = (): DepartmentEmails => {
     const saved = localStorage.getItem('idv_department_emails');
     if (saved) {
       const parsed = JSON.parse(saved);
-      const kienAn: string[] = parsed.teachersKienAn && Array.isArray(parsed.teachersKienAn) && parsed.teachersKienAn.length
-        ? parsed.teachersKienAn
-        : [...DEFAULT_DEPARTMENT_EMAILS.teachersKienAn];
+      const kienAn: string[] = parsed.teachersKienAn && Array.isArray(parsed.teachersKienAn) ? parsed.teachersKienAn : [...DEFAULT_DEPARTMENT_EMAILS.teachersKienAn];
       
-      const requiredKienAn = ['damtrunghieu1803@gmail.com', 'vuthingan19990365161299@gmail.com', 'ngan109441@st.vimaru.edu.vn'];
-      let needsSave = false;
-      requiredKienAn.forEach((e) => {
-        if (!kienAn.some((existing) => existing.toLowerCase() === e.toLowerCase())) {
-          kienAn.push(e);
-          needsSave = true;
-        }
-      });
-
       const updatedObj: DepartmentEmails = {
-        admins: parsed.admins && Array.isArray(parsed.admins) && parsed.admins.length ? parsed.admins : DEFAULT_DEPARTMENT_EMAILS.admins,
-        assistants: parsed.assistants && Array.isArray(parsed.assistants) && parsed.assistants.length ? parsed.assistants : DEFAULT_DEPARTMENT_EMAILS.assistants,
-        teachersToHieu: parsed.teachersToHieu && Array.isArray(parsed.teachersToHieu) && parsed.teachersToHieu.length ? parsed.teachersToHieu : DEFAULT_DEPARTMENT_EMAILS.teachersToHieu,
+        admins: parsed.admins && Array.isArray(parsed.admins) ? parsed.admins : DEFAULT_DEPARTMENT_EMAILS.admins,
+        assistants: parsed.assistants && Array.isArray(parsed.assistants) ? parsed.assistants : DEFAULT_DEPARTMENT_EMAILS.assistants,
+        teachersToHieu: parsed.teachersToHieu && Array.isArray(parsed.teachersToHieu) ? parsed.teachersToHieu : DEFAULT_DEPARTMENT_EMAILS.teachersToHieu,
         teachersKienAn: kienAn,
       };
 
-      if (needsSave) {
-        saveDepartmentEmails(updatedObj);
-      }
       return updatedObj;
     }
   } catch (e) {
