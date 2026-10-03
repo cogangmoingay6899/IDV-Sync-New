@@ -17,8 +17,8 @@ export const normalizeTeacherName = (name: string): string => {
 };
 
 const KNOWN_ALIASES: Record<string, string[]> = {
-  'hoang minh tam': ['hoang minh tam', 'minh tam', 'hoang tam', 'tam'],
-  'minh tam': ['hoang minh tam', 'minh tam', 'hoang tam', 'tam'],
+  'hoang minh tam': ['hoang minh tam', 'minh tam', 'hoang tam', 'tam', 'hmt'],
+  'minh tam': ['hoang minh tam', 'minh tam', 'hoang tam', 'tam', 'hmt'],
   'dam trung hieu': ['dam trung hieu', 'dam hieu', 'trung hieu', 'hieu'],
   'dam hieu': ['dam trung hieu', 'dam hieu', 'trung hieu', 'hieu'],
   'trung hieu': ['dam trung hieu', 'dam hieu', 'trung hieu', 'hieu'],
@@ -93,6 +93,20 @@ export const isClassAssignedToTeacher = (
     }
   }
 
+  // 3b. Special check for Hoang Minh Tam
+  const isUserMinhTam = 
+    userEmail.includes('hoangminhtam') ||
+    userEmail.includes('minhtam') ||
+    (currentUser.name && (normalizeTeacherName(currentUser.name).includes('minh tam') || currentUser.name.toLowerCase().includes('minh tâm')));
+
+  if (isUserMinhTam) {
+    if (c.teacherId === 'tch-minhtam') return true;
+    const rawClassT = (c.teacherName || '') + ' ' + (Array.isArray(c.teacherNames) ? c.teacherNames.join(' ') : '');
+    if (rawClassT.toLowerCase().includes('minh tâm') || rawClassT.toLowerCase().includes('hoàng minh tâm') || rawClassT.toLowerCase().includes('minh tam')) {
+      return true;
+    }
+  }
+
   // 4. Gather candidate normalized names for the current user
   const teacherNamesToMatch = new Set<string>();
   if (currentUser.name) {
@@ -111,12 +125,15 @@ export const isClassAssignedToTeacher = (
   } else if (
     userEmailLower.includes('hoangminhtam') ||
     userEmailLower.includes('minhtam') ||
+    userEmailLower.includes('hoangtam') ||
     (matchedTeacher && (matchedTeacher.name.includes('Minh Tâm') || matchedTeacher.name.includes('Hoàng Minh Tâm'))) ||
     (currentUser.name && (currentUser.name.includes('Minh Tâm') || currentUser.name.includes('Hoàng Minh Tâm')))
   ) {
     teacherNamesToMatch.add('hoang minh tam');
     teacherNamesToMatch.add('minh tam');
     teacherNamesToMatch.add('hoang tam');
+    teacherNamesToMatch.add('tam');
+    teacherNamesToMatch.add('hmt');
   } else if (userEmailLower.includes('vuthingan') || (matchedTeacher && matchedTeacher.name.includes('Ngần'))) {
     teacherNamesToMatch.add('vu thi ngan');
     teacherNamesToMatch.add('vu ngan');

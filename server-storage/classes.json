@@ -1,5 +1,35 @@
 [
   {
+    "id": "cls-1791016557730",
+    "code": "IDV-L68",
+    "name": "Lớp 68",
+    "courseId": "crs-pre",
+    "courseName": "LUYỆN ĐỀ DRILL",
+    "courseLevel": "Khóa 4",
+    "currentTermName": "Khóa 4",
+    "branch": "Cơ sở 2 - Kiến An (Hải Phòng)",
+    "teacherId": "tch-vuthuy",
+    "teacherName": "Vũ Thùy, Đàm Trung Hiếu",
+    "teacherNames": [
+      "Vũ Thùy",
+      "Đàm Trung Hiếu"
+    ],
+    "room": "Phòng 3 - Tầng 3",
+    "schedule": "Thứ 2 + Thứ 5 (Ca 1: 18:00 - 19:45)",
+    "startDate": "2026-09-17",
+    "endDate": "2027-01-07",
+    "totalSessions": 32,
+    "completedSessions": 3,
+    "maxStudents": 16,
+    "currentStudents": 16,
+    "tuitionFee": 1600000,
+    "status": "Đang diễn ra",
+    "offDates": [
+      "2026-09-24",
+      "2026-09-17"
+    ]
+  },
+  {
     "id": "cls-1789995110040",
     "totalSessions": 32,
     "studentCount": 16,
@@ -761,6 +791,7 @@
     "startDate": "2026-07-14",
     "studentTotalCount": 22,
     "name": "Lớp 84",
+    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)",
     "tuitionFee": 5000000,
     "schedule": "Thứ 4 + Thứ 7 (Ca 1: 18:00 - 19:45)",
     "offDates": [
@@ -968,7 +999,7 @@
       "2026-08-25"
     ],
     "name": "Lớp 93",
-    "currentStudents": 22
+    "currentStudents": 19
   },
   {
     "id": "cls-1790394280379",
@@ -1014,17 +1045,16 @@
     "offDates": [],
     "currentStudents": 20,
     "completedSessions": 4,
-    "teacherName": "Chưa phân công, Tâm Vương, Thơm Nguyễn",
+    "teacherName": "Tâm Vương, Thơm Nguyễn",
     "status": "Đang diễn ra",
     "courseId": "crs-pre",
     "totalSessions": 32,
     "teacherNames": [
-      "Chưa phân công",
       "Tâm Vương",
       "Thơm Nguyễn"
     ],
     "maxStudents": 22,
-    "teacherId": "t-multi",
+    "teacherId": "tch-tamvuong",
     "studentCount": 22,
     "courseLevel": "Khóa 1",
     "room": "2",
@@ -1141,54 +1171,6 @@
       "2026-07-04",
       "2026-07-08",
       "2026-07-11"
-    ]
-  },
-  {
-    "id": "meta_deleted_ids",
-    "updatedAt": "2026-09-28T09:47:20.494Z",
-    "deletedIds": [
-      "cls-29",
-      "cls-41",
-      "cls-50",
-      "cls-58",
-      "cls-59",
-      "cls-61",
-      "cls-63",
-      "cls-64",
-      "cls-65",
-      "cls-66",
-      "cls-67",
-      "cls-68",
-      "cls-69",
-      "cls-70",
-      "cls-71",
-      "cls-72",
-      "cls-73",
-      "cls-74",
-      "cls-75",
-      "cls-76",
-      "cls-77",
-      "cls-78",
-      "cls-79",
-      "cls-80",
-      "cls-81",
-      "cls-82",
-      "cls-83",
-      "cls-84",
-      "cls-85",
-      "cls-86",
-      "cls-87",
-      "cls-88",
-      "cls-89",
-      "cls-90",
-      "cls-91",
-      "cls-92",
-      "cls-93",
-      "cls-94",
-      "cls-1790394575191",
-      "cls-1790001971742",
-      "cls-1790151030912",
-      "cls-1790002180971"
     ]
   }
 ]
