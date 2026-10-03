@@ -139,7 +139,7 @@ export const loadDepartmentEmails = (): DepartmentEmails => {
         ? parsed.teachersKienAn
         : [...DEFAULT_DEPARTMENT_EMAILS.teachersKienAn];
       
-      const requiredKienAn = ['damtrunghieu1803@gmail.com', 'vuthingan19990365161299@gmail.com'];
+      const requiredKienAn = ['damtrunghieu1803@gmail.com', 'vuthingan19990365161299@gmail.com', 'ngan109441@st.vimaru.edu.vn'];
       let needsSave = false;
       requiredKienAn.forEach((e) => {
         if (!kienAn.some((existing) => existing.toLowerCase() === e.toLowerCase())) {

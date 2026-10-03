@@ -107,7 +107,12 @@ export const isClassAssignedToTeacher = (
   if (userEmailLower.includes('tamvuong') || (matchedTeacher && matchedTeacher.name.includes('Tâm Vương'))) {
     teacherNamesToMatch.add('tam vuong');
     teacherNamesToMatch.add('vuong tam');
-  } else if (userEmailLower.includes('hoangminhtam') || (matchedTeacher && matchedTeacher.name.includes('Minh Tâm'))) {
+  } else if (
+    userEmailLower.includes('hoangminhtam') ||
+    userEmailLower.includes('minhtam') ||
+    (matchedTeacher && (matchedTeacher.name.includes('Minh Tâm') || matchedTeacher.name.includes('Hoàng Minh Tâm'))) ||
+    (currentUser.name && (currentUser.name.includes('Minh Tâm') || currentUser.name.includes('Hoàng Minh Tâm')))
+  ) {
     teacherNamesToMatch.add('hoang minh tam');
     teacherNamesToMatch.add('minh tam');
     teacherNamesToMatch.add('hoang tam');
