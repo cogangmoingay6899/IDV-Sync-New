@@ -1222,16 +1222,52 @@ export default function App() {
 
   // Handler: Update Student
   const handleUpdateStudent = (updatedStudent: Student) => {
-    setStudents((prev) => prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s)));
-    saveDocument('students', updatedStudent);
+    setStudents((prev) => {
+      const existing = prev.find((s) => s.id === updatedStudent.id);
+      // Safeguard: Preserve existing classId and className if updatedStudent didn't explicitly specify or had an empty/undefined field
+      const finalStudent: Student = {
+        ...existing,
+        ...updatedStudent,
+        classId: (updatedStudent.classId !== undefined && updatedStudent.classId !== '') 
+          ? updatedStudent.classId 
+          : (existing?.classId || updatedStudent.classId || ''),
+        className: (updatedStudent.className !== undefined && updatedStudent.className !== '') 
+          ? updatedStudent.className 
+          : (existing?.className || updatedStudent.className || ''),
+        status: updatedStudent.status || existing?.status || 'Đang học',
+      };
+      saveDocument('students', finalStudent);
+      return prev.map((s) => (s.id === updatedStudent.id ? finalStudent : s));
+    });
   };
 
   const handleUpdateStudentBatch = (updatedStudents: Student[]) => {
     setStudents((prev) => {
-      const updatedMap = new Map(updatedStudents.map((s) => [s.id, s]));
+      const existingMap = new Map<string, Student>(prev.map((s) => [s.id, s]));
+      const finalUpdatedList: Student[] = [];
+
+      const updatedMap = new Map<string, Student>(
+        updatedStudents.map((incoming) => {
+          const existing = existingMap.get(incoming.id);
+          const finalStudent: Student = {
+            ...(existing || {}),
+            ...incoming,
+            classId: (incoming.classId !== undefined && incoming.classId !== '') 
+              ? incoming.classId 
+              : (existing?.classId || incoming.classId || ''),
+            className: (incoming.className !== undefined && incoming.className !== '') 
+              ? incoming.className 
+              : (existing?.className || incoming.className || ''),
+            status: incoming.status || existing?.status || 'Đang học',
+          };
+          finalUpdatedList.push(finalStudent);
+          return [finalStudent.id, finalStudent];
+        })
+      );
+
+      saveBatchDocuments('students', finalUpdatedList);
       return prev.map((s) => updatedMap.get(s.id) || s);
     });
-    updatedStudents.forEach((s) => saveDocument('students', s));
   };
 
   const handleUpdateCourse = (updatedCourse: CurriculumCourse) => {

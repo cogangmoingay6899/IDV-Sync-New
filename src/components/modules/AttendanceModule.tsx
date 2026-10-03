@@ -173,7 +173,19 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({
   }, [availableClasses, selectedClassId]);
 
   const selectedClass = availableClasses.find((c) => c.id === selectedClassId) || classes.find((c) => c.id === selectedClassId);
-  const classStudents = students.filter((s) => s.classId === selectedClassId && s.status !== 'Đã nghỉ học');
+  const classStudents = students.filter((s) => {
+    if (!s) return false;
+    if (s.status === 'Đã nghỉ học' || s.status === 'Đã thôi học') return false;
+    return (
+      s.classId === selectedClassId ||
+      (selectedClass && (
+        s.classId === selectedClass.name ||
+        s.classId === selectedClass.code ||
+        (s.className && (s.className.trim().toLowerCase() === selectedClass.name.trim().toLowerCase() || s.className === selectedClass.code)) ||
+        (Array.isArray((s as any).classIds) && ((s as any).classIds.includes(selectedClass.id) || (s as any).classIds.includes(selectedClass.name)))
+      ))
+    );
+  });
 
   // Auto set teacher name when class changes or user is teacher
   useEffect(() => {

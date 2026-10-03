@@ -492,10 +492,18 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
     waitingNote: `Chờ xếp khóa sau (${classGroup.courseName})`,
   });
 
-  // Students currently active in this class
-  const classStudents = allStudents.filter(
-    (s) => s.classId === classGroup.id && s.status !== 'Đã nghỉ học'
-  );
+  // Students currently active in this class (robust ID, name and code matching)
+  const classStudents = allStudents.filter((s) => {
+    if (!s) return false;
+    if (s.status === 'Đã nghỉ học' || s.status === 'Đã thôi học') return false;
+    return (
+      s.classId === classGroup.id ||
+      s.classId === classGroup.name ||
+      s.classId === classGroup.code ||
+      (s.className && (s.className.trim().toLowerCase() === classGroup.name.trim().toLowerCase() || s.className === classGroup.code)) ||
+      (Array.isArray((s as any).classIds) && ((s as any).classIds.includes(classGroup.id) || (s as any).classIds.includes(classGroup.name)))
+    );
+  });
 
   // Overdue tuition count for this class (promise date exceeded by 1+ days)
   const overdueClassStudentsCount = classStudents.filter((st) => {

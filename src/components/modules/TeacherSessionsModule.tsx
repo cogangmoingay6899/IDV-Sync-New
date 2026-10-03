@@ -14,12 +14,17 @@ import {
   Clock,
   MapPin,
   Sparkles,
-  DollarSign
+  DollarSign,
+  FileText,
+  Calculator,
+  Printer,
+  Share2
 } from 'lucide-react';
 import { ClassGroup, Student, AttendanceRecord, Teacher, AuthUser } from '../../types';
 import { calculateTeacherSessionSalary } from '../../utils/salaryCalculator';
 import { extractSessionsFromSpreadsheets, parseDateParts } from '../../utils/spreadsheetSessionExtractor';
 import { isClassAssignedToTeacher, normalizeTeacherName, resolveTeacherFromSession } from '../../utils/teacherMatching';
+import { TeacherSalaryReportModal } from '../modals/TeacherSalaryReportModal';
 
 interface TeacherSessionsModuleProps {
   classes: ClassGroup[];
@@ -84,6 +89,8 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>(
     isTeacherView ? loggedInTeacherProfile?.id || 'logged-in' : 'all'
   );
+
+  const [isSalaryReportModalOpen, setIsSalaryReportModalOpen] = useState<boolean>(false);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -527,25 +534,36 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
             </div>
           </div>
 
-          {/* Month/Year Scroller */}
-          <div className="flex items-center gap-2 self-start md:self-auto bg-slate-50 border border-slate-200 p-1 rounded-2xl">
+          {/* Month/Year Scroller & Report Button */}
+          <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
             <button
-              onClick={handlePrevMonth}
-              className="p-1.5 hover:bg-white hover:text-purple-700 hover:shadow-xs rounded-xl text-slate-600 transition-all cursor-pointer"
-              title="Tháng trước"
+              onClick={() => setIsSalaryReportModalOpen(true)}
+              className="px-3.5 py-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-bold text-xs rounded-2xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
+              title="Mở bảng báo cáo chi tiết lương giáo viên dựa trên dữ liệu buổi dạy đã chấm điểm"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <Calculator className="w-4 h-4 text-purple-200" />
+              <span>Báo Cáo Chi Tiết Lương</span>
             </button>
-            <div className="px-3 py-1 font-bold text-xs text-slate-800 tracking-wide min-w-[120px] text-center">
-              Tháng {selectedMonth} / {selectedYear}
+
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 p-1 rounded-2xl">
+              <button
+                onClick={handlePrevMonth}
+                className="p-1.5 hover:bg-white hover:text-purple-700 hover:shadow-xs rounded-xl text-slate-600 transition-all cursor-pointer"
+                title="Tháng trước"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <div className="px-3 py-1 font-bold text-xs text-slate-800 tracking-wide min-w-[120px] text-center">
+                Tháng {selectedMonth} / {selectedYear}
+              </div>
+              <button
+                onClick={handleNextMonth}
+                className="p-1.5 hover:bg-white hover:text-purple-700 hover:shadow-xs rounded-xl text-slate-600 transition-all cursor-pointer"
+                title="Tháng sau"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={handleNextMonth}
-              className="p-1.5 hover:bg-white hover:text-purple-700 hover:shadow-xs rounded-xl text-slate-600 transition-all cursor-pointer"
-              title="Tháng sau"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
         </div>
 
@@ -796,23 +814,39 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                           )}
                         </td>
                         <td className="py-4 px-4 text-center">
-                          <button
-                            onClick={() => {
-                              const tId = summary.teacherId || summary.teacherName;
-                              if (selectedTeacherId === tId) {
-                                setSelectedTeacherId('all');
-                              } else {
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => {
+                                const tId = summary.teacherId || summary.teacherName;
+                                if (selectedTeacherId === tId) {
+                                  setSelectedTeacherId('all');
+                                } else {
+                                  setSelectedTeacherId(tId);
+                                }
+                              }}
+                              className={`text-[10px] font-black px-2 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs ${
+                                isSelected
+                                  ? 'bg-purple-700 text-white shadow-xs'
+                                  : 'text-purple-700 hover:text-white bg-purple-50 hover:bg-purple-700 border border-purple-200'
+                              }`}
+                              title="Lọc bảng nhật ký bên dưới theo giáo viên này"
+                            >
+                              {isSelected ? 'Đang lọc' : 'Xem ca dạy'}
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                const tId = summary.teacherId || summary.teacherName;
                                 setSelectedTeacherId(tId);
-                              }
-                            }}
-                            className={`text-[10px] font-black px-2.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs ${
-                              isSelected
-                                ? 'bg-purple-700 text-white shadow-xs'
-                                : 'text-purple-700 hover:text-white bg-purple-50 hover:bg-purple-700 border border-purple-200'
-                            }`}
-                          >
-                            {isSelected ? 'Đang lọc xem' : 'Xem buổi & lương'}
-                          </button>
+                                setIsSalaryReportModalOpen(true);
+                              }}
+                              className="text-[10px] font-black px-2.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs text-emerald-800 hover:text-white bg-emerald-50 hover:bg-emerald-700 border border-emerald-300 flex items-center gap-1"
+                              title="Mở bảng báo cáo chi tiết lương và buổi dạy của giáo viên này"
+                            >
+                              <Calculator className="w-3 h-3" />
+                              <span>Chi tiết lương</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -851,14 +885,25 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                   : `Hiển thị toàn bộ các buổi học live phát sinh trong Tháng ${selectedMonth}/${selectedYear} kèm mức lương từng ca`}
               </p>
             </div>
-            {selectedTeacherId !== 'all' && !isTeacherView && (
+            <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
               <button
-                onClick={() => setSelectedTeacherId('all')}
-                className="text-[11px] font-black text-slate-600 hover:text-purple-700 border border-slate-200 hover:border-purple-300 bg-white px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs self-start sm:self-auto"
+                onClick={() => setIsSalaryReportModalOpen(true)}
+                className="text-[11px] font-black text-purple-700 hover:text-white bg-purple-50 hover:bg-purple-700 border border-purple-200 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
+                title="Mở bảng báo cáo tổng hợp chi tiết lương và xuất file/in ấn"
               >
-                ← Xem toàn bộ buổi dạy của tất cả GV
+                <Calculator className="w-3.5 h-3.5 text-purple-600" />
+                <span>Báo Cáo Chi Tiết Lương & In Phiếu</span>
               </button>
-            )}
+
+              {selectedTeacherId !== 'all' && !isTeacherView && (
+                <button
+                  onClick={() => setSelectedTeacherId('all')}
+                  className="text-[11px] font-black text-slate-600 hover:text-purple-700 border border-slate-200 hover:border-purple-300 bg-white px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs"
+                >
+                  ← Xem tất cả GV
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -965,10 +1010,47 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                   </tr>
                 )}
               </tbody>
+              {filteredSessions.length > 0 && (
+                <tfoot className="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-200 text-xs">
+                  <tr>
+                    <td colSpan={4} className="py-3.5 px-5 text-left font-black">
+                      TỔNG CỘNG ({filteredSessions.length} CA DẠY):
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-bold text-purple-900">
+                      {filteredSessions.length} buổi
+                    </td>
+                    <td className="py-3.5 px-4"></td>
+                    <td className="py-3.5 px-4 text-center font-bold text-slate-800">
+                      {filteredSessions.reduce((sum, s) => sum + (s.studentTotalCount || 0), 0)} lượt HV
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-black text-emerald-800 font-mono text-sm">
+                      {selectedTeacherId === 'all'
+                        ? `${totalGlobalPayroll.toLocaleString('vi-VN')} đ`
+                        : `${estimatedPayroll.toLocaleString('vi-VN')} đ`}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
         </div>
       </div>
+
+      {/* MODAL: Báo Cáo Chi Tiết Lương Giáo Viên */}
+      {isSalaryReportModalOpen && (
+        <TeacherSalaryReportModal
+          isOpen={isSalaryReportModalOpen}
+          onClose={() => setIsSalaryReportModalOpen(false)}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          selectedTeacherId={selectedTeacherId}
+          onSelectTeacherId={setSelectedTeacherId}
+          teachers={teachers}
+          classes={classes}
+          students={students}
+          allSessions={processedSessions}
+        />
+      )}
     </div>
   );
 };
