@@ -104,9 +104,10 @@ export const isClassAssignedToTeacher = (
 
   // Expand with specific multi-word exact sub-names or aliases to prevent short letters (like "vu", "tam") from colliding
   const userEmailLower = userEmail.toLowerCase();
-  if (userEmailLower.includes('tamvuong') || (matchedTeacher && matchedTeacher.name.includes('Tâm Vương'))) {
+  if (userEmailLower.includes('tamvuong') || (matchedTeacher && matchedTeacher.name.includes('Tâm Vương')) || (currentUser.name && currentUser.name.includes('Tâm Vương'))) {
     teacherNamesToMatch.add('tam vuong');
     teacherNamesToMatch.add('vuong tam');
+    teacherNamesToMatch.add('tam');
   } else if (
     userEmailLower.includes('hoangminhtam') ||
     userEmailLower.includes('minhtam') ||

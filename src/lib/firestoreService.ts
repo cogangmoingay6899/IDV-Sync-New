@@ -39,29 +39,23 @@ const KNOWN_DEFAULT_DELETED_IDS = [
 // Global in-memory set of deleted IDs synced across all devices and storage backends
 export const globalDeletedIdsSet = new Set<string>(KNOWN_DEFAULT_DELETED_IDS);
 
-// Load any previously remembered deleted IDs from localStorage
+// Clean up any previously remembered deleted IDs from localStorage to prevent "missing class" bugs
 try {
   if (typeof window !== 'undefined') {
-    const rawGlobal = localStorage.getItem('idv_global_deleted_ids');
-    if (rawGlobal) {
-      const parsed = JSON.parse(rawGlobal);
-      if (Array.isArray(parsed)) parsed.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
-    }
-    const rawClasses = localStorage.getItem('idv_deleted_class_ids');
-    if (rawClasses) {
-      const parsed = JSON.parse(rawClasses);
-      if (Array.isArray(parsed)) parsed.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
-    }
-    const rawPlacement = localStorage.getItem('idv_deleted_placement_test_ids');
-    if (rawPlacement) {
-      const parsed = JSON.parse(rawPlacement);
-      if (Array.isArray(parsed)) parsed.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
-    }
-    const rawStudents = localStorage.getItem('idv_deleted_student_ids');
-    if (rawStudents) {
-      const parsed = JSON.parse(rawStudents);
-      if (Array.isArray(parsed)) parsed.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
-    }
+    localStorage.removeItem('idv_global_deleted_ids');
+    localStorage.removeItem('idv_deleted_class_ids');
+    localStorage.removeItem('idv_deleted_placement_test_ids');
+    localStorage.removeItem('idv_deleted_student_ids');
+    
+    // Also fetch the true deleted list from server immediately
+    fetch('/api/deleted-ids')
+      .then(res => res.json())
+      .then(json => {
+        if (json.success && Array.isArray(json.deletedIds)) {
+          json.deletedIds.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
+        }
+      })
+      .catch(() => {});
   }
 } catch (e) {}
 
