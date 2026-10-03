@@ -46,6 +46,7 @@ try {
     localStorage.removeItem('idv_deleted_class_ids');
     localStorage.removeItem('idv_deleted_placement_test_ids');
     localStorage.removeItem('idv_deleted_student_ids');
+    localStorage.removeItem('idv_department_emails');
     
     // Also fetch the true deleted list from server immediately
     fetch('/api/deleted-ids')
