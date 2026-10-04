@@ -140,6 +140,8 @@ export interface ClassGroup {
   completedSessions: number;
   maxStudents: number;
   currentStudents: number;
+  studentCount?: number;
+  studentTotalCount?: number;
   tuitionFee?: number;
   currentTerm?: number; // e.g. 1, 2, 3, 4, 5...
   currentTermName?: string; // e.g. "Khóa 1", "Khóa 2"...

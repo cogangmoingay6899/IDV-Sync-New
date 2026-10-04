@@ -471,7 +471,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
 
         const cls = classes.find((c) => c.id === session.classId);
         const level = cls?.courseLevel || 'Khóa 1';
-        const classStudents = students.filter((st) => st.classId === session.classId);
+        const classStudents = students.filter((st) => st.classId === session.classId || (cls && st.className && st.className.trim().toLowerCase() === cls.name.trim().toLowerCase()));
         const rate = calculateTeacherSessionSalary(
           null,
           level,
@@ -505,7 +505,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
           // Calculate session salary
           const cls = classes.find((c) => c.id === session.classId);
           const level = cls?.courseLevel || 'Khóa 1';
-          const classStudents = students.filter((st) => st.classId === session.classId);
+          const classStudents = students.filter((st) => st.classId === session.classId || (cls && st.className && st.className.trim().toLowerCase() === cls.name.trim().toLowerCase()));
           const rate = calculateTeacherSessionSalary(
             matchedTeacher,
             level,
@@ -561,7 +561,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
     return filteredSessions.reduce((sum, session) => {
       const cls = classes.find((c) => c.id === session.classId);
       const level = cls?.courseLevel || 'Khóa 1';
-      const classStudents = students.filter((st) => st.classId === session.classId);
+      const classStudents = students.filter((st) => st.classId === session.classId || (cls && st.className && st.className.trim().toLowerCase() === cls.name.trim().toLowerCase()));
       const rate = calculateTeacherSessionSalary(activeTeacher, level, session.studentTotalCount || 20, session.sessionNumber, classStudents);
       return sum + rate;
     }, 0);
@@ -991,7 +991,7 @@ export const TeacherSessionsModule: React.FC<TeacherSessionsModuleProps> = ({
                   const sessionCls = classes.find((c) => c.id === sess.classId);
                   const level = sessionCls?.courseLevel || 'Khóa 1';
                   const matchedTeacher = resolveTeacherFromSession(sess.teacherName, sess.classId, teachers, classes) || activeTeacher;
-                  const classStudents = students.filter((st) => st.classId === sess.classId);
+                  const classStudents = students.filter((st) => st.classId === sess.classId || (sessionCls && st.className && st.className.trim().toLowerCase() === sessionCls.name.trim().toLowerCase()));
                   const sessionSalary = matchedTeacher
                     ? calculateTeacherSessionSalary(
                         matchedTeacher,

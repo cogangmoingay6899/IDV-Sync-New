@@ -309,7 +309,18 @@ export default function App() {
   }, []);
 
   // Primary Business Entities State (Clean default empty data)
-  const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS);
+  const [students, setStudents] = useState<Student[]>(() => {
+    try {
+      const cached = localStorage.getItem('vps_col_students');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((s) => !isRecordDeleted(s.id, 'students'));
+        }
+      }
+    } catch (e) {}
+    return INITIAL_STUDENTS;
+  });
   const [classes, setClasses] = useState<ClassGroup[]>(() => {
     try {
       const deletedIds: string[] = JSON.parse(localStorage.getItem('idv_deleted_class_ids') || '[]');
@@ -317,14 +328,25 @@ export default function App() {
       const cached = localStorage.getItem('vps_col_classes');
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed.filter((c) => !setDeleted.has(c.id));
         }
       }
     } catch (e) {}
     return INITIAL_CLASSES;
   });
-  const [teachers, setTeachers] = useState<Teacher[]>(INITIAL_TEACHERS);
+  const [teachers, setTeachers] = useState<Teacher[]>(() => {
+    try {
+      const cached = localStorage.getItem('vps_col_teachers');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((t) => !isRecordDeleted(t.id, 'teachers'));
+        }
+      }
+    } catch (e) {}
+    return INITIAL_TEACHERS;
+  });
   const [classSpreadsheets, setClassSpreadsheets] = useState<any[]>([]);
   const [leads, setLeads] = useState<LeadAdmission[]>(INITIAL_LEADS);
   const [placementTests, setPlacementTests] = useState<PlacementTest[]>(() => {
@@ -377,27 +399,30 @@ export default function App() {
   // Real-time Cloud Database (Firebase Firestore) Sync across all devices
   useEffect(() => {
     const unsubStudents = subscribeCollection('students', INITIAL_STUDENTS, (items) => {
-      setStudents(items.filter((s) => !isRecordDeleted(s.id, 'students')));
+      const validItems = Array.isArray(items) && items.length > 0 ? items : INITIAL_STUDENTS;
+      setStudents(validItems.filter((s) => !isRecordDeleted(s.id, 'students')));
       // Ensure initial students are synced to server if missing
-      const serverIds = new Set(items.map(t => t.id));
+      const serverIds = new Set(validItems.map(t => t.id));
       const missing = INITIAL_STUDENTS.filter(t => !serverIds.has(t.id));
       if (missing.length > 0) {
         saveBatchDocuments('students', missing).catch(() => {});
       }
     });
     const unsubClasses = subscribeCollection('classes', INITIAL_CLASSES, (items) => {
-      setClasses(items.filter((c) => !isRecordDeleted(c.id, 'classes')));
+      const validItems = Array.isArray(items) && items.length > 0 ? items : INITIAL_CLASSES;
+      setClasses(validItems.filter((c) => !isRecordDeleted(c.id, 'classes')));
       // Ensure initial classes are synced to server if missing
-      const serverIds = new Set(items.map(t => t.id));
+      const serverIds = new Set(validItems.map(t => t.id));
       const missing = INITIAL_CLASSES.filter(t => !serverIds.has(t.id));
       if (missing.length > 0) {
         saveBatchDocuments('classes', missing).catch(() => {});
       }
     });
     const unsubTeachers = subscribeCollection('teachers', INITIAL_TEACHERS, (data) => {
-      setTeachers(data);
+      const validTeachers = Array.isArray(data) && data.length > 0 ? data : INITIAL_TEACHERS;
+      setTeachers(validTeachers);
       // Ensure initial teachers are synced to server if missing
-      const serverIds = new Set(data.map(t => t.id));
+      const serverIds = new Set(validTeachers.map(t => t.id));
       const missing = INITIAL_TEACHERS.filter(t => !serverIds.has(t.id));
       if (missing.length > 0) {
         saveBatchDocuments('teachers', missing).catch(() => {});

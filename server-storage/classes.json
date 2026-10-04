@@ -1,35 +1,5 @@
 [
   {
-    "id": "cls-1791016557730",
-    "code": "IDV-L68",
-    "name": "Lớp 68",
-    "courseId": "crs-pre",
-    "courseName": "LUYỆN ĐỀ DRILL",
-    "courseLevel": "Khóa 4",
-    "currentTermName": "Khóa 4",
-    "branch": "Cơ sở 2 - Kiến An (Hải Phòng)",
-    "teacherId": "tch-vuthuy",
-    "teacherName": "Vũ Thùy, Đàm Trung Hiếu",
-    "teacherNames": [
-      "Vũ Thùy",
-      "Đàm Trung Hiếu"
-    ],
-    "room": "Phòng 3 - Tầng 3",
-    "schedule": "Thứ 2 + Thứ 5 (Ca 1: 18:00 - 19:45)",
-    "startDate": "2026-09-17",
-    "endDate": "2027-01-07",
-    "totalSessions": 32,
-    "completedSessions": 3,
-    "maxStudents": 16,
-    "currentStudents": 16,
-    "tuitionFee": 1600000,
-    "status": "Đang diễn ra",
-    "offDates": [
-      "2026-09-24",
-      "2026-09-17"
-    ]
-  },
-  {
     "id": "cls-1789995110040",
     "totalSessions": 32,
     "studentCount": 16,
@@ -449,13 +419,13 @@
     "courseLevel": "Khóa 4",
     "currentTermName": "Khóa 4",
     "name": "Lớp 68",
-    "teacherName": "Đàm Trung Hiếu, Vũ Thùy",
+    "teacherName": "Cô Vũ Thùy, Đàm Trung Hiếu",
     "studentCount": 15,
     "teacherId": "tch-vuthuy",
     "code": "IDV-L68",
     "teacherNames": [
-      "Đàm Trung Hiếu",
-      "Vũ Thùy"
+      "Cô Vũ Thùy",
+      "Đàm Trung Hiếu"
     ],
     "status": "Đang diễn ra",
     "offDates": [
@@ -791,7 +761,6 @@
     "startDate": "2026-07-14",
     "studentTotalCount": 22,
     "name": "Lớp 84",
-    "branch": "Cơ sở 1 - Tô Hiệu (Hải Phòng)",
     "tuitionFee": 5000000,
     "schedule": "Thứ 4 + Thứ 7 (Ca 1: 18:00 - 19:45)",
     "offDates": [

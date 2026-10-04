@@ -100,24 +100,12 @@ export async function syncCloudDeletedRecords(): Promise<void> {
     if (res.ok) {
       const json = await res.json();
       if (json.success && Array.isArray(json.deletedIds)) {
+        globalDeletedIdsSet.clear();
+        KNOWN_DEFAULT_DELETED_IDS.forEach(id => globalDeletedIdsSet.add(id));
         json.deletedIds.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
       }
     }
   } catch (e) {}
-
-  // 2. Fetch from Firestore metadata documents for classes, placementTests, students
-  const collectionsWithMeta = ['classes', 'placementTests', 'students'];
-  for (const col of collectionsWithMeta) {
-    try {
-      const metaSnap = await getDoc(doc(db, col, 'meta_deleted_ids'));
-      if (metaSnap.exists()) {
-        const data = metaSnap.data();
-        if (Array.isArray(data?.deletedIds)) {
-          data.deletedIds.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
-        }
-      }
-    } catch (e) {}
-  }
 
   // Persist updated deleted set to localStorage
   try {
@@ -248,7 +236,7 @@ export function subscribeCollection<T extends { id: string }>(
     const cached = localStorage.getItem(`vps_col_${collectionName}`);
     if (cached) {
       const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         initialItems = parsed.filter((c: any) => !isRecordDeleted(c.id, collectionName));
       }
     }
@@ -349,6 +337,9 @@ async function fetchFromVPSServer<T extends { id: string }>(
     if (res.ok) {
       const result = await res.json();
       let serverItems: T[] = Array.isArray(result.data) ? result.data : [];
+      if (serverItems.length === 0 && initialData && initialData.length > 0) {
+        serverItems = initialData.filter((i) => !isRecordDeleted(i.id, collectionName));
+      }
       
       // Always notify subscribers, even if empty, so auto-sync can trigger if needed
       cachedCollections.set(collectionName, serverItems);
@@ -659,8 +650,6 @@ export async function deleteDocument(collectionName: string, id: string): Promis
   try {
     const docRef = doc(db, collectionName, stringId);
     deleteDoc(docRef).catch(() => {});
-    const metaRef = doc(db, collectionName, 'meta_deleted_ids');
-    setDoc(metaRef, { deletedIds: Array.from(globalDeletedIdsSet), updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
   } catch (err) {}
 
   // 7. If placement test, also send DELETE to dedicated placement-tests endpoint

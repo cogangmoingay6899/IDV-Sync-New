@@ -271,12 +271,20 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
     [Dt, Zt] = y.useState(!1),
     Ot = !isNhungPhan && (!Q || Q.role === "admin" || Q.role === "assistant" || E),
     qt = n.filter((B) => {
-      const fe =
+      const selectedCls = t.find((c) => c.id === Ee),
+        fe =
           B.name.toLowerCase().includes(W.toLowerCase()) ||
           B.code.toLowerCase().includes(W.toLowerCase()) ||
           B.phone.includes(W) ||
           B.parentName.toLowerCase().includes(W.toLowerCase()),
-        xe = Ee === "all" || B.classId === Ee,
+        xe =
+          Ee === "all" ||
+          B.classId === Ee ||
+          (selectedCls && (
+            B.classId === selectedCls.name ||
+            B.classId === selectedCls.code ||
+            (B.className && (B.className.trim().toLowerCase() === selectedCls.name.trim().toLowerCase() || B.className === selectedCls.code))
+          )),
         Ze = X === "all" || B.status === X;
       return fe && xe && Ze;
     }),
@@ -740,7 +748,18 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                             (B.completedSessions / (B.totalSessions || 48)) *
                               100,
                           ),
-                          xe = n.filter((ct) => ct.classId === B.id).length,
+                          matchingStudents = n.filter((ct) => {
+                            if (!ct) return false;
+                            if (ct.status === 'Đã nghỉ học' || ct.status === 'Đã thôi học') return false;
+                            return (
+                              ct.classId === B.id ||
+                              ct.classId === B.name ||
+                              ct.classId === B.code ||
+                              (ct.className && (ct.className.trim().toLowerCase() === B.name.trim().toLowerCase() || ct.className.trim().toLowerCase() === (B.code || '').toLowerCase())) ||
+                              (Array.isArray(ct.classIds) && (ct.classIds.includes(B.id) || ct.classIds.includes(B.name)))
+                            );
+                          }),
+                          xe = matchingStudents.length > 0 ? matchingStudents.length : (B.currentStudents || B.studentCount || B.studentTotalCount || 0),
                           Ze = hf(B);
                         return e.jsxs(
                           "div",
