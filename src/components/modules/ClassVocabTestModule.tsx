@@ -917,7 +917,34 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
               ? (reviewTests.length > 0 ? reviewTests : INITIAL_REVIEW_TESTS)
               : (tests.length > 0 ? tests : INITIAL_VOCAB_TESTS);
             const found = pool.find((t) => t.id === targetId || t.id.toLowerCase() === clean) || pool[0];
-            return found || null;
+            return found || {
+              id: targetId,
+              title: `Bài Kiểm Tra Từ Vựng - ${targetId}`,
+              courseLevel: 'Khóa 1',
+              unitName: 'Tổng hợp',
+              timePerQuestionSeconds: 20,
+              questions: [
+                {
+                  id: 'q-fall-1',
+                  word: 'Slope',
+                  meaning: 'Dốc, độ dốc',
+                  options: ['Dốc, độ dốc', 'Bằng phẳng', 'Cao tầng', 'Rộng lớn'],
+                  correctOptionIndex: 0,
+                  questionType: 'multiple_choice',
+                  timeLimitSeconds: 15
+                },
+                {
+                  id: 'q-fall-2',
+                  word: 'Decline',
+                  meaning: 'Sự suy giảm, giảm sút',
+                  options: ['Tăng trưởng', 'Sự suy giảm, giảm sút', 'Ổn định', 'Phát triển'],
+                  correctOptionIndex: 1,
+                  questionType: 'multiple_choice',
+                  timeLimitSeconds: 15
+                }
+              ],
+              submissions: []
+            };
           });
         }
       }
