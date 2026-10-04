@@ -663,11 +663,11 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                         e.jsxs(
                           "button",
                           {
+                            key: `btn-quick-cls-${B}`,
                             onClick: () => we(B),
                             className: `px-2 py-0.5 rounded-md font-semibold text-[11px] shrink-0 transition-colors ${ne === B ? "bg-purple-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`,
                             children: ["Lớp ", B],
                           },
-                          B,
                         ),
                       ),
                     ],
@@ -764,6 +764,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                         return e.jsxs(
                           "div",
                           {
+                            key: `class-card-${B.id || B.code || B.name}`,
                             onClick: () => P(B),
                             className:
                               "bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs hover:border-purple-400 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group",
@@ -925,6 +926,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                               e.jsxs(
                                                 "span",
                                                 {
+                                                  key: `tch-badge-${Vt}-${ct}`,
                                                   className:
                                                     "inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-900 border border-indigo-200/80 rounded-md text-[11px] font-bold",
                                                   children: [
@@ -937,7 +939,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                                     }),
                                                   ],
                                                 },
-                                                Vt,
                                               ),
                                             ),
                                           }),
@@ -1164,7 +1165,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                               }),
                             ],
                           },
-                          B.id,
                         );
                       }),
                       gs.length === 0 &&
@@ -1281,6 +1281,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                               e.jsxs(
                                 "div",
                                 {
+                                  key: `std-quick-item-${B.id}`,
                                   className:
                                     "pt-2 pb-1 hover:bg-purple-50/50 rounded-xl px-2 transition-colors flex items-center justify-between gap-2 text-xs group",
                                   children: [
@@ -1420,7 +1421,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                     }),
                                   ],
                                 },
-                                B.id,
                               ),
                             ),
                             Bs.length === 0 &&
@@ -1525,6 +1525,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                 e.jsxs(
                                   "div",
                                   {
+                                    key: `drop-std-item-${B.id}`,
                                     className:
                                       "pt-2 pb-1 hover:bg-rose-50/40 rounded-xl px-2 transition-colors flex items-center justify-between gap-2 text-xs group",
                                     children: [
@@ -1611,7 +1612,6 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                         }),
                                     ],
                                   },
-                                  B.id,
                                 ),
                               ),
                             n.filter(
@@ -1690,8 +1690,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                 t.map((B) =>
                                   e.jsx(
                                     "option",
-                                    { value: B.id, children: B.name },
-                                    B.id,
+                                    { key: `opt-class-${B.id}`, value: B.id, children: B.name }
                                   ),
                                 ),
                               ],
@@ -1799,6 +1798,7 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                                 return e.jsxs(
                                   "tr",
                                   {
+                                    key: `table-student-row-${B.id}`,
                                     className:
                                       "hover:bg-slate-50/70 transition-colors",
                                     children: [

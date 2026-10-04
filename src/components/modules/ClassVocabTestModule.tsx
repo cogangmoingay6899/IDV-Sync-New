@@ -347,46 +347,30 @@ export const isSameStudentClass = (
   if (!subOrClassName) return false;
 
   let subClassName = '';
-  let subClassId = '';
   if (typeof subOrClassName === 'string') {
     subClassName = subOrClassName;
   } else {
     subClassName = subOrClassName.className || '';
-    subClassId = subOrClassName.classId || '';
   }
 
-  const s = subClassName.trim().toLowerCase();
-  const t = targetClassName.trim().toLowerCase();
+  const s = (subClassName || '').trim().toLowerCase();
+  const t = (targetClassName || '').trim().toLowerCase();
 
+  if (!s || !t) return false;
   if (s === t) return true;
 
-  // Direct match with ID
-  if (subClassId && (subClassId.toLowerCase() === t || subClassId === targetClassName)) return true;
+  const norm = (str: string) => str.replace(/[^a-z0-9]/g, '').trim();
+  const sNorm = norm(s);
+  const tNorm = norm(t);
 
-  // Resolve target class from classesList if target is an ID or name
-  const matchedTargetClass = classesList.find(
-    (c) => c.id === targetClassName || c.name.toLowerCase() === t
-  );
-  if (matchedTargetClass) {
-    if (subClassId && subClassId === matchedTargetClass.id) return true;
-    if (s === matchedTargetClass.name.toLowerCase()) return true;
-    const targetDigits = matchedTargetClass.name.match(/\d+/)?.[0];
-    const sDigits = s.match(/\d+/)?.[0];
-    if (targetDigits && sDigits && targetDigits === sDigits) return true;
-  }
+  if (sNorm && tNorm && sNorm === tNorm) return true;
 
-  // Match digits (e.g., '89' === 'Lớp 89')
-  const sNum = s.match(/\d+/)?.[0];
-  const tNum = t.match(/\d+/)?.[0];
-  if (sNum && tNum && sNum === tNum) return true;
+  // Match digits (e.g. '88' === 'Lớp 88' === '88-IELTS')
+  const sDigits = (s.match(/\d+/) || [])[0];
+  const tDigits = (t.match(/\d+/) || [])[0];
+  if (sDigits && tDigits && sDigits === tDigits) return true;
 
-  // Strip common prefixes
-  const normS = s.replace(/^(lớp|class|ielts)\s+/gi, '').trim();
-  const normT = t.replace(/^(lớp|class|ielts)\s+/gi, '').trim();
-  if (normS && normT && normS === normT) return true;
-  if (normS && normT && (normS.includes(normT) || normT.includes(normS))) return true;
-
-  return false;
+  return s.includes(t) || t.includes(s) || sNorm.includes(tNorm) || tNorm.includes(sNorm);
 };
 
 // Helper to strip lesson topic names or obsolete course titles and filter out mock students
@@ -3196,18 +3180,11 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                     <input
                       type="text"
                       required
-                      list="class-suggestions-list"
                       placeholder="Ví dụ: 88, 89"
                       value={runnerClassName}
                       onChange={(e) => setRunnerClassName(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 sm:p-2.5 text-xs sm:text-sm font-bold focus:ring-2 focus:ring-purple-500/20"
                     />
-                    <datalist id="class-suggestions-list">
-                      {classes.map((c) => (
-                        <option key={c.id} value={c.name} />
-                      ))}
-                      {classGroup && <option value={classGroup.name} />}
-                    </datalist>
                     <p className="text-[9.5px] text-slate-400 mt-0.5">
                       Nhập số lớp để tự động đồng bộ kết quả vào điểm danh buổi học.
                     </p>
