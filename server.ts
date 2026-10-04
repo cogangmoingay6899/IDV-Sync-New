@@ -160,6 +160,31 @@ async function startServer() {
     });
   });
 
+  // --- TRIGGER BACKUP & EXCEL EXPORT ---
+  app.post('/api/admin/backup-now', async (req, res) => {
+    try {
+      const { exec } = await import('child_process');
+      exec('node scripts/export_to_google_drive.js', (err, stdout) => {
+        if (err) {
+          console.error('[Backup Error]:', err);
+          return res.status(500).json({ success: false, error: err.message });
+        }
+        res.json({ success: true, message: 'Đã xuất file Excel và đồng bộ Google Drive thành công!', log: stdout });
+      });
+    } catch (e: any) {
+      res.status(500).json({ success: false, error: e?.message });
+    }
+  });
+
+  app.get('/api/admin/download-latest-excel', (req, res) => {
+    const latestFile = path.join(process.cwd(), 'backups', 'IELTS_DUONGVU_LATEST_BACKUP.xlsx');
+    if (fs.existsSync(latestFile)) {
+      res.download(latestFile, `IELTS_DUONGVU_FULL_BACKUP_${new Date().toISOString().split('T')[0]}.xlsx`);
+    } else {
+      res.status(404).json({ error: 'Chưa có file backup gần nhất. Vui lòng bấm sao lưu ngay.' });
+    }
+  });
+
   // --- REAL-TIME SSE ENDPOINT ---
   app.get('/api/storage/events', (req, res) => {
     res.writeHead(200, {

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "cbn-1",
+    "studentId": "st-59-1",
+    "studentName": "Vũ Thị Minh Hạnh",
+    "classId": "cls-59",
+    "className": "Lớp 59 - IELTS Pre-Intermediate 5.0",
+    "date": "2026-05-18",
+    "lessonTopic": "Unit 5: Environmental Issues - Reading & Vocabulary",
+    "attitude": "Hăng hái, tập trung",
+    "homeworkStatus": "Hoàn thành 100%",
+    "quizletStatus": "Đã học",
+    "teacherFeedback": "Em phát âm rõ ràng, hoàn thành 100% list từ vựng Quizlet và làm bài đọc đạt 34/40 câu (Band 7.5). Cần duy trì phong độ!",
+    "sentVia": "Zalo & App Phụ Huynh",
+    "parentAcknowledged": true
+  },
+  {
+    "id": "cbn-2",
+    "studentId": "st-59-2",
+    "studentName": "Trần Đức Minh",
+    "classId": "cls-59",
+    "className": "Lớp 59 - IELTS Pre-Intermediate 5.0",
+    "date": "2026-05-18",
+    "lessonTopic": "Unit 5: Environmental Issues - Reading & Vocabulary",
+    "attitude": "Khá tốt",
+    "homeworkStatus": "Hoàn thành một phần",
+    "quizletStatus": "Chưa học",
+    "teacherFeedback": "Em chưa học từ vựng Quizlet bài 5 và còn thiếu 1 bài tập đọc về nhà. Đề nghị phụ huynh nhắc nhở con ôn từ vựng trước buổi học tới.",
+    "sentVia": "Zalo & App Phụ Huynh",
+    "parentAcknowledged": false
+  }
+]
