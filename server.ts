@@ -34,10 +34,22 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-  // Storage directory on VPS filesystem
-  const dataDir = path.join(process.cwd(), 'server-storage');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  // Storage directory on VPS filesystem with read-only fallback to /tmp
+  let dataDir = path.join(process.cwd(), 'server-storage');
+  try {
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    const testFilePath = path.join(dataDir, '.write_test');
+    fs.writeFileSync(testFilePath, 'test');
+    fs.unlinkSync(testFilePath);
+  } catch (e) {
+    dataDir = path.join('/tmp', 'server-storage');
+    if (!fs.existsSync(dataDir)) {
+      try {
+        fs.mkdirSync(dataDir, { recursive: true });
+      } catch (err) {}
+    }
   }
 
   // File path for tracking deleted IDs across all devices
