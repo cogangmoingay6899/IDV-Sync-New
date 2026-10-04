@@ -419,9 +419,11 @@ async function startServer() {
       const existingMap = new Map<string, any>();
       existing.forEach((e) => existingMap.set(String(e.id), e));
 
+      const delSet = getDeletedIds();
       items.forEach((item) => {
         if (item && item.id !== undefined && item.id !== null) {
           const stringId = String(item.id);
+          if (delSet.has(stringId)) return; // Do not resurrect items deleted on any device
           const current = existingMap.get(stringId) || {};
           existingMap.set(stringId, { ...current, ...item });
         }

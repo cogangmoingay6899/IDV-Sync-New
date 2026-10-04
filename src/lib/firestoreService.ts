@@ -39,22 +39,47 @@ const KNOWN_DEFAULT_DELETED_IDS = [
 // Global in-memory set of deleted IDs synced across all devices and storage backends
 export const globalDeletedIdsSet = new Set<string>(KNOWN_DEFAULT_DELETED_IDS);
 
-// Clean up any previously remembered deleted IDs from localStorage to prevent "missing class" bugs
+// Fetch the true deleted list from server immediately and keep in sync across all browsers
 try {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('idv_global_deleted_ids');
-    localStorage.removeItem('idv_deleted_class_ids');
-    localStorage.removeItem('idv_deleted_placement_test_ids');
-    localStorage.removeItem('idv_deleted_student_ids');
-    localStorage.removeItem('idv_department_emails');
-    localStorage.removeItem('vps_col_teachers');
-    
-    // Also fetch the true deleted list from server immediately
+    // Load local deleted IDs if stored
+    const localDeleted = localStorage.getItem('idv_global_deleted_ids');
+    if (localDeleted) {
+      try {
+        const parsed = JSON.parse(localDeleted);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
+        }
+      } catch (e) {}
+    }
+
     fetch('/api/deleted-ids')
-      .then(res => res.json())
-      .then(json => {
+      .then((res) => res.json())
+      .then((json) => {
         if (json.success && Array.isArray(json.deletedIds)) {
           json.deletedIds.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
+          try {
+            localStorage.setItem('idv_global_deleted_ids', JSON.stringify(Array.from(globalDeletedIdsSet)));
+          } catch (e) {}
+
+          // Re-filter all active cached collections and notify listeners
+          for (const [colName, items] of cachedCollections.entries()) {
+            const clean = items.filter((item) => !isRecordDeleted(item.id, colName));
+            if (clean.length !== items.length) {
+              cachedCollections.set(colName, clean);
+              try {
+                localStorage.setItem(`vps_col_${colName}`, JSON.stringify(clean));
+              } catch (e) {}
+              const listeners = activeListeners.get(colName);
+              if (listeners) {
+                listeners.forEach((cb) => {
+                  try {
+                    cb(clean);
+                  } catch (e) {}
+                });
+              }
+            }
+          }
         }
       })
       .catch(() => {});
@@ -828,11 +853,11 @@ export async function addSubmissionToTest(
     // 3. Secondary Background Replication to Firestore (non-blocking, never fails the user UI)
     try {
       const docRef = doc(db, collectionName, String(testId));
-      await updateDoc(docRef, {
+      updateDoc(docRef, {
         submissions: arrayUnion(cleanSub),
         updatedAt: new Date().toISOString(),
       }).catch(async () => {
-        await setDoc(docRef, updatedTest, { merge: true });
+        await setDoc(docRef, updatedTest, { merge: true }).catch(() => {});
       });
     } catch (firestoreErr) {
       // Background Firestore replica warning (does not disrupt user experience)

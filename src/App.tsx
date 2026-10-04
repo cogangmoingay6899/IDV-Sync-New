@@ -401,32 +401,14 @@ export default function App() {
     const unsubStudents = subscribeCollection('students', INITIAL_STUDENTS, (items) => {
       const validItems = Array.isArray(items) && items.length > 0 ? items : INITIAL_STUDENTS;
       setStudents(validItems.filter((s) => !isRecordDeleted(s.id, 'students')));
-      // Ensure initial students are synced to server if missing
-      const serverIds = new Set(validItems.map(t => t.id));
-      const missing = INITIAL_STUDENTS.filter(t => !serverIds.has(t.id));
-      if (missing.length > 0) {
-        saveBatchDocuments('students', missing).catch(() => {});
-      }
     });
     const unsubClasses = subscribeCollection('classes', INITIAL_CLASSES, (items) => {
       const validItems = Array.isArray(items) && items.length > 0 ? items : INITIAL_CLASSES;
       setClasses(validItems.filter((c) => !isRecordDeleted(c.id, 'classes')));
-      // Ensure initial classes are synced to server if missing
-      const serverIds = new Set(validItems.map(t => t.id));
-      const missing = INITIAL_CLASSES.filter(t => !serverIds.has(t.id));
-      if (missing.length > 0) {
-        saveBatchDocuments('classes', missing).catch(() => {});
-      }
     });
     const unsubTeachers = subscribeCollection('teachers', INITIAL_TEACHERS, (data) => {
       const validTeachers = Array.isArray(data) && data.length > 0 ? data : INITIAL_TEACHERS;
-      setTeachers(validTeachers);
-      // Ensure initial teachers are synced to server if missing
-      const serverIds = new Set(validTeachers.map(t => t.id));
-      const missing = INITIAL_TEACHERS.filter(t => !serverIds.has(t.id));
-      if (missing.length > 0) {
-        saveBatchDocuments('teachers', missing).catch(() => {});
-      }
+      setTeachers(validTeachers.filter((t) => !isRecordDeleted(t.id, 'teachers')));
     });
     const unsubLeads = subscribeCollection('leads', INITIAL_LEADS, setLeads);
     const unsubPlacement = subscribeCollection('placementTests', INITIAL_PLACEMENT_TESTS, (data) => {

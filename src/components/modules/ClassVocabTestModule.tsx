@@ -1676,41 +1676,34 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       submittedAt: new Date().toISOString(),
     };
 
+    // 1. Immediately transition to completion result screen without any network lag
+    setTestCompletedSubmission(newSub);
+    setStandaloneSubmissions((prev) => [newSub, ...(prev || []).filter((s) => s.id !== newSub.id)]);
+    setActiveRunnerTest((prev) => {
+      if (!prev) return null;
+      const currentSubs = Array.isArray(prev.submissions) ? prev.submissions : [];
+      return {
+        ...prev,
+        submissions: [newSub, ...currentSubs.filter((s) => s.id !== newSub.id)],
+      };
+    });
+
     try {
-      // Persist to Firestore
-      const isReview = activeTestType === 'review' || activeRunnerTest.id.startsWith('rev-');
-      const collectionName = isReview ? 'vocab_reviews' : 'vocab_tests';
-      
-      // Use atomic array union to prevent race conditions
-      await addSubmissionToTest(collectionName, activeRunnerTest.id, newSub);
-      await saveDocument('vocab_test_submissions', newSub);
+      sessionStorage.removeItem(`idv_active_test_${activeRunnerTest.id}`);
+      sessionStorage.setItem(`idv_completed_test_${activeRunnerTest.id}`, 'true');
+      sessionStorage.setItem(`idv_completed_qcount_${activeRunnerTest.id}`, String(totalQ));
+      sessionStorage.setItem(`idv_last_sub_${activeRunnerTest.id}`, JSON.stringify(newSub));
+    } catch (e) {}
 
-      // The subscription and local state will immediately update
-      try {
-        sessionStorage.removeItem(`idv_active_test_${activeRunnerTest.id}`);
-        sessionStorage.setItem(`idv_completed_test_${activeRunnerTest.id}`, 'true');
-        sessionStorage.setItem(`idv_completed_qcount_${activeRunnerTest.id}`, String(totalQ));
-        sessionStorage.setItem(`idv_last_sub_${activeRunnerTest.id}`, JSON.stringify(newSub));
-      } catch (e) {}
-      
-      setTestCompletedSubmission(newSub);
-      setStandaloneSubmissions((prev) => [newSub, ...(prev || []).filter((s) => s.id !== newSub.id)]);
-      setActiveRunnerTest((prev) => {
-        if (!prev) return null;
-        const currentSubs = Array.isArray(prev.submissions) ? prev.submissions : [];
-        return {
-          ...prev,
-          submissions: [newSub, ...currentSubs.filter((s) => s.id !== newSub.id)],
-        };
-      });
-    } catch (error) {
-      console.error('Error submitting test:', error);
-      showToast('❌ Lỗi khi lưu bài làm. Vui lòng thử lại!');
-      isSubmittingRef.current = false;
-      return;
-    }
-
+    // 2. Persist to VPS Server Storage & Cloud Firestore in background
     const isReview = activeTestType === 'review' || activeRunnerTest.id.startsWith('rev-');
+    const collectionName = isReview ? 'vocab_reviews' : 'vocab_tests';
+    
+    addSubmissionToTest(collectionName, activeRunnerTest.id, newSub).catch((err) => {
+      console.warn('Background addSubmissionToTest error:', err);
+    });
+    saveDocument('vocab_test_submissions', newSub).catch(() => {});
+
     const testCategoryLabel = isReview ? 'Bài Ôn Tập Kiến Thức' : 'Test Từ Vựng';
 
     // 1. Auto-save score to System Exam Score (Bảng Điểm Kiểm Tra)
