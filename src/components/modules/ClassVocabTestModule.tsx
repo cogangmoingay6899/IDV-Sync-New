@@ -1580,173 +1580,172 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
   };
 
   const finishVocabTest = async (isTimeout: boolean = false) => {
-    if (!activeRunnerTest || isSubmittingRef.current) return;
-    isSubmittingRef.current = true;
+    if (!activeRunnerTest) return;
+    
+    // Stop any pending timer handler
+    isHandlingTimeoutRef.current = false;
+
     if (isTimeout) {
       setWasTimeoutAutoSubmit(true);
     }
 
-    const totalQ = activeRunnerTest.questions.length;
-    let correctCount = 0;
-    const currentTyped = { ...typedAnswers, ...typedAnswersRef.current };
-    const currentSelected = { ...selectedAnswers, ...selectedAnswersRef.current };
-
-    activeRunnerTest.questions.forEach((q, idx) => {
-      if (q.questionType === 'type_input') {
-        const typed = (currentTyped[idx] !== undefined ? currentTyped[idx] : '').trim();
-        const isCorrect = checkIsTypeInputCorrect(typed, q);
-        if (isCorrect) {
-          correctCount++;
-        }
-      } else {
-        if (currentSelected[idx] === q.correctOptionIndex) {
-          correctCount++;
-        }
-      }
-    });
-
-    const scoreOut10 = Math.round((correctCount / totalQ) * 10 * 10) / 10;
-    const timeSpentSeconds = Math.round((Date.now() - testStartTime) / 1000);
-
-    const cleanStudentName = runnerStudentName.trim();
-    const cleanClassName = runnerClassName.trim();
-    const cleanPhone = runnerStudentPhone.trim();
-    const classDigits = cleanClassName.match(/\d+/g)?.[0];
-
-    // Match student & class in center database
-    const matchedStudent = students.find(
-      (s) =>
-        s.name.toLowerCase() === cleanStudentName.toLowerCase() ||
-        (cleanPhone && s.phone && s.phone === cleanPhone)
-    );
-
-    const allClassOptions = classes.length > 0 ? classes : (classGroup ? [classGroup] : []);
-    
-    // Step 1: Try exact match (case-insensitive, trimmed)
-    let matchedClass = allClassOptions.find(
-      (c) => c.name.trim().toLowerCase() === cleanClassName.toLowerCase()
-    );
-
-    // Step 2: Try exact match with "Lớp " prefix added or removed
-    if (!matchedClass) {
-      const cleanInputLower = cleanClassName.toLowerCase();
-      matchedClass = allClassOptions.find((c) => {
-        const cNameLower = c.name.trim().toLowerCase();
-        const normInput = cleanInputLower.replace(/^lớp\s+/g, '');
-        const normClass = cNameLower.replace(/^lớp\s+/g, '');
-        return normInput === normClass;
-      });
-    }
-
-    // Step 3: Try contains match (without being overly broad)
-    if (!matchedClass) {
-      matchedClass = allClassOptions.find((c) => {
-        const cName = c.name.toLowerCase();
-        const inputName = cleanClassName.toLowerCase();
-        if (!inputName) return false;
-        return cName.includes(inputName) || inputName.includes(cName);
-      });
-    }
-
-    // Step 4: Try digit match ONLY as a last resort if classDigits exists and no matches were found so far
-    if (!matchedClass && classDigits) {
-      matchedClass = allClassOptions.find((c) => {
-        const cName = c.name.toLowerCase();
-        const cDigits = cName.match(/\d+/g)?.[0];
-        return cDigits === classDigits;
-      });
-    }
-
-    const targetClassId = matchedClass ? matchedClass.id : (classDigits ? `class-ielts-${classDigits}` : (classGroup?.id || 'class-vocab-auto'));
-    const targetClassName = matchedClass?.name || (classDigits ? `Lớp ${classDigits}` : (cleanClassName || classGroup?.name || 'Lớp Học IELTS'));
-
-    const newSub: VocabTestSubmission = {
-      id: `sub-${Date.now()}`,
-      testId: activeRunnerTest.id,
-      studentId: matchedStudent?.id,
-      studentName: cleanStudentName,
-      studentPhone: cleanPhone,
-      className: cleanClassName || targetClassName,
-      classId: targetClassId,
-      score: scoreOut10,
-      correctCount,
-      totalQuestions: totalQ,
-      timeSpentSeconds,
-      tabSwitchViolations: Math.max(tabSwitchCount, tabSwitchCountRef.current),
-      submittedAt: new Date().toISOString(),
-    };
-
-    // 1. Immediately transition to completion result screen without any network lag
-    setTestCompletedSubmission(newSub);
-    setStandaloneSubmissions((prev) => [newSub, ...(prev || []).filter((s) => s.id !== newSub.id)]);
-    setActiveRunnerTest((prev) => {
-      if (!prev) return null;
-      const currentSubs = Array.isArray(prev.submissions) ? prev.submissions : [];
-      return {
-        ...prev,
-        submissions: [newSub, ...currentSubs.filter((s) => s.id !== newSub.id)],
-      };
-    });
-
     try {
-      sessionStorage.removeItem(`idv_active_test_${activeRunnerTest.id}`);
-      sessionStorage.setItem(`idv_completed_test_${activeRunnerTest.id}`, 'true');
-      sessionStorage.setItem(`idv_completed_qcount_${activeRunnerTest.id}`, String(totalQ));
-      sessionStorage.setItem(`idv_last_sub_${activeRunnerTest.id}`, JSON.stringify(newSub));
-    } catch (e) {}
+      const totalQ = activeRunnerTest.questions?.length || 1;
+      let correctCount = 0;
+      const currentTyped = { ...typedAnswers, ...typedAnswersRef.current };
+      const currentSelected = { ...selectedAnswers, ...selectedAnswersRef.current };
 
-    // 2. Persist to VPS Server Storage & Cloud Firestore in background
-    const isReview = activeTestType === 'review' || activeRunnerTest.id.startsWith('rev-');
-    const collectionName = isReview ? 'vocab_reviews' : 'vocab_tests';
-    
-    addSubmissionToTest(collectionName, activeRunnerTest.id, newSub).catch((err) => {
-      console.warn('Background addSubmissionToTest error:', err);
-    });
-    saveDocument('vocab_test_submissions', newSub).catch(() => {});
+      (activeRunnerTest.questions || []).forEach((q, idx) => {
+        if (q.questionType === 'type_input') {
+          const typed = (currentTyped[idx] !== undefined ? currentTyped[idx] : '').trim();
+          const isCorrect = checkIsTypeInputCorrect(typed, q);
+          if (isCorrect) {
+            correctCount++;
+          }
+        } else {
+          if (currentSelected[idx] === q.correctOptionIndex) {
+            correctCount++;
+          }
+        }
+      });
 
-    const testCategoryLabel = isReview ? 'Bài Ôn Tập Kiến Thức' : 'Test Từ Vựng';
+      const scoreOut10 = Math.round((correctCount / totalQ) * 10 * 10) / 10;
+      const timeSpentSeconds = Math.max(1, Math.round((Date.now() - testStartTime) / 1000));
 
-    // 1. Auto-save score to System Exam Score (Bảng Điểm Kiểm Tra)
-    if (onAddExamScore) {
-      const examRecord: ExamScore = {
-        id: `exam-vocab-${Date.now()}`,
-        studentId: matchedStudent ? matchedStudent.id : `student-vocab-${Date.now()}`,
+      const cleanStudentName = (runnerStudentName || 'Học viên IDV').trim();
+      const cleanClassName = (runnerClassName || '').trim();
+      const cleanPhone = (runnerStudentPhone || '').trim();
+      const classDigits = cleanClassName.match(/\d+/g)?.[0];
+
+      // Match student & class in center database
+      const matchedStudent = students.find(
+        (s) =>
+          s.name.toLowerCase() === cleanStudentName.toLowerCase() ||
+          (cleanPhone && s.phone && s.phone === cleanPhone)
+      );
+
+      const allClassOptions = classes.length > 0 ? classes : (classGroup ? [classGroup] : []);
+      
+      let matchedClass = allClassOptions.find(
+        (c) => c.name.trim().toLowerCase() === cleanClassName.toLowerCase()
+      );
+
+      if (!matchedClass) {
+        const cleanInputLower = cleanClassName.toLowerCase();
+        matchedClass = allClassOptions.find((c) => {
+          const cNameLower = c.name.trim().toLowerCase();
+          const normInput = cleanInputLower.replace(/^lớp\s+/g, '');
+          const normClass = cNameLower.replace(/^lớp\s+/g, '');
+          return normInput === normClass;
+        });
+      }
+
+      if (!matchedClass && cleanClassName) {
+        matchedClass = allClassOptions.find((c) => {
+          const cName = c.name.toLowerCase();
+          const inputName = cleanClassName.toLowerCase();
+          return cName.includes(inputName) || inputName.includes(cName);
+        });
+      }
+
+      if (!matchedClass && classDigits) {
+        matchedClass = allClassOptions.find((c) => {
+          const cName = c.name.toLowerCase();
+          const cDigits = cName.match(/\d+/g)?.[0];
+          return cDigits === classDigits;
+        });
+      }
+
+      const targetClassId = matchedClass ? matchedClass.id : (classDigits ? `class-ielts-${classDigits}` : (classGroup?.id || 'class-vocab-auto'));
+      const targetClassName = matchedClass?.name || (classDigits ? `Lớp ${classDigits}` : (cleanClassName || classGroup?.name || 'Lớp Học IELTS'));
+
+      const newSub: VocabTestSubmission = {
+        id: `sub-${Date.now()}`,
+        testId: activeRunnerTest.id,
+        studentId: matchedStudent?.id,
         studentName: cleanStudentName,
-        studentCode: matchedStudent ? matchedStudent.code : 'HV-TV',
+        studentPhone: cleanPhone,
+        className: cleanClassName || targetClassName,
         classId: targetClassId,
-        className: targetClassName,
-        examName: `${testCategoryLabel} (${activeRunnerTest.courseLevel}) - ${activeRunnerTest.unitName}`,
-        examDate: new Date().toISOString().split('T')[0],
-        totalScore: scoreOut10,
-        rank: scoreOut10 >= 9 ? 'Xuất sắc' : scoreOut10 >= 7.5 ? 'Giỏi' : scoreOut10 >= 6 ? 'Khá' : 'Trung bình',
-        teacherComment: `Hoàn thành ${testCategoryLabel.toLowerCase()} (${activeRunnerTest.courseLevel} - ${activeRunnerTest.unitName}). Lớp: ${targetClassName}. Đúng ${correctCount}/${totalQ} câu (${scoreOut10}/10đ). Thời gian: ${timeSpentSeconds}s. Vi phạm chuyển tab: ${tabSwitchCount} lần.`,
-      };
-      onAddExamScore(examRecord);
-    }
-
-    // 2. Auto-record result directly into current session / attendance record (Cập nhật kết quả vào buổi học)
-    if (onSaveAttendance) {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const attRecord: AttendanceRecord = {
-        id: `att-vocab-${Date.now()}`,
-        classId: targetClassId,
-        date: todayStr,
-        sessionNumber: 1,
-        studentId: matchedStudent ? matchedStudent.id : `student-vocab-${Date.now()}`,
-        studentName: cleanStudentName,
-        status: 'Có mặt',
-        skillTaught: isReview ? 'Ôn tập' : 'Từ vựng',
-        skillsTaught: [isReview ? 'Ôn tập' : 'Từ vựng'],
         score: scoreOut10,
-        skillScores: { [isReview ? 'Ôn tập' : 'Từ vựng']: scoreOut10 },
-        skillTotalQuestions: { [isReview ? 'Ôn tập' : 'Từ vựng']: totalQ },
-        note: `Kết quả ${testCategoryLabel} ${activeRunnerTest.unitName} (${activeRunnerTest.courseLevel}): ${scoreOut10}/10đ (${correctCount}/${totalQ} câu, ${timeSpentSeconds}s)`,
+        correctCount,
+        totalQuestions: totalQ,
+        timeSpentSeconds,
+        tabSwitchViolations: Math.max(tabSwitchCount, tabSwitchCountRef.current),
+        submittedAt: new Date().toISOString(),
       };
-      onSaveAttendance([attRecord]);
-    }
 
-    // 3. Auto-save score directly to the Class Spreadsheet (Bảng điểm nhập điểm học viên)
-    const syncToSpreadsheet = async () => {
+      // 1. Immediately transition to completion result screen without any delay
+      setTestCompletedSubmission(newSub);
+      setStandaloneSubmissions((prev) => [newSub, ...(prev || []).filter((s) => s.id !== newSub.id)]);
+      setActiveRunnerTest((prev) => {
+        if (!prev) return null;
+        const currentSubs = Array.isArray(prev.submissions) ? prev.submissions : [];
+        return {
+          ...prev,
+          submissions: [newSub, ...currentSubs.filter((s) => s.id !== newSub.id)],
+        };
+      });
+
+      try {
+        sessionStorage.removeItem(`idv_active_test_${activeRunnerTest.id}`);
+        sessionStorage.setItem(`idv_completed_test_${activeRunnerTest.id}`, 'true');
+        sessionStorage.setItem(`idv_completed_qcount_${activeRunnerTest.id}`, String(totalQ));
+        sessionStorage.setItem(`idv_last_sub_${activeRunnerTest.id}`, JSON.stringify(newSub));
+      } catch (e) {}
+
+      // 2. Persist to VPS Server Storage & Cloud Firestore in background
+      const isReview = activeTestType === 'review' || activeRunnerTest.id.startsWith('rev-');
+      const collectionName = isReview ? 'vocab_reviews' : 'vocab_tests';
+      
+      addSubmissionToTest(collectionName, activeRunnerTest.id, newSub).catch((err) => {
+        console.warn('Background addSubmissionToTest error:', err);
+      });
+      saveDocument('vocab_test_submissions', newSub).catch(() => {});
+
+      const testCategoryLabel = isReview ? 'Bài Ôn Tập Kiến Thức' : 'Test Từ Vựng';
+
+      // 3. Auto-save score to System Exam Score (Bảng Điểm Kiểm Tra)
+      if (onAddExamScore) {
+        const examRecord: ExamScore = {
+          id: `exam-vocab-${Date.now()}`,
+          studentId: matchedStudent ? matchedStudent.id : `student-vocab-${Date.now()}`,
+          studentName: cleanStudentName,
+          studentCode: matchedStudent ? matchedStudent.code : 'HV-TV',
+          classId: targetClassId,
+          className: targetClassName,
+          examName: `${testCategoryLabel} (${activeRunnerTest.courseLevel}) - ${activeRunnerTest.unitName}`,
+          examDate: new Date().toISOString().split('T')[0],
+          totalScore: scoreOut10,
+          rank: scoreOut10 >= 9 ? 'Xuất sắc' : scoreOut10 >= 7.5 ? 'Giỏi' : scoreOut10 >= 6 ? 'Khá' : 'Trung bình',
+          teacherComment: `Hoàn thành ${testCategoryLabel.toLowerCase()} (${activeRunnerTest.courseLevel} - ${activeRunnerTest.unitName}). Lớp: ${targetClassName}. Đúng ${correctCount}/${totalQ} câu (${scoreOut10}/10đ). Thời gian: ${timeSpentSeconds}s. Vi phạm chuyển tab: ${tabSwitchCount} lần.`,
+        };
+        onAddExamScore(examRecord);
+      }
+
+      // 4. Auto-record result directly into current session / attendance record
+      if (onSaveAttendance) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const attRecord: AttendanceRecord = {
+          id: `att-vocab-${Date.now()}`,
+          classId: targetClassId,
+          date: todayStr,
+          sessionNumber: 1,
+          studentId: matchedStudent ? matchedStudent.id : `student-vocab-${Date.now()}`,
+          studentName: cleanStudentName,
+          status: 'Có mặt',
+          skillTaught: isReview ? 'Ôn tập' : 'Từ vựng',
+          skillsTaught: [isReview ? 'Ôn tập' : 'Từ vựng'],
+          score: scoreOut10,
+          skillScores: { [isReview ? 'Ôn tập' : 'Từ vựng']: scoreOut10 },
+          skillTotalQuestions: { [isReview ? 'Ôn tập' : 'Từ vựng']: totalQ },
+          note: `Kết quả ${testCategoryLabel} ${activeRunnerTest.unitName} (${activeRunnerTest.courseLevel}): ${scoreOut10}/10đ (${correctCount}/${totalQ} câu, ${timeSpentSeconds}s)`,
+        };
+        onSaveAttendance([attRecord]);
+      }
+
+      // 5. Auto-save score directly to the Class Spreadsheet (Bảng điểm nhập điểm học viên)
+      const syncToSpreadsheet = async () => {
       try {
         const candidateSheetIds: string[] = [];
         if (targetClassId) candidateSheetIds.push(`sheet-${targetClassId}`);
@@ -1858,10 +1857,13 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
     // Trigger the spreadsheet sync asynchronously
     syncToSpreadsheet();
 
-    if (isTimeout) {
-      showToast(`⏰ Hết giờ làm bài! Hệ thống đã tự động nộp bài cho học sinh ${cleanStudentName} - Lớp ${targetClassName} (${scoreOut10}/10 điểm).`);
-    } else {
-      showToast(`🎉 Đã nộp bài thành công! Họ tên: ${cleanStudentName} - Lớp: ${targetClassName}. Điểm từ vựng: ${scoreOut10}/10. Đã cập nhật vào buổi học & bảng điểm học viên!`);
+      if (isTimeout) {
+        showToast(`⏰ Hết giờ làm bài! Hệ thống đã tự động nộp bài cho học sinh ${cleanStudentName} - Lớp ${targetClassName} (${scoreOut10}/10 điểm).`);
+      } else {
+        showToast(`🎉 Đã nộp bài thành công! Họ tên: ${cleanStudentName} - Lớp: ${targetClassName}. Điểm từ vựng: ${scoreOut10}/10. Đã cập nhật vào buổi học & bảng điểm học viên!`);
+      }
+    } catch (err: any) {
+      console.error('Error in finishVocabTest:', err);
     }
   };
 
@@ -3380,12 +3382,17 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
-                                  handleNextQuestion();
+                                  handleTypeAnswerChange(currentQuestionIndex, e.currentTarget.value);
+                                  if (currentQuestionIndex >= (activeRunnerTest.questions || []).length - 1) {
+                                    finishVocabTest(false);
+                                  } else {
+                                    handleNextQuestion(false);
+                                  }
                                 }
                               }}
                             />
                             <p className="text-[8.5px] sm:text-[9px] text-slate-400 text-center font-medium">
-                              Nhấn <kbd className="bg-slate-200 px-1 py-0.2 rounded border border-slate-300 text-[8px] font-mono">Enter</kbd> hoặc nút "Tiếp theo" để nộp câu này.
+                              Nhấn <kbd className="bg-slate-200 px-1 py-0.2 rounded border border-slate-300 text-[8px] font-mono">Enter</kbd> hoặc nút "Nộp bài" để hoàn tất.
                             </p>
                           </div>
                         </div>
@@ -3450,7 +3457,13 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
                   </span>
                   <button
                     type="button"
-                    onClick={() => handleNextQuestion(false)}
+                    onClick={() => {
+                      if (currentQuestionIndex >= (activeRunnerTest.questions || []).length - 1) {
+                        finishVocabTest(false);
+                      } else {
+                        handleNextQuestion(false);
+                      }
+                    }}
                     className="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white font-black text-xs rounded-xl shadow-md flex items-center gap-1 cursor-pointer shrink-0 active:scale-95 transition-all"
                   >
                     <span>
