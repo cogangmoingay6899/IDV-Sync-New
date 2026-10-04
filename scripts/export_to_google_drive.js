@@ -325,23 +325,37 @@ function generateTeacherPayrollSheet(teachers, classes, classSpreadsheets) {
       const sessions = Number(c.completedSessions || 0);
       totalCompletedSessions += sessions;
 
-      // Đơn giá tính theo cấp độ khóa học
-      let sessionRate = 350000;
-      const level = (c.courseLevel || c.courseName || '').toLowerCase();
-      if (level.includes('khóa 4') || level.includes('drill') || level.includes('intensive')) {
-        sessionRate = 450000;
-      } else if (level.includes('khóa 3')) {
-        sessionRate = 400000;
-      } else if (level.includes('khóa 2')) {
-        sessionRate = 380000;
+      // Tính lương theo đúng mức đã nhập trong hồ sơ giáo viên
+      let sessionRate = 500000;
+
+      if (t.salaryCalcType === 'fixed_per_session' && t.fixedRate) {
+        sessionRate = t.fixedRate;
+      } else if (t.salaryCalcType === 'percent_of_amount') {
+        const base = t.baseAmount || 4800000;
+        const level = (c.courseLevel || c.courseName || '').toLowerCase();
+        let pct = t.percentageK1 || 30;
+        if (level.includes('4') || level.includes('drill')) pct = t.percentageK4 || pct;
+        else if (level.includes('3')) pct = t.percentageK3 || pct;
+        else if (level.includes('2')) pct = t.percentageK2 || pct;
+        
+        // Tính theo đúng tỷ lệ phần trăm đã cấu hình trên số học viên thực tế
+        const studentCount = (c.currentStudents || 0);
+        sessionRate = Math.round((pct / 100) * 150000 * studentCount);
+      } else if (tName.includes('huyen chi') || tName.includes('chi')) {
+        sessionRate = 600000;
+      } else if (tName.includes('ngoc vu') || tName.includes('vu ngoc')) {
+        sessionRate = 700000;
+      } else if (tName.includes('hai long') || tName.includes('dam hieu') || tName.includes('trung hieu') || tName.includes('vu ngan') || tName.includes('vu thuy')) {
+        sessionRate = 500000;
+      } else {
+        sessionRate = t.fixedRate || 500000;
       }
 
-      // Thưởng sĩ số đông (> 18 HV: +50k/buổi)
-      if ((c.currentStudents || 0) >= 18) {
-        sessionRate += 50000;
+      if (t.salaryCalcType === 'percent_of_amount') {
+        estimatedTotalSalary += sessions * sessionRate;
+      } else {
+        estimatedTotalSalary += sessions * sessionRate;
       }
-
-      estimatedTotalSalary += sessions * sessionRate;
     }
 
     rows.push({
