@@ -40,6 +40,7 @@ interface CreateClassModalProps {
   teachers: Teacher[];
   courses: CurriculumCourse[];
   students?: Student[];
+  classes?: ClassGroup[];
   defaultBranch?: string;
   onAddClass: (
     newClass: ClassGroup,
@@ -74,6 +75,7 @@ export const CreateClassModal: React.FC<CreateClassModalProps> = ({
   teachers,
   courses,
   students = [],
+  classes = [],
   defaultBranch = 'Cơ sở 1 - Tô Hiệu (Hải Phòng)',
   onAddClass,
   onAddBatchClasses,
@@ -369,6 +371,14 @@ export const CreateClassModal: React.FC<CreateClassModalProps> = ({
     e.preventDefault();
     if (!formData.name.trim()) {
       alert('Vui lòng nhập tên lớp học!');
+      return;
+    }
+
+    const inputCode = formData.code.trim().toUpperCase();
+    const inputName = formData.name.trim().toLowerCase();
+    
+    if (classes && classes.some(c => (c.code && c.code.toUpperCase() === inputCode) || (c.name && c.name.trim().toLowerCase() === inputName))) {
+      alert(`⚠️ Mã lớp "${formData.code}" hoặc Tên lớp "${formData.name}" đã tồn tại trong hệ thống! Vui lòng chọn mã hoặc tên khác để tránh trùng lặp.`);
       return;
     }
 

@@ -2847,6 +2847,7 @@ export default function App() {
         teachers={teachers}
         courses={courses}
         students={students}
+        classes={classes}
         defaultBranch={selectedBranch}
       />
 
