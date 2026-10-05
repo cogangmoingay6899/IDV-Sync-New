@@ -1591,7 +1591,24 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
   };
 
   const finishVocabTest = async (isTimeout: boolean = false) => {
-    if (!activeRunnerTest) return;
+    const activeTestObj = activeRunnerTest || {
+      id: initialVocabTestId || `vocab-test-${Date.now()}`,
+      title: 'Bài Kiểm Tra Từ Vựng',
+      courseLevel: 'Khóa 1',
+      unitName: 'Tổng hợp',
+      questions: [
+        {
+          id: 'q-fall-1',
+          word: 'Test Question',
+          meaning: 'Đáp án đúng',
+          options: ['Đáp án đúng', 'Sai 1', 'Sai 2', 'Sai 3'],
+          correctOptionIndex: 0,
+          questionType: 'multiple_choice',
+          timeLimitSeconds: 20
+        }
+      ],
+      submissions: []
+    };
     
     // Stop any pending timer handler
     isHandlingTimeoutRef.current = false;
@@ -1601,12 +1618,12 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
     }
 
     try {
-      const totalQ = activeRunnerTest.questions?.length || 1;
+      const totalQ = activeTestObj.questions?.length || 1;
       let correctCount = 0;
       const currentTyped = { ...typedAnswers, ...typedAnswersRef.current };
       const currentSelected = { ...selectedAnswers, ...selectedAnswersRef.current };
 
-      (activeRunnerTest.questions || []).forEach((q, idx) => {
+      (activeTestObj.questions || []).forEach((q, idx) => {
         if (q.questionType === 'type_input') {
           const typed = (currentTyped[idx] !== undefined ? currentTyped[idx] : '').trim();
           const isCorrect = checkIsTypeInputCorrect(typed, q);
@@ -1629,13 +1646,13 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       const classDigits = cleanClassName.match(/\d+/g)?.[0];
 
       // Match student & class in center database
-      const matchedStudent = students.find(
+      const matchedStudent = (students || []).find(
         (s) =>
           s.name.toLowerCase() === cleanStudentName.toLowerCase() ||
           (cleanPhone && s.phone && s.phone === cleanPhone)
       );
 
-      const allClassOptions = classes.length > 0 ? classes : (classGroup ? [classGroup] : []);
+      const allClassOptions = (classes || []).length > 0 ? classes : (classGroup ? [classGroup] : []);
       
       let matchedClass = allClassOptions.find(
         (c) => c.name.trim().toLowerCase() === cleanClassName.toLowerCase()
@@ -1672,7 +1689,7 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
       const newSub: VocabTestSubmission = {
         id: `sub-${Date.now()}`,
-        testId: activeRunnerTest.id,
+        testId: activeTestObj.id,
         studentId: matchedStudent?.id,
         studentName: cleanStudentName,
         studentPhone: cleanPhone,
@@ -1690,26 +1707,26 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
       setTestCompletedSubmission(newSub);
       setStandaloneSubmissions((prev) => [newSub, ...(prev || []).filter((s) => s.id !== newSub.id)]);
       setActiveRunnerTest((prev) => {
-        if (!prev) return null;
-        const currentSubs = Array.isArray(prev.submissions) ? prev.submissions : [];
+        const base = prev || activeTestObj;
+        const currentSubs = Array.isArray(base.submissions) ? base.submissions : [];
         return {
-          ...prev,
+          ...base,
           submissions: [newSub, ...currentSubs.filter((s) => s.id !== newSub.id)],
         };
       });
 
       try {
-        sessionStorage.removeItem(`idv_active_test_${activeRunnerTest.id}`);
-        sessionStorage.setItem(`idv_completed_test_${activeRunnerTest.id}`, 'true');
-        sessionStorage.setItem(`idv_completed_qcount_${activeRunnerTest.id}`, String(totalQ));
-        sessionStorage.setItem(`idv_last_sub_${activeRunnerTest.id}`, JSON.stringify(newSub));
+        sessionStorage.removeItem(`idv_active_test_${activeTestObj.id}`);
+        sessionStorage.setItem(`idv_completed_test_${activeTestObj.id}`, 'true');
+        sessionStorage.setItem(`idv_completed_qcount_${activeTestObj.id}`, String(totalQ));
+        sessionStorage.setItem(`idv_last_sub_${activeTestObj.id}`, JSON.stringify(newSub));
       } catch (e) {}
 
       // 2. Persist to VPS Server Storage & Cloud Firestore in background
-      const isReview = activeTestType === 'review' || activeRunnerTest.id.startsWith('rev-');
+      const isReview = activeTestType === 'review' || activeTestObj.id.startsWith('rev-');
       const collectionName = isReview ? 'vocab_reviews' : 'vocab_tests';
       
-      addSubmissionToTest(collectionName, activeRunnerTest.id, newSub).catch((err) => {
+      addSubmissionToTest(collectionName, activeTestObj.id, newSub).catch((err) => {
         console.warn('Background addSubmissionToTest error:', err);
       });
       saveDocument('vocab_test_submissions', newSub).catch(() => {});
@@ -1725,11 +1742,11 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
           studentCode: matchedStudent ? matchedStudent.code : 'HV-TV',
           classId: targetClassId,
           className: targetClassName,
-          examName: `${testCategoryLabel} (${activeRunnerTest.courseLevel}) - ${activeRunnerTest.unitName}`,
+          examName: `${testCategoryLabel} (${activeTestObj.courseLevel || 'Khóa 1'}) - ${activeTestObj.unitName || 'Tổng hợp'}`,
           examDate: new Date().toISOString().split('T')[0],
           totalScore: scoreOut10,
           rank: scoreOut10 >= 9 ? 'Xuất sắc' : scoreOut10 >= 7.5 ? 'Giỏi' : scoreOut10 >= 6 ? 'Khá' : 'Trung bình',
-          teacherComment: `Hoàn thành ${testCategoryLabel.toLowerCase()} (${activeRunnerTest.courseLevel} - ${activeRunnerTest.unitName}). Lớp: ${targetClassName}. Đúng ${correctCount}/${totalQ} câu (${scoreOut10}/10đ). Thời gian: ${timeSpentSeconds}s. Vi phạm chuyển tab: ${tabSwitchCount} lần.`,
+          teacherComment: `Hoàn thành ${testCategoryLabel.toLowerCase()} (${activeTestObj.courseLevel || 'Khóa 1'} - ${activeTestObj.unitName || 'Tổng hợp'}). Lớp: ${targetClassName}. Đúng ${correctCount}/${totalQ} câu (${scoreOut10}/10đ). Thời gian: ${timeSpentSeconds}s. Vi phạm chuyển tab: ${tabSwitchCount} lần.`,
         };
         onAddExamScore(examRecord);
       }
@@ -1750,7 +1767,7 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
           score: scoreOut10,
           skillScores: { [isReview ? 'Ôn tập' : 'Từ vựng']: scoreOut10 },
           skillTotalQuestions: { [isReview ? 'Ôn tập' : 'Từ vựng']: totalQ },
-          note: `Kết quả ${testCategoryLabel} ${activeRunnerTest.unitName} (${activeRunnerTest.courseLevel}): ${scoreOut10}/10đ (${correctCount}/${totalQ} câu, ${timeSpentSeconds}s)`,
+          note: `Kết quả ${testCategoryLabel} ${activeTestObj.unitName || 'Tổng hợp'} (${activeTestObj.courseLevel || 'Khóa 1'}): ${scoreOut10}/10đ (${correctCount}/${totalQ} câu, ${timeSpentSeconds}s)`,
         };
         onSaveAttendance([attRecord]);
       }
