@@ -24154,6 +24154,8 @@ export const INITIAL_TEACHERS: Teacher[] = [
     "specialty": "IELTS Foundation",
     "degrees": "Cử nhân Ngoại ngữ",
     "activeClassesCount": 1,
+    "salaryCalcType": "fixed_per_session",
+    "fixedRate": 400000,
     "hourlyRate": 400000,
     "rating": 5.0,
     "status": "Đang giảng dạy"

@@ -101,6 +101,14 @@ export function getTeacherDefaultSalaryConfig(name: string): Partial<Teacher> {
     };
   }
 
+  // 8. Vũ Thùy (fixed salary 400,000/session)
+  if (norm.includes('vu thuy') || norm.includes('thuy')) {
+    return {
+      salaryCalcType: 'fixed_per_session',
+      fixedRate: 400000,
+    };
+  }
+
   // Default fallback for other teachers: rate_per_student
   return {
     salaryCalcType: 'rate_per_student',
@@ -138,6 +146,10 @@ export function calculateTeacherSessionSalary(
     teacherNameNorm.includes('vu thi ngan')
   ) {
     return 500000;
+  }
+
+  if (teacherNameNorm.includes('vu thuy') || teacherNameNorm.includes('thuy')) {
+    return 400000;
   }
 
   const calcType = teacher.salaryCalcType || getTeacherDefaultSalaryConfig(teacher.name).salaryCalcType || 'rate_per_student';

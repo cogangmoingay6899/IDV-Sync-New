@@ -344,7 +344,7 @@ export const isSameStudentClass = (
   classesList: ClassGroup[] = []
 ): boolean => {
   if (!targetClassName || targetClassName === 'all') return true;
-  if (!subOrClassName) return false;
+  if (!subOrClassName) return true;
 
   let subClassName = '';
   if (typeof subOrClassName === 'string') {
@@ -356,7 +356,7 @@ export const isSameStudentClass = (
   const s = (subClassName || '').trim().toLowerCase();
   const t = (targetClassName || '').trim().toLowerCase();
 
-  if (!s || !t) return false;
+  if (!s || !t) return true;
   if (s === t) return true;
 
   const norm = (str: string) => str.replace(/[^a-z0-9]/g, '').trim();
@@ -1705,6 +1705,7 @@ export const ClassVocabTestModule: React.FC<ClassVocabTestModuleProps> = ({
 
       // 1. Immediately transition to completion result screen without any delay
       setTestCompletedSubmission(newSub);
+      setResultActiveTab('leaderboard');
       setStandaloneSubmissions((prev) => [newSub, ...(prev || []).filter((s) => s.id !== newSub.id)]);
       setActiveRunnerTest((prev) => {
         const base = prev || activeTestObj;
