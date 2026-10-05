@@ -119,15 +119,33 @@ export function getTeacherDefaultSalaryConfig(name: string): Partial<Teacher> {
  * Calculates a single session/class salary for a teacher based on course level and student size.
  */
 export function calculateTeacherSessionSalary(
-  teacher: Teacher,
+  teacher: Teacher | string | null | undefined,
   courseLevel: string = 'Khóa 1',
   studentCount: number = 20,
   sessionNumber?: number,
   classStudents: Student[] = []
 ): number {
-  if (!teacher) return 500000;
+  let tchObj: Teacher | null = null;
+  let tchName = '';
+  if (typeof teacher === 'string') {
+    tchName = teacher;
+  } else if (teacher && typeof teacher === 'object') {
+    tchObj = teacher;
+    tchName = teacher.name || '';
+  }
 
-  const teacherNameNorm = (teacher.name || '')
+  if (!tchObj && tchName) {
+    const def = getTeacherDefaultSalaryConfig(tchName);
+    tchObj = {
+      id: 'temp-tch',
+      name: tchName,
+      type: 'Việt Nam',
+      ...def
+    } as Teacher;
+  }
+  if (!tchObj) return 500000;
+
+  const teacherNameNorm = (tchObj.name || tchName || '')
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -152,23 +170,23 @@ export function calculateTeacherSessionSalary(
     return 400000;
   }
 
-  const calcType = teacher.salaryCalcType || getTeacherDefaultSalaryConfig(teacher.name).salaryCalcType || 'rate_per_student';
-  const base = teacher.baseAmount || getTeacherDefaultSalaryConfig(teacher.name).baseAmount || 4800000;
+  const calcType = tchObj.salaryCalcType || getTeacherDefaultSalaryConfig(tchObj.name).salaryCalcType || 'rate_per_student';
+  const base = tchObj.baseAmount || getTeacherDefaultSalaryConfig(tchObj.name).baseAmount || 4800000;
 
   if (calcType === 'percent_of_amount') {
     const lvl = (courseLevel || '').toLowerCase();
     let pct = 30; // default fallback percentage
     
-    const defaults = getTeacherDefaultSalaryConfig(teacher.name);
+    const defaults = getTeacherDefaultSalaryConfig(tchObj.name);
 
     if (lvl.includes('4') || lvl.includes('k4') || lvl.includes('drill')) {
-      pct = teacher.percentageK4 ?? defaults.percentageK4 ?? 30;
+      pct = tchObj.percentageK4 ?? defaults.percentageK4 ?? 30;
     } else if (lvl.includes('3') || lvl.includes('k3') || lvl.includes('desire')) {
-      pct = teacher.percentageK3 ?? defaults.percentageK3 ?? 28;
+      pct = tchObj.percentageK3 ?? defaults.percentageK3 ?? 28;
     } else if (lvl.includes('2') || lvl.includes('k2') || lvl.includes('inspire')) {
-      pct = teacher.percentageK2 ?? defaults.percentageK2 ?? 26;
+      pct = tchObj.percentageK2 ?? defaults.percentageK2 ?? 26;
     } else {
-      pct = teacher.percentageK1 ?? defaults.percentageK1 ?? 24;
+      pct = tchObj.percentageK1 ?? defaults.percentageK1 ?? 24;
     }
 
     // Formula: % defined * rate * studentCount
@@ -190,16 +208,16 @@ export function calculateTeacherSessionSalary(
   }
 
   if (calcType === 'fixed_per_session') {
-    return teacher.fixedRate ?? getTeacherDefaultSalaryConfig(teacher.name).fixedRate ?? 500000;
+    return tchObj.fixedRate ?? getTeacherDefaultSalaryConfig(tchObj.name).fixedRate ?? 500000;
   }
 
   if (calcType === 'fixed_with_size_condition') {
-    const rateUnder = teacher.fixedRateUnder23 ?? getTeacherDefaultSalaryConfig(teacher.name).fixedRateUnder23 ?? 700000;
-    const rateOver = teacher.fixedRateOver23 ?? getTeacherDefaultSalaryConfig(teacher.name).fixedRateOver23 ?? 800000;
+    const rateUnder = tchObj.fixedRateUnder23 ?? getTeacherDefaultSalaryConfig(tchObj.name).fixedRateUnder23 ?? 700000;
+    const rateOver = tchObj.fixedRateOver23 ?? getTeacherDefaultSalaryConfig(tchObj.name).fixedRateOver23 ?? 800000;
     return studentCount >= 23 ? rateOver : rateUnder;
   }
 
   // Standard: rate_per_student
-  const studentRate = teacher.rateRegularStudent || (teacher.type === 'Bản ngữ (Native)' ? 39000 : 36000);
+  const studentRate = tchObj.rateRegularStudent || (tchObj.type === 'Bản ngữ (Native)' ? 39000 : 36000);
   return studentCount * studentRate;
 }

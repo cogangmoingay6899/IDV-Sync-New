@@ -92,6 +92,8 @@ try {
 export function isRecordDeleted(id: string, colName?: string): boolean {
   if (!id || id === 'meta_deleted_ids') return true;
   if (globalDeletedIdsSet.has(String(id))) return true;
+  const strId = String(id).toLowerCase();
+  if (strId === 'cls-1790390511388' || strId.includes('lớp 68') || strId.includes('lop 68')) return true;
   return false;
 }
 
