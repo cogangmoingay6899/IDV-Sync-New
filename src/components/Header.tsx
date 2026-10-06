@@ -368,6 +368,17 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
+            {/* Download Spec PDF / HTML Button */}
+            <a
+              href="/dac-ta-he-thong-ielts.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-xl text-xs font-black transition-all shadow-2xs"
+              title="Mở tài liệu đặc tả hệ thống và tải file PDF"
+            >
+              <span>Đặc Tả Hệ Thống PDF 📄</span>
+            </a>
+
             {/* Notification Bell */}
             <div className="relative">
               <button

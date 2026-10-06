@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import initSqlJs from 'sql.js';
 import { createServer as createViteServer } from 'vite';
 
 async function startServer() {
@@ -52,46 +53,52 @@ async function startServer() {
     }
   }
 
-  // File path for tracking deleted IDs across all devices
-  const deletedIdsFilePath = path.join(dataDir, 'deleted_ids.json');
+  // --- SQLITE DATABASE INITIALIZATION (sql.js / SQLite3 Engine) ---
+  const SQL = await initSqlJs();
+  const sqliteDbPath = path.join(dataDir, 'database.sqlite');
+  let sqliteDb: any;
 
-  const getDeletedIds = (): Set<string> => {
+  try {
+    if (fs.existsSync(sqliteDbPath)) {
+      const fileBuffer = fs.readFileSync(sqliteDbPath);
+      sqliteDb = new SQL.Database(fileBuffer);
+      console.log('[SQLite] ✅ Loaded existing database.sqlite from disk.');
+    } else {
+      sqliteDb = new SQL.Database();
+      console.log('[SQLite] ✨ Created new SQLite database instance.');
+    }
+  } catch (err) {
+    console.error('[SQLite] Error reading database.sqlite file, creating fresh database instance:', err);
+    sqliteDb = new SQL.Database();
+  }
+
+  // Initialize SQLite Schema & Indexes
+  sqliteDb.run(`
+    CREATE TABLE IF NOT EXISTS collections (
+      collection TEXT NOT NULL,
+      id TEXT NOT NULL,
+      data TEXT NOT NULL,
+      updated_at TEXT,
+      PRIMARY KEY (collection, id)
+    );
+    CREATE TABLE IF NOT EXISTS deleted_ids (
+      id TEXT PRIMARY KEY,
+      deleted_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_collections_col ON collections(collection);
+  `);
+
+  const saveSqliteToDisk = () => {
     try {
-      if (fs.existsSync(deletedIdsFilePath)) {
-        const raw = fs.readFileSync(deletedIdsFilePath, 'utf-8');
-        const list = JSON.parse(raw);
-        if (Array.isArray(list)) return new Set(list);
-      }
-    } catch (e) {}
-    // Only return empty or user-deleted items, do not block placement tests
-    return new Set<string>();
-  };
-
-  const addDeletedIds = (newIds: string[]) => {
-    const current = getDeletedIds();
-    let changed = false;
-    for (const id of newIds) {
-      if (id && !current.has(id)) {
-        current.add(id);
-        changed = true;
-      }
+      const binaryArray = sqliteDb.export();
+      const buffer = Buffer.from(binaryArray);
+      const tempPath = `${sqliteDbPath}.tmp.${Date.now()}`;
+      fs.writeFileSync(tempPath, buffer);
+      fs.renameSync(tempPath, sqliteDbPath);
+    } catch (err) {
+      console.error('[SQLite] Error persisting database.sqlite to disk:', err);
     }
-    if (changed || !fs.existsSync(deletedIdsFilePath)) {
-      try {
-        fs.writeFileSync(deletedIdsFilePath, JSON.stringify(Array.from(current), null, 2), 'utf-8');
-        broadcastEvent({ type: 'deleted_ids_updated', ids: Array.from(current) });
-      } catch (err) {
-        console.error('[VPS Storage] Error writing deleted_ids.json:', err);
-      }
-    }
-    return current;
   };
-
-  // Initialize deleted_ids file on start
-  addDeletedIds([]);
-
-  // In-memory cache for ultra-fast response times
-  const collectionsCache = new Map<string, any[]>();
 
   // SSE client connections for real-time synchronization across devices & tabs
   const sseClients = new Set<express.Response>();
@@ -107,25 +114,93 @@ async function startServer() {
     }
   };
 
+  // Helper to read deleted IDs from SQLite
+  const getDeletedIds = (): Set<string> => {
+    try {
+      const res = sqliteDb.exec('SELECT id FROM deleted_ids');
+      if (res && res.length > 0 && res[0].values) {
+        return new Set(res[0].values.map((row: any) => String(row[0])));
+      }
+    } catch (e) {
+      console.error('[SQLite] Error querying deleted_ids:', e);
+    }
+    return new Set<string>();
+  };
+
+  // Helper to record deleted IDs in SQLite
+  const addDeletedIds = (newIds: string[]) => {
+    const current = getDeletedIds();
+    let changed = false;
+    const stmt = sqliteDb.prepare('INSERT OR IGNORE INTO deleted_ids (id, deleted_at) VALUES (?, ?)');
+    const now = new Date().toISOString();
+    for (const id of newIds) {
+      if (id && !current.has(id)) {
+        current.add(id);
+        stmt.run([String(id), now]);
+        changed = true;
+      }
+    }
+    stmt.free();
+
+    if (changed || !fs.existsSync(sqliteDbPath)) {
+      saveSqliteToDisk();
+      broadcastEvent({ type: 'deleted_ids_updated', ids: Array.from(current) });
+    }
+    return current;
+  };
+
+  // Migrate existing deleted_ids.json into SQLite on startup
+  const deletedIdsFilePath = path.join(dataDir, 'deleted_ids.json');
+  if (fs.existsSync(deletedIdsFilePath)) {
+    try {
+      const raw = fs.readFileSync(deletedIdsFilePath, 'utf-8');
+      const list = JSON.parse(raw);
+      if (Array.isArray(list) && list.length > 0) {
+        addDeletedIds(list.map(String));
+      }
+    } catch (e) {}
+  } else {
+    addDeletedIds([]);
+  }
+
+  // Migrate existing .json collection files into SQLite on startup
+  try {
+    const jsonFiles = fs.readdirSync(dataDir).filter((f) => f.endsWith('.json') && f !== 'deleted_ids.json');
+    const insStmt = sqliteDb.prepare('INSERT OR REPLACE INTO collections (collection, id, data, updated_at) VALUES (?, ?, ?, ?)');
+    const now = new Date().toISOString();
+    let migratedCount = 0;
+
+    for (const file of jsonFiles) {
+      const colName = file.replace(/\.json$/, '');
+      const filePath = path.join(dataDir, file);
+      try {
+        const raw = fs.readFileSync(filePath, 'utf-8');
+        const items = JSON.parse(raw);
+        if (Array.isArray(items)) {
+          for (const item of items) {
+            if (item && item.id !== undefined && item.id !== null) {
+              insStmt.run([colName, String(item.id), JSON.stringify(item), now]);
+              migratedCount++;
+            }
+          }
+        }
+      } catch (err) {}
+    }
+    insStmt.free();
+    if (migratedCount > 0) {
+      saveSqliteToDisk();
+      console.log(`[SQLite Migration] ✅ Migrated ${migratedCount} items across ${jsonFiles.length} JSON files into SQLite database.`);
+    }
+  } catch (err) {
+    console.error('[SQLite Migration] Error migrating JSON files to SQLite:', err);
+  }
+
+  // In-memory cache for ultra-fast response times
+  const collectionsCache = new Map<string, any[]>();
+
   const getCollectionFilePath = (colName: string): string => {
     const safeName = colName.replace(/[^a-zA-Z0-9_-]/g, '_');
     return path.join(dataDir, `${safeName}.json`);
-  };
-
-  const readCollectionFromDisk = (colName: string): any[] => {
-    try {
-      const filePath = getCollectionFilePath(colName);
-      if (fs.existsSync(filePath)) {
-        const raw = fs.readFileSync(filePath, 'utf-8');
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      }
-    } catch (err) {
-      console.error(`[VPS Storage] Error reading collection "${colName}":`, err);
-    }
-    return [];
   };
 
   const writeCollectionToDisk = (colName: string, items: any[]) => {
@@ -135,25 +210,75 @@ async function startServer() {
       fs.writeFileSync(tempPath, JSON.stringify(items, null, 2), 'utf-8');
       fs.renameSync(tempPath, filePath);
     } catch (err) {
-      console.error(`[VPS Storage] Error writing collection "${colName}":`, err);
+      console.error(`[VPS Storage Backup] Error writing collection "${colName}":`, err);
+    }
+  };
+
+  // Read collection directly from SQLite database
+  const readCollectionFromSQLite = (colName: string): any[] => {
+    try {
+      const stmt = sqliteDb.prepare('SELECT data FROM collections WHERE collection = ?');
+      stmt.bind([colName]);
+      const results: any[] = [];
+      while (stmt.step()) {
+        const row = stmt.getAsObject();
+        if (row.data) {
+          try {
+            results.push(JSON.parse(row.data as string));
+          } catch (e) {}
+        }
+      }
+      stmt.free();
+      return results;
+    } catch (err) {
+      console.error(`[SQLite] Error reading collection "${colName}":`, err);
+    }
+    return [];
+  };
+
+  // Write collection directly to SQLite database
+  const writeCollectionToSQLite = (colName: string, items: any[]) => {
+    try {
+      // Clear existing records for this collection in SQLite
+      const delStmt = sqliteDb.prepare('DELETE FROM collections WHERE collection = ?');
+      delStmt.run([colName]);
+      delStmt.free();
+
+      // Insert updated records
+      const insStmt = sqliteDb.prepare('INSERT OR REPLACE INTO collections (collection, id, data, updated_at) VALUES (?, ?, ?, ?)');
+      const now = new Date().toISOString();
+      for (const item of items) {
+        if (item && item.id !== undefined && item.id !== null) {
+          insStmt.run([colName, String(item.id), JSON.stringify(item), now]);
+        }
+      }
+      insStmt.free();
+
+      // Persist SQLite binary database to disk
+      saveSqliteToDisk();
+
+      // Also update backup JSON file for secondary redundancy
+      writeCollectionToDisk(colName, items);
+    } catch (err) {
+      console.error(`[SQLite] Error writing collection "${colName}":`, err);
     }
   };
 
   const getCollectionData = (colName: string): any[] => {
     if (!collectionsCache.has(colName)) {
-      const data = readCollectionFromDisk(colName);
+      const data = readCollectionFromSQLite(colName);
       collectionsCache.set(colName, data);
     }
     const rawList = collectionsCache.get(colName) || [];
     const delSet = getDeletedIds();
-    return rawList.filter((item) => !delSet.has(item.id) && item.id !== 'meta_deleted_ids');
+    return rawList.filter((item) => !delSet.has(String(item.id)) && item.id !== 'meta_deleted_ids');
   };
 
   const saveCollectionData = (colName: string, items: any[], notifySSE: boolean = true) => {
     const delSet = getDeletedIds();
-    const cleanItems = items.filter((item) => !delSet.has(item.id) && item.id !== 'meta_deleted_ids');
+    const cleanItems = items.filter((item) => !delSet.has(String(item.id)) && item.id !== 'meta_deleted_ids');
     collectionsCache.set(colName, cleanItems);
-    writeCollectionToDisk(colName, cleanItems);
+    writeCollectionToSQLite(colName, cleanItems);
     if (notifySSE) {
       broadcastEvent({ type: 'sync', collection: colName, data: cleanItems });
     }
@@ -163,8 +288,8 @@ async function startServer() {
   app.get('/api/health', (req, res) => {
     res.json({
       status: 'ok',
-      storageType: 'vps_filesystem',
-      storagePath: dataDir,
+      database: 'SQLite 3 (sql.js Engine)',
+      sqlitePath: sqliteDbPath,
       time: new Date().toISOString(),
       activeSSEConnections: sseClients.size,
       corsEnabled: true,

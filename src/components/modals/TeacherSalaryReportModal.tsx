@@ -91,35 +91,46 @@ export const TeacherSalaryReportModal: React.FC<TeacherSalaryReportModalProps> =
     return filteredSessions.map((sess) => {
       const cls = classes.find((c) => c.id === sess.classId);
       const level = cls?.courseLevel || 'Khóa 1';
-      const matchedTeacher = resolveTeacherFromSession(sess.teacherName, sess.classId, teachers, classes) || activeTeacher;
+      const matchedTeacher = resolveTeacherFromSession(sess.teacherName, sess.classId, teachers, classes) || activeTeacher || sess.teacherName;
       const classStudents = students.filter((st) => st.classId === sess.classId);
       
-      const salary = matchedTeacher
-        ? calculateTeacherSessionSalary(
-            matchedTeacher,
-            level,
-            sess.studentTotalCount || (classStudents.length > 0 ? classStudents.length : 20),
-            sess.sessionNumber,
-            classStudents
-          )
-        : 0;
+      const salary = calculateTeacherSessionSalary(
+        matchedTeacher,
+        level,
+        sess.studentTotalCount || (classStudents.length > 0 ? classStudents.length : 20),
+        sess.sessionNumber,
+        classStudents
+      );
 
       // Determine formula text for explanation
       let formulaText = '';
-      if (matchedTeacher) {
-        const calcType = matchedTeacher.salaryCalcType || getTeacherDefaultSalaryConfig(matchedTeacher.name).salaryCalcType || 'rate_per_student';
+      let tchObj: Teacher | null = null;
+      let tchName = '';
+      if (typeof matchedTeacher === 'string') {
+        tchName = matchedTeacher;
+      } else if (matchedTeacher && typeof matchedTeacher === 'object') {
+        tchObj = matchedTeacher;
+        tchName = matchedTeacher.name || '';
+      }
+      if (!tchObj && tchName) {
+        const def = getTeacherDefaultSalaryConfig(tchName);
+        tchObj = { id: 'temp', name: tchName, type: 'Việt Nam', ...def } as Teacher;
+      }
+
+      if (tchObj) {
+        const calcType = tchObj.salaryCalcType || getTeacherDefaultSalaryConfig(tchObj.name).salaryCalcType || 'rate_per_student';
         if (calcType === 'percent_of_amount') {
-          const defaults = getTeacherDefaultSalaryConfig(matchedTeacher.name);
+          const defaults = getTeacherDefaultSalaryConfig(tchObj.name);
           const lvl = (level || '').toLowerCase();
           let pct = 30;
           if (lvl.includes('4') || lvl.includes('k4') || lvl.includes('drill')) {
-            pct = matchedTeacher.percentageK4 ?? defaults.percentageK4 ?? 30;
+            pct = tchObj.percentageK4 ?? defaults.percentageK4 ?? 30;
           } else if (lvl.includes('3') || lvl.includes('k3') || lvl.includes('desire')) {
-            pct = matchedTeacher.percentageK3 ?? defaults.percentageK3 ?? 28;
+            pct = tchObj.percentageK3 ?? defaults.percentageK3 ?? 28;
           } else if (lvl.includes('2') || lvl.includes('k2') || lvl.includes('inspire')) {
-            pct = matchedTeacher.percentageK2 ?? defaults.percentageK2 ?? 26;
+            pct = tchObj.percentageK2 ?? defaults.percentageK2 ?? 26;
           } else {
-            pct = matchedTeacher.percentageK1 ?? defaults.percentageK1 ?? 24;
+            pct = tchObj.percentageK1 ?? defaults.percentageK1 ?? 24;
           }
           const retakeCount = classStudents.filter((st) => st.studentCategory === 'Học lại').length;
           if (retakeCount > 0) {

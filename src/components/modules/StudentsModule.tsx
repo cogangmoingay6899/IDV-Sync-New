@@ -22,7 +22,24 @@ import { ClassSpreadsheetGradebookModule } from "./ClassSpreadsheetGradebookModu
 import { ErrorBoundary } from "../ErrorBoundary";
 
 const y = React;
-const e = { jsx: _jsx, jsxs: _jsxs, Fragment: _Fragment };
+
+const customJsx = (type: any, props: any, maybeKey?: any): any => {
+  if (props && 'key' in props && maybeKey === undefined) {
+    const { key, ...rest } = props;
+    return _jsx(type, rest, key);
+  }
+  return _jsx(type, props, maybeKey);
+};
+
+const customJsxs = (type: any, props: any, maybeKey?: any): any => {
+  if (props && 'key' in props && maybeKey === undefined) {
+    const { key, ...rest } = props;
+    return _jsxs(type, rest, key);
+  }
+  return _jsxs(type, props, maybeKey);
+};
+
+const e = { jsx: customJsx, jsxs: customJsxs, Fragment: _Fragment };
 const CP = ClassDetailView;
 const HB = ClassVocabTestModule;
 const EB = ErrorBoundary;
@@ -663,11 +680,11 @@ const StudentsModule: React.FC<StudentsModuleProps> = ({
                         e.jsxs(
                           "button",
                           {
-                            key: `btn-quick-cls-${B}`,
                             onClick: () => we(B),
                             className: `px-2 py-0.5 rounded-md font-semibold text-[11px] shrink-0 transition-colors ${ne === B ? "bg-purple-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`,
                             children: ["Lớp ", B],
                           },
+                          `btn-quick-cls-${B}`
                         ),
                       ),
                     ],

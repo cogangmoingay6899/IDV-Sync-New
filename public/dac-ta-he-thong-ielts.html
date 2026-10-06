@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đặc Tả Kỹ Thuật - Hệ Thống IELTS Dương Vũ (IDV)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    @media print {
+      .page-break {
+        page-break-after: always;
+        break-after: page;
+      }
+      body {
+        background-color: #ffffff;
+        color: #000000;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50/50 text-slate-800 antialiased print:bg-white print:text-black">
+
+  <!-- Floating Action Bar for Web View -->
+  <div class="fixed bottom-6 right-6 z-50 no-print">
+    <button onclick="window.print()" class="flex items-center gap-2 bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+      </svg>
+      <span>In tài liệu / Lưu file PDF 📄</span>
+    </button>
+  </div>
+
+  <div class="max-w-4xl mx-auto my-12 p-8 sm:p-16 bg-white border border-slate-200/60 rounded-3xl shadow-sm print:border-none print:shadow-none print:my-0 print:p-0">
+
+    <!-- PAGE 1: COVER PAGE -->
+    <div class="page-break flex flex-col justify-between min-h-[85vh] print:min-h-[100vh] pb-12">
+      <div class="space-y-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-200 rounded-full text-indigo-700 text-xs font-black uppercase tracking-wider">
+          Tài Liệu Đặc Tả Dự Án Chuyên Nghiệp
+        </div>
+        <h1 class="text-4xl sm:text-5xl font-black text-slate-900 leading-tight">
+          HỆ THỐNG QUẢN TRỊ <br>
+          <span class="text-indigo-700">TRUNG TÂM TIẾNG ANH</span> <br>
+          TOÀN DIỆN (IELTS CENTER SYSTEM)
+        </h1>
+        <p class="text-lg text-slate-500 font-medium">
+          Mô hình hóa nghiệp vụ chuyên sâu dựa trên quy trình vận hành thực tế của trung tâm IELTS Dương Vũ (IDV).
+        </p>
+      </div>
+
+      <div class="border-t-4 border-indigo-700 pt-8 mt-12 space-y-4">
+        <div class="grid grid-cols-2 gap-4 text-xs">
+          <div>
+            <span class="text-slate-400 font-bold block uppercase tracking-wider">Sản phẩm</span>
+            <span class="font-extrabold text-slate-900 text-sm">IELTS Dương Vũ Management Platform</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block uppercase tracking-wider">Phiên bản</span>
+            <span class="font-extrabold text-slate-900 text-sm">v2.0 (Ổn định - Thực tế)</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block uppercase tracking-wider">Ngày biên soạn</span>
+            <span class="font-extrabold text-slate-900 text-sm">05 Tháng 10, 2026</span>
+          </div>
+          <div>
+            <span class="text-slate-400 font-bold block uppercase tracking-wider">Tác giả</span>
+            <span class="font-extrabold text-slate-900 text-sm">Google AI Studio Build & IDV Team</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: MỤC LỤC -->
+    <div class="page-break py-12">
+      <h2 class="text-2xl font-black text-slate-900 mb-6 pb-2 border-b border-slate-100 flex items-center gap-2">
+        <span class="w-2 h-6 bg-indigo-700 rounded"></span>
+        MỤC LỤC HỆ THỐNG
+      </h2>
+      <ul class="space-y-4 font-semibold text-slate-700">
+        <li class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+          <span>I. Kiến Trúc Kỹ Thuật & Chiến Lược Đồng Bộ</span>
+          <span class="font-mono text-slate-400">Trang 03</span>
+        </li>
+        <li class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+          <span>II. Phân Hệ Quản Lý Nhân Sự & Định Mức Lương Giáo Viên</span>
+          <span class="font-mono text-slate-400">Trang 04</span>
+        </li>
+        <li class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+          <span>III. Phân Hệ Quản Lý Lớp Học & Lịch Trình Tự Động</span>
+          <span class="font-mono text-slate-400">Trang 06</span>
+        </li>
+        <li class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+          <span>IV. Phòng Thi Từ Vựng Trực Tuyến & Động Cơ Chống Gian Lận</span>
+          <span class="font-mono text-slate-400">Trang 08</span>
+        </li>
+        <li class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+          <span>V. Phân Hệ Tài Chính, Thu Chi & Quản Lý Phiếu Thu</span>
+          <span class="font-mono text-slate-400">Trang 10</span>
+        </li>
+        <li class="flex justify-between border-b border-dashed border-slate-200 pb-1">
+          <span>VI. Độc Lập Bộ Nhớ & Toàn Vẹn Dữ Liệu Khi Xóa (Anti-resurrection)</span>
+          <span class="font-mono text-slate-400">Trang 11</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PAGE 3: KIẾN TRÚC KỸ THUẬT -->
+    <div class="page-break py-12">
+      <h2 class="text-2xl font-black text-slate-900 mb-6 pb-2 border-b border-slate-100 flex items-center gap-2">
+        <span class="w-2 h-6 bg-indigo-700 rounded"></span>
+        I. KIẾN TRÚC KỸ THUẬT & CHIẾN LƯỢC ĐỒNG BỘ
+      </h2>
+      <div class="space-y-4 text-justify leading-relaxed">
+        <p>
+          Hệ thống được vận hành theo kiến trúc <strong>VPS-First Storage</strong> tối ưu hóa chi phí và tốc độ tải trang. Thay vì liên tục truy vấn trực tiếp vào máy chủ Cloud Database đắt đỏ, hệ thống duy trì một tệp JSON đĩa cứng tại máy chủ VPS.
+        </p>
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 font-mono text-xs text-indigo-950 space-y-2">
+          <div class="font-black text-slate-500">// Kiến trúc luồng ghi dữ liệu trực tiếp:</div>
+          <div>1. Gửi lệnh ghi nhận (POST/PUT/DELETE) về VPS Server API (/api/storage/:collection).</div>
+          <div>2. API ghi tức thì xuống file cứng trên đĩa VPS (ví dụ: server-storage/classes.json).</div>
+          <div>3. Đồng bộ bất đồng bộ lên Firestore Cloud để sao lưu lâu dài.</div>
+          <div>4. Phát tín hiệu Server-Sent Events (SSE) để cập nhật giao diện của tất cả các máy trạm khác thời gian thực.</div>
+        </div>
+        <p>
+          Kiến trúc này giải quyết triệt để vấn đề <strong>Lệch trạng thái</strong> khi có nhiều giáo viên cùng truy cập điểm danh, giúp thời gian tải trang đạt mức cực hạn dưới 100ms.
+        </p>
+      </div>
+    </div>
+
+    <!-- PAGE 4: PHÂN HỆ QUẢN LÝ NHÂN SỰ -->
+    <div class="page-break py-12">
+      <h2 class="text-2xl font-black text-slate-900 mb-6 pb-2 border-b border-slate-100 flex items-center gap-2">
+        <span class="w-2 h-6 bg-indigo-700 rounded"></span>
+        II. PHÂN HỆ NHÂN SỰ & ĐỊNH MỨC LƯƠNG GIÁO VIÊN
+      </h2>
+      <div class="space-y-6">
+        <p class="leading-relaxed">
+          Đặc thù nghiệp vụ trung tâm đòi hỏi xử lý nhiều định mức lương rất phức tạp, kết hợp cả khoán theo phần trăm học sinh và lương cứng theo ca dạy có điều kiện.
+        </p>
+
+        <!-- TABLE: Cấu hình lương giáo viên -->
+        <div class="border border-slate-200 rounded-2xl overflow-hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-indigo-50/70 border-b border-slate-200 text-indigo-950 font-black">
+                <th class="p-3">Giáo viên</th>
+                <th class="p-3">Loại lương</th>
+                <th class="p-3 text-right">Định mức / Mô tả</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-medium">
+              <tr>
+                <td class="p-3 font-bold">Trang Nguyễn, Diệp Đặng, Thơm Nguyễn</td>
+                <td class="p-3">Khoán % theo khóa</td>
+                <td class="p-3 text-right font-semibold">K4: 30% | K3: 28% | K2: 26% | K1: 24% (Tính trên học viên)</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold">Huyền Chi</td>
+                <td class="p-3">Lương cứng cố định</td>
+                <td class="p-3 text-right font-semibold">600.000 đ / buổi dạy</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold">Vũ Thùy</td>
+                <td class="p-3">Lương cứng cố định</td>
+                <td class="p-3 text-right font-bold text-emerald-800">400.000 đ / buổi dạy</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold">Đàm Trung Hiếu, Hải Long, Vũ Ngân</td>
+                <td class="p-3">Lương cứng cố định</td>
+                <td class="p-3 text-right font-semibold">500.000 đ / buổi dạy</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold">Giáo viên Native (Bản ngữ)</td>
+                <td class="p-3">Theo sĩ số học viên</td>
+                <td class="p-3 text-right font-semibold">39.000 đ / học viên / buổi</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide">Quy tắc đặc thù khi giảm trừ cho Học viên học lại:</h3>
+          <p class="text-xs text-slate-500 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+            Đối với giáo viên ăn lương khoán phần trăm doanh thu (ví dụ: Trang Nguyễn): <br>
+            Học viên ghi nhận diện <strong>Học lại (Retake)</strong> chỉ mang lại doanh thu định mức <strong>75.000 đ / buổi</strong> (thay vì 150.000 đ của học viên thường). Do đó, lương ca dạy của giáo viên Trang Nguyễn đối với học viên học lại được giảm trừ trực tiếp 50%.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 5: PHÂN HỆ QUẢN LÝ LỚP HỌC -->
+    <div class="page-break py-12">
+      <h2 class="text-2xl font-black text-slate-900 mb-6 pb-2 border-b border-slate-100 flex items-center gap-2">
+        <span class="w-2 h-6 bg-indigo-700 rounded"></span>
+        III. PHÂN HỆ QUẢN LÝ LỚP HỌC & LỊCH TRÌNH TỰ ĐỘNG
+      </h2>
+      <div class="space-y-4 leading-relaxed">
+        <p>
+          Hệ thống loại bỏ hoàn toàn việc trợ giảng tính toán ngày kết thúc lớp học thủ công. Thuật toán tự động sinh lịch học định kỳ hoạt động dựa trên các tham số:
+        </p>
+        <ul class="list-disc pl-5 text-xs space-y-2 text-slate-600 font-semibold">
+          <li><strong>Ngày khai giảng (startDate)</strong>: Điểm xuất phát của lớp học.</li>
+          <li><strong>Tổng số buổi (totalSessions)</strong>: Thường là 24, 32 hoặc 48 buổi.</li>
+          <li><strong>Preset lịch học định kỳ (schedule)</strong>: Ví dụ "Thứ 2 + Thứ 5", "Thứ 4 + Thứ 7".</li>
+          <li><strong>Danh sách ngày nghỉ lễ (offDates)</strong>: Danh sách các ngày lễ quốc gia được lưu cấu hình trên máy chủ để tự động nhảy ngày tiếp theo.</li>
+        </ul>
+        <div class="bg-indigo-950 text-white p-5 rounded-2xl font-mono text-xs space-y-2">
+          <div class="text-amber-300 font-bold">// Cú pháp kiểm tra trùng lặp mã lớp chống rác hệ thống:</div>
+          <div>if (classes.some(c => c.code.toUpperCase() === newCode.toUpperCase())) {</div>
+          <div>&nbsp;&nbsp;throw new Error("Mã lớp đã tồn tại trong cơ sở dữ liệu!");</div>
+          <div>}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 6: PHÒNG THI TỪ VỰNG ONLINE -->
+    <div class="page-break py-12">
+      <h2 class="text-2xl font-black text-slate-900 mb-6 pb-2 border-b border-slate-100 flex items-center gap-2">
+        <span class="w-2 h-6 bg-indigo-700 rounded"></span>
+        IV. PHÒNG THI ONLINE & ĐỘNG CƠ CHỐNG GIAN LẬN
+      </h2>
+      <div class="space-y-4 leading-relaxed">
+        <p>
+          Phân hệ thi trực tuyến tích hợp cơ chế bảo mật cao cấp (Proctoring Engine) nhằm ghi nhận trung thực năng lực học viên:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+            <h4 class="font-extrabold text-slate-900 text-xs uppercase mb-2 text-rose-700">🚨 Chống chuyển Tab (Tab-Switch)</h4>
+            <p class="text-xs text-slate-500 leading-relaxed font-semibold">
+              Hệ thống kích hoạt trình lắng nghe thay đổi trạng thái trình duyệt. Rời màn hình thi 1 lần sẽ nhận thông báo cảnh cáo toàn màn hình.
+            </p>
+          </div>
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+            <h4 class="font-extrabold text-slate-900 text-xs uppercase mb-2 text-indigo-700">🏁 Nộp bài cưỡng chế</h4>
+            <p class="text-xs text-slate-500 leading-relaxed font-semibold">
+              Nếu số lần vi phạm vượt ngưỡng (mặc định >3 lần), động cơ thi sẽ ngay lập tức tự động nộp bài và khóa màn hình làm bài của học viên.
+            </p>
+          </div>
+        </div>
+
+        <p class="text-xs font-bold text-slate-500 bg-amber-50 border border-amber-200 p-4 rounded-xl">
+          👉 <strong>Bảng xếp hạng tự động gom nhóm lớp:</strong> <br>
+          Học viên hoàn thành bài kiểm tra sẽ lập tức chuyển hướng sang giao diện bảng xếp hạng. Hệ thống gom tất cả học viên có chung tên hoặc mã lớp vào bảng vinh danh và xếp hạng theo điểm số giảm dần, thời gian nộp bài nhanh nhất.
+        </p>
+      </div>
+    </div>
+
+    <!-- PAGE 7: PHÂN HỆ TÀI CHÍNH & XÓA CỨNG -->
+    <div class="page-break py-12">
+      <h2 class="text-2xl font-black text-slate-900 mb-6 pb-2 border-b border-slate-100 flex items-center gap-2">
+        <span class="w-2 h-6 bg-indigo-700 rounded"></span>
+        V. PHÂN HỆ TÀI CHÍNH & QUY TRÌNH XÓA CỨNG CHỐNG HỒI SINH
+      </h2>
+      <div class="space-y-6 leading-relaxed text-justify">
+        <div>
+          <h3 class="text-sm font-black text-slate-900 uppercase mb-2">1. Công nợ & Phiếu thu chuyên nghiệp</h3>
+          <p class="text-xs text-slate-600 font-medium">
+            Mỗi giao dịch nộp học phí sinh ra một hóa đơn định danh dạng <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-indigo-700 font-bold">PT-IDV-[NgàyTháng]-[MãHọcViên]</code>. Hệ thống tính tự động công nợ còn thiếu dựa trên tổng phí khóa học trừ đi thực đóng, loại bỏ hoàn toàn khả năng sai lệch sổ sách.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-black text-slate-900 uppercase mb-2 text-rose-700">2. Cơ chế xóa cứng an toàn (Anti-resurrection)</h3>
+          <p class="text-xs text-slate-600 font-medium">
+            Một vấn đề cực kỳ phổ biến trong các hệ thống Web là học viên/lớp học đã bị xóa trên giao diện nhưng khi bấm <code class="font-mono bg-slate-100 px-1 py-0.5 rounded font-bold">Ctrl + Shift + R</code> hoặc tải lại trang lại tự động xuất hiện lại do cache trình duyệt hoặc re-seed dữ liệu thô. <br>
+            Hệ thống giải quyết dứt điểm bằng cách đưa ID đã xóa vào danh sách cấm vật lý <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-rose-700 font-bold">deleted_ids</code>. Mọi hàm xử lý tải dữ liệu gốc bắt buộc lọc qua danh sách này trước khi phân phát đến các máy trạm.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER PAGE -->
+    <div class="border-t border-slate-100 pt-6 mt-12 flex justify-between items-center text-xs font-semibold text-slate-400 no-print">
+      <span>Đặc tả kỹ thuật hệ thống - IELTS Dương Vũ (IDV)</span>
+      <span>Trang 12 / 12</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

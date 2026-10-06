@@ -1,5 +1,90 @@
 @import "tailwindcss";
 
+@layer base {
+  html {
+    font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-size: 16.5px;
+    color: #0f172a; /* High contrast slate-900 */
+    background-color: #f8fafc;
+  }
+
+  body {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: #0f172a;
+  }
+
+  /* Sharpen all input controls and buttons */
+  input, select, textarea, button {
+    font-family: inherit;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Sharp border definition for card boundaries */
+  .border {
+    border-color: rgba(203, 213, 225, 0.95) !important;
+  }
+}
+
+/* --- High-Legibility Typography Scaling --- */
+.text-\[8px\], .text-\[8\.5px\] {
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+}
+
+.text-\[9px\], .text-\[9\.5px\] {
+  font-size: 12.5px !important;
+  line-height: 1.4 !important;
+}
+
+.text-\[10px\], .text-\[10\.5px\] {
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+.text-\[11px\] {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.text-xs {
+  font-size: 14.5px !important;
+  line-height: 1.5 !important;
+}
+
+.text-sm {
+  font-size: 16px !important;
+  line-height: 1.55 !important;
+}
+
+.text-base {
+  font-size: 17.5px !important;
+  line-height: 1.5 !important;
+}
+
+.text-lg {
+  font-size: 19.5px !important;
+  line-height: 1.4 !important;
+}
+
+.text-xl {
+  font-size: 23px !important;
+  line-height: 1.35 !important;
+}
+
+.text-2xl {
+  font-size: 27px !important;
+  line-height: 1.3 !important;
+}
+
+.text-3xl {
+  font-size: 33px !important;
+  line-height: 1.25 !important;
+}
+
 /* Hide scrollbar utility for smooth horizontal touch swiping */
 .no-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
@@ -12,4 +97,34 @@
 /* Ensure smooth touch inertial scrolling on iOS devices */
 .overflow-x-auto {
   -webkit-overflow-scrolling: touch;
+}
+
+/* High contrast crisp table styles */
+table {
+  font-variant-numeric: tabular-nums;
+  border-collapse: collapse;
+}
+
+th {
+  font-weight: 800 !important;
+  color: #020617 !important;
+  letter-spacing: -0.01em;
+  font-size: 14px !important;
+}
+
+td {
+  color: #0f172a !important;
+  font-weight: 600;
+  font-size: 14.5px !important;
+}
+
+/* Sharp high contrast badge styling */
+.badge, span[class*="bg-"] {
+  font-weight: 700;
+}
+
+/* Sharp focus ring for controls */
+input:focus, select:focus, textarea:focus, button:focus-visible {
+  outline: 2px solid #6366f1 !important;
+  outline-offset: 1px;
 }
