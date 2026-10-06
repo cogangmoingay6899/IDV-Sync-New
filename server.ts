@@ -389,6 +389,11 @@ async function startServer() {
       }
 
       const stringId = String(item.id);
+      const delSet = getDeletedIds();
+      if (delSet.has(stringId)) {
+        return res.json({ success: true, message: 'Item is deleted in registry', data: null });
+      }
+
       const existing = getCollectionData(colName);
       const index = existing.findIndex((e) => String(e.id) === stringId);
 

@@ -323,17 +323,15 @@ export default function App() {
   });
   const [classes, setClasses] = useState<ClassGroup[]>(() => {
     try {
-      const deletedIds: string[] = JSON.parse(localStorage.getItem('idv_deleted_class_ids') || '[]');
-      const setDeleted = new Set(deletedIds);
       const cached = localStorage.getItem('vps_col_classes');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.filter((c) => !setDeleted.has(c.id));
+          return parsed.filter((c) => !isRecordDeleted(c.id, 'classes'));
         }
       }
     } catch (e) {}
-    return INITIAL_CLASSES;
+    return INITIAL_CLASSES.filter((c) => !isRecordDeleted(c.id, 'classes'));
   });
   const [teachers, setTeachers] = useState<Teacher[]>(() => {
     try {
@@ -576,6 +574,7 @@ export default function App() {
 
         const unsyncedTests = candidateSubs.filter((t) => {
           if (serverIds.has(t.id)) return false;
+          if (isRecordDeleted(t.id, 'placementTests')) return false;
           try {
             const dateToCheck = t.submittedAt ? new Date(t.submittedAt) : t.testDate ? new Date(t.testDate) : null;
             if (dateToCheck && !isNaN(dateToCheck.getTime())) {

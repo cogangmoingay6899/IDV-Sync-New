@@ -13,10 +13,16 @@ interface HomeworkConfigModalProps {
 
 const PRESET_BUNDLES = [
   {
-    name: 'Đầy đủ (6 mục tiêu chuẩn)',
-    desc: 'Nghe, Nói, Đọc, Viết, Chép phạt, Chữa bài',
-    items: ['Nghe', 'Nói', 'Đọc', 'Viết', 'Chép phạt', 'Chữa bài'],
-    icon: '🎯',
+    name: 'Cụm Nghe - Viết - Nói',
+    desc: 'BTVN gồm 3 kỹ năng: Nghe, Viết, Nói',
+    items: ['Nghe', 'Viết', 'Nói'],
+    icon: '🎧',
+  },
+  {
+    name: 'Cụm Đọc - Viết - Nói',
+    desc: 'BTVN gồm 3 kỹ năng: Đọc, Viết, Nói',
+    items: ['Đọc', 'Viết', 'Nói'],
+    icon: '📖',
   },
   {
     name: '4 Kỹ năng IELTS',
@@ -25,16 +31,10 @@ const PRESET_BUNDLES = [
     icon: '📚',
   },
   {
-    name: 'Luyện đề & Chữa bài',
-    desc: 'Luyện đề, Chữa bài, Chép phạt, Từ vựng',
-    items: ['Luyện đề', 'Chữa bài', 'Chép phạt', 'Từ vựng'],
-    icon: '📝',
-  },
-  {
-    name: 'Kỷ luật & Nền tảng',
-    desc: 'Từ vựng, Ngữ pháp, Chép phạt, Chữa bài',
-    items: ['Từ vựng', 'Ngữ pháp', 'Chép phạt', 'Chữa bài'],
-    icon: '⚡',
+    name: 'Đầy đủ (6 mục tiêu chuẩn)',
+    desc: 'Nghe, Nói, Đọc, Viết, Chép phạt, Chữa bài',
+    items: ['Nghe', 'Nói', 'Đọc', 'Viết', 'Chép phạt', 'Chữa bài'],
+    icon: '🎯',
   },
 ];
 

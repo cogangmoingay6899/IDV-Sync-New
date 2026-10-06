@@ -685,8 +685,8 @@ export const ClassDetailView: React.FC<ClassDetailViewProps> = ({
   const [sessionNumber, setSessionNumber] = useState<number>(classGroup.completedSessions + 1 || 1);
   const [teacherName, setTeacherName] = useState<string>(classGroup.teacherName || '');
   
-  // Flexible multiple skills in a single session e.g. ['Từ vựng', 'Nghe', 'Đọc']
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(['Từ vựng', 'Nghe', 'Đọc']);
+  // Flexible multiple skills in a single session e.g. ['Từ vựng', 'Nghe'] hoặc ['Từ vựng', 'Đọc']
+  const [selectedSkills, setSelectedSkills] = useState<string[]>(['Từ vựng', 'Nghe']);
   const [lessonTopic, setLessonTopic] = useState<string>('');
   const [enableOverallScore, setEnableOverallScore] = useState<boolean>(false);
   const [overallScoreType, setOverallScoreType] = useState<'average' | 'ielts_band'>('average');
@@ -2499,17 +2499,17 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                   <span className="text-slate-400 font-medium">Gợi ý nhanh:</span>
                   <button
                     type="button"
-                    onClick={() => setPresetSkills(['Ôn tập'])}
-                    className="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg font-bold transition-colors flex items-center gap-1"
+                    onClick={() => setPresetSkills(['Từ vựng', 'Nghe'])}
+                    className="px-2.5 py-0.5 bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 rounded-lg font-black transition-colors flex items-center gap-1 shadow-2xs"
                   >
-                    <span>🔄 Ôn tập</span>
+                    <span>🎧 📝 Nghe + Từ vựng (Mặc định)</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPresetSkills(['Từ vựng', 'Nghe', 'Đọc'])}
-                    className="px-2 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-bold transition-colors"
+                    onClick={() => setPresetSkills(['Từ vựng', 'Đọc'])}
+                    className="px-2.5 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-950 border border-blue-300 rounded-lg font-black transition-colors flex items-center gap-1 shadow-2xs"
                   >
-                    Từ vựng + Nghe + Đọc
+                    <span>📖 📝 Đọc + Từ vựng (Mặc định)</span>
                   </button>
                   <button
                     type="button"
@@ -2520,10 +2520,10 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPresetSkills(['Nói', 'Phát âm'])}
-                    className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold transition-colors"
+                    onClick={() => setPresetSkills(['Từ vựng', 'Nghe', 'Đọc'])}
+                    className="px-2 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-bold transition-colors"
                   >
-                    Nói + Phát âm
+                    Từ vựng + Nghe + Đọc
                   </button>
                   <button
                     type="button"
@@ -2635,90 +2635,103 @@ ${writingPenaltyNote}${penaltyInfo}${feedbackText}━━━━━━━━━━
               </div>
 
               {/* Section 6: Multi-Homework Selection Bar */}
-              <div className="pt-3 border-t border-slate-100 space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <ListChecks className="w-3.5 h-3.5 text-amber-600" />
-                    <span>6. Chọn bài tập (BTVN) cần kiểm tra buổi này ({homeworkItems.length} mục đã chọn):</span>
-                  </span>
-                  <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                    <span className="text-slate-400 font-medium">Gợi ý nhanh:</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const items = ['Nghe', 'Viết'];
-                        setHomeworkItems(items);
-                        localStorage.setItem('idv_homework_items', JSON.stringify(items));
-                      }}
-                      className="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg font-bold"
-                    >
-                      Nghe + Viết
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const items = ['Nghe', 'Nói', 'Đọc', 'Viết'];
-                        setHomeworkItems(items);
-                        localStorage.setItem('idv_homework_items', JSON.stringify(items));
-                      }}
-                      className="px-2 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-bold"
-                    >
-                      4 Kỹ năng
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const items = ['Nghe', 'Nói', 'Đọc', 'Viết', 'Chép phạt', 'Chữa bài'];
-                        setHomeworkItems(items);
-                        localStorage.setItem('idv_homework_items', JSON.stringify(items));
-                      }}
-                      className="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-bold"
-                    >
-                      Đầy đủ (6 mục)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsHwConfigModalOpen(true)}
-                      className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg font-bold flex items-center gap-1"
-                    >
-                      <Settings className="w-3 h-3 text-slate-600" />
-                      <span>Tùy chỉnh thêm</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {['Nghe', 'Nói', 'Đọc', 'Viết', 'Từ vựng', 'Ngữ pháp', 'Chép phạt', 'Chữa bài', 'Luyện đề'].map((item) => {
-                    const isSelected = homeworkItems.includes(item);
-                    return (
+              {!isTeacherUser && (
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <ListChecks className="w-3.5 h-3.5 text-amber-600" />
+                      <span>6. Chọn bài tập (BTVN) cần kiểm tra buổi này ({homeworkItems.length} mục đã chọn):</span>
+                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                      <span className="text-slate-400 font-medium">Gợi ý nhanh:</span>
                       <button
-                        key={item}
                         type="button"
                         onClick={() => {
-                          let next: string[];
-                          if (isSelected) {
-                            if (homeworkItems.length <= 1) return;
-                            next = homeworkItems.filter((h) => h !== item);
-                          } else {
-                            next = [...homeworkItems, item];
-                          }
-                          setHomeworkItems(next);
-                          localStorage.setItem('idv_homework_items', JSON.stringify(next));
+                          const items = ['Nghe', 'Viết', 'Nói'];
+                          setHomeworkItems(items);
+                          localStorage.setItem('idv_homework_items', JSON.stringify(items));
                         }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                          isSelected
-                            ? 'bg-amber-500 text-amber-950 shadow-xs ring-2 ring-amber-300 font-extrabold'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
+                        className="px-2 py-0.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg font-black flex items-center gap-1 shadow-2xs"
                       >
-                        <span className="text-xs">{isSelected ? '☑' : '☐'}</span>
-                        <span>{item}</span>
-                        {isSelected && <Check className="w-3 h-3 ml-0.5 text-amber-950 stroke-[3]" />}
+                        <span>🎧 Cụm Nghe - Viết - Nói</span>
                       </button>
-                    );
-                  })}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const items = ['Đọc', 'Viết', 'Nói'];
+                          setHomeworkItems(items);
+                          localStorage.setItem('idv_homework_items', JSON.stringify(items));
+                        }}
+                        className="px-2 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-900 border border-blue-300 rounded-lg font-black flex items-center gap-1 shadow-2xs"
+                      >
+                        <span>📖 Cụm Đọc - Viết - Nói</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const items = ['Nghe', 'Nói', 'Đọc', 'Viết'];
+                          setHomeworkItems(items);
+                          localStorage.setItem('idv_homework_items', JSON.stringify(items));
+                        }}
+                        className="px-2 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-bold"
+                      >
+                        4 Kỹ năng
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const items = ['Nghe', 'Nói', 'Đọc', 'Viết', 'Chép phạt', 'Chữa bài'];
+                          setHomeworkItems(items);
+                          localStorage.setItem('idv_homework_items', JSON.stringify(items));
+                        }}
+                        className="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-bold"
+                      >
+                        Đầy đủ (6 mục)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsHwConfigModalOpen(true)}
+                        className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg font-bold flex items-center gap-1"
+                      >
+                        <Settings className="w-3 h-3 text-slate-600" />
+                        <span>Tùy chỉnh thêm</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {['Nghe', 'Nói', 'Đọc', 'Viết', 'Từ vựng', 'Ngữ pháp', 'Chép phạt', 'Chữa bài', 'Luyện đề'].map((item) => {
+                      const isSelected = homeworkItems.includes(item);
+                      return (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => {
+                            let next: string[];
+                            if (isSelected) {
+                              if (homeworkItems.length <= 1) return;
+                              next = homeworkItems.filter((h) => h !== item);
+                            } else {
+                              next = [...homeworkItems, item];
+                            }
+                            setHomeworkItems(next);
+                            localStorage.setItem('idv_homework_items', JSON.stringify(next));
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                            isSelected
+                              ? 'bg-amber-500 text-amber-950 shadow-xs ring-2 ring-amber-300 font-extrabold'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          <span className="text-xs">{isSelected ? '☑' : '☐'}</span>
+                          <span>{item}</span>
+                          {isSelected && <Check className="w-3 h-3 ml-0.5 text-amber-950 stroke-[3]" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Special penalty alert when skill Viết is active */}

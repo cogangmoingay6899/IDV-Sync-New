@@ -118,17 +118,59 @@ function purgeDeletedItemFromCache(collectionName: string, id: string) {
 }
 
 /**
+  * Purge deleted items from all localStorage caches across all keys
+  */
+export function purgeAllDeletedItemsFromLocalStorage() {
+  if (typeof window === 'undefined') return;
+  try {
+    const cols = ['classes', 'students', 'teachers', 'placementTests', 'attendance', 'transactions', 'leads', 'exams', 'contactNotes', 'milestoneEvaluations'];
+    for (const col of cols) {
+      const raw = localStorage.getItem(`vps_col_${col}`);
+      if (raw) {
+        try {
+          const items = JSON.parse(raw);
+          if (Array.isArray(items)) {
+            const clean = items.filter((item) => !isRecordDeleted(item.id, col));
+            localStorage.setItem(`vps_col_${col}`, JSON.stringify(clean));
+          }
+        } catch (e) {}
+      }
+    }
+
+    const rawCache = localStorage.getItem('idv_placement_tests_cache');
+    if (rawCache) {
+      try {
+        const items = JSON.parse(rawCache);
+        if (Array.isArray(items)) {
+          const clean = items.filter((item) => !isRecordDeleted(item.id, 'placementTests'));
+          localStorage.setItem('idv_placement_tests_cache', JSON.stringify(clean));
+        }
+      } catch (e) {}
+    }
+
+    const rawSubmitted = localStorage.getItem('idv_submitted_candidate_placement_tests');
+    if (rawSubmitted) {
+      try {
+        const items = JSON.parse(rawSubmitted);
+        if (Array.isArray(items)) {
+          const clean = items.filter((item) => !isRecordDeleted(item.id, 'placementTests'));
+          localStorage.setItem('idv_submitted_candidate_placement_tests', JSON.stringify(clean));
+        }
+      } catch (e) {}
+    }
+  } catch (e) {}
+}
+
+/**
  * Synchronizes deleted IDs across cloud Firestore and VPS Server
  */
 export async function syncCloudDeletedRecords(): Promise<void> {
   // 1. Fetch from server API
   try {
-    const res = await fetch('/api/deleted-ids');
+    const res = await fetch(`/api/deleted-ids?_t=${Date.now()}`);
     if (res.ok) {
       const json = await res.json();
       if (json.success && Array.isArray(json.deletedIds)) {
-        globalDeletedIdsSet.clear();
-        KNOWN_DEFAULT_DELETED_IDS.forEach(id => globalDeletedIdsSet.add(id));
         json.deletedIds.forEach((id: string) => globalDeletedIdsSet.add(String(id)));
       }
     }
@@ -141,7 +183,10 @@ export async function syncCloudDeletedRecords(): Promise<void> {
     }
   } catch (e) {}
 
-  // Clean currently cached collections
+  // Clean all localStorage keys
+  purgeAllDeletedItemsFromLocalStorage();
+
+  // Clean currently cached collections in memory and notify active listeners
   for (const [colName, items] of cachedCollections.entries()) {
     const clean = items.filter((item) => !isRecordDeleted(item.id, colName));
     if (clean.length !== items.length) {

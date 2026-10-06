@@ -116,7 +116,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({
   const [currentDate, setCurrentDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [sessionNumber, setSessionNumber] = useState<number>(1);
   const [teacherName, setTeacherName] = useState<string>('');
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(['Từ vựng', 'Nghe', 'Đọc']);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>(['Từ vựng', 'Nghe']);
   const [lessonTopic, setLessonTopic] = useState<string>('');
   const [totalPenaltyAmount, setTotalPenaltyAmount] = useState<string>('0');
   const [penaltyBankAccount, setPenaltyBankAccount] = useState<string>(() => {
@@ -1079,119 +1079,121 @@ ${penaltyNotes}${teacherFeedbackSection}━━━━━━━━━━━━━�
         </div>
 
         {/* Penalty Setting & Auto-calculated Total Amount */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-          {/* Box 1: Điền & gán nhanh mức phạt */}
-          <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/90 shadow-xs space-y-2 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <label className="block text-xs font-extrabold text-amber-950 flex items-center gap-1.5">
-                <Coins className="w-4 h-4 text-amber-600" />
-                <span>5. Mức phạt nộp bài (Trợ lý điền số tiền):</span>
-              </label>
-              <span className="text-[10px] font-bold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-200">
-                Tự động cộng dồn
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] font-bold text-slate-600">Phạt buổi này:</span>
-              {(['10.000 đ', '20.000 đ', '50.000 đ', '0 đ'] as const).map((amt) => (
+        {!isTeacher && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            {/* Box 1: Điền & gán nhanh mức phạt */}
+            <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/90 shadow-xs space-y-2 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-extrabold text-amber-950 flex items-center gap-1.5">
+                  <Coins className="w-4 h-4 text-amber-600" />
+                  <span>5. Mức phạt nộp bài (Trợ lý điền số tiền):</span>
+                </label>
+                <span className="text-[10px] font-bold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-200">
+                  Tự động cộng dồn
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[11px] font-bold text-slate-600">Phạt buổi này:</span>
+                {(['10.000 đ', '20.000 đ', '50.000 đ', '0 đ'] as const).map((amt) => (
+                  <button
+                    key={amt}
+                    type="button"
+                    onClick={() => handleSetAllPenaltyFees(amt)}
+                    className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-white text-amber-900 border border-amber-300 hover:bg-amber-100/80 shadow-2xs transition-all active:scale-95"
+                  >
+                    {amt === '0 đ' ? 'Đặt lại 0đ' : `Gán ${amt}`}
+                  </button>
+                ))}
                 <button
-                  key={amt}
                   type="button"
-                  onClick={() => handleSetAllPenaltyFees(amt)}
-                  className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-white text-amber-900 border border-amber-300 hover:bg-amber-100/80 shadow-2xs transition-all active:scale-95"
-                >
-                  {amt === '0 đ' ? 'Đặt lại 0đ' : `Gán ${amt}`}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => {
-                  setStudentRows((prev) => {
-                    const next = { ...prev };
-                    classStudents.forEach((st) => {
-                      if (next[st.id]) {
-                        let missingCount = 0;
-                        if (next[st.id].homeworkStatus === 'Chưa làm' || next[st.id].homeworkStatus === 'Thiếu') {
-                          missingCount++;
+                  onClick={() => {
+                    setStudentRows((prev) => {
+                      const next = { ...prev };
+                      classStudents.forEach((st) => {
+                        if (next[st.id]) {
+                          let missingCount = 0;
+                          if (next[st.id].homeworkStatus === 'Chưa làm' || next[st.id].homeworkStatus === 'Thiếu') {
+                            missingCount++;
+                          }
+                          if (next[st.id].quizletStatus === 'Chưa học') {
+                            missingCount++;
+                          }
+                          const fee = missingCount * 10000;
+                          next[st.id] = {
+                            ...next[st.id],
+                            penaltyFee: fee > 0 ? `${fee.toLocaleString('vi-VN')} đ` : '0 đ',
+                          };
                         }
-                        if (next[st.id].quizletStatus === 'Chưa học') {
-                          missingCount++;
-                        }
-                        const fee = missingCount * 10000;
-                        next[st.id] = {
-                          ...next[st.id],
-                          penaltyFee: fee > 0 ? `${fee.toLocaleString('vi-VN')} đ` : '0 đ',
-                        };
-                      }
+                      });
+                      return next;
                     });
-                    return next;
-                  });
-                  setToastMessage('Đã gán phạt 10k cho mỗi mục thiếu (BTVN, Quizlet)!');
-                  setTimeout(() => setToastMessage(null), 2500);
-                }}
-                className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-amber-600 text-white hover:bg-amber-700 shadow-2xs transition-all"
-              >
-                + Phạt 10k/mỗi mục thiếu (BTVN, Quizlet)
-              </button>
-            </div>
-            <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-amber-200/50">
-              <span className="text-[11px] font-bold text-rose-700">Nợ cũ:</span>
-              <button
-                type="button"
-                onClick={() => handleSetAllPreviousDebts('0 đ')}
-                className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-all"
-              >
-                Xoá nợ cả lớp (0đ)
-              </button>
-            </div>
-            <p className="text-[10px] text-amber-800 italic">
-              💡 Trợ lý có thể điền số tiền phạt và số tiền nợ chưa nộp các buổi trước trực tiếp cho từng học sinh ở bảng bên dưới.
-            </p>
-          </div>
-
-          {/* Box 2: TỔNG SỐ TIỀN NỘP PHẠT & NỢ CỦA LỚP TỰ ĐỘNG CỘNG & GHI CHÚ TO */}
-          <div className="bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 p-3.5 rounded-2xl border-2 border-amber-400 shadow-xs flex flex-col justify-between gap-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-amber-950 uppercase tracking-wide flex items-center gap-1.5">
-                <Coins className="w-4 h-4 text-amber-600" />
-                <span>Tổng tiền phạt & nợ cũ của lớp:</span>
-              </span>
-              <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300 font-mono">
-                {countStudentsWithPenalty} phạt • {countStudentsWithPreviousDebt} nợ
-              </span>
+                    setToastMessage('Đã gán phạt 10k cho mỗi mục thiếu (BTVN, Quizlet)!');
+                    setTimeout(() => setToastMessage(null), 2500);
+                  }}
+                  className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-amber-600 text-white hover:bg-amber-700 shadow-2xs transition-all"
+                >
+                  + Phạt 10k/mỗi mục thiếu (BTVN, Quizlet)
+                </button>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-amber-200/50">
+                <span className="text-[11px] font-bold text-rose-700">Nợ cũ:</span>
+                <button
+                  type="button"
+                  onClick={() => handleSetAllPreviousDebts('0 đ')}
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-all"
+                >
+                  Xoá nợ cả lớp (0đ)
+                </button>
+              </div>
+              <p className="text-[10px] text-amber-800 italic">
+                💡 Trợ lý có thể điền số tiền phạt và số tiền nợ chưa nộp các buổi trước trực tiếp cho từng học sinh ở bảng bên dưới.
+              </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 bg-white/80 p-2 rounded-xl border border-amber-300/80">
-              <div>
-                <span className="text-[10px] font-bold text-amber-800 uppercase block">Phạt buổi này:</span>
-                <span className="text-lg sm:text-xl font-black text-amber-900 font-mono">
-                  {formattedTotalPenaltyFee}
+            {/* Box 2: TỔNG SỐ TIỀN NỘP PHẠT & NỢ CỦA LỚP TỰ ĐỘNG CỘNG & GHI CHÚ TO */}
+            <div className="bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 p-3.5 rounded-2xl border-2 border-amber-400 shadow-xs flex flex-col justify-between gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-amber-950 uppercase tracking-wide flex items-center gap-1.5">
+                  <Coins className="w-4 h-4 text-amber-600" />
+                  <span>Tổng tiền phạt & nợ cũ của lớp:</span>
+                </span>
+                <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300 font-mono">
+                  {countStudentsWithPenalty} phạt • {countStudentsWithPreviousDebt} nợ
                 </span>
               </div>
-              <div className="border-l border-amber-200 pl-2">
-                <span className="text-[10px] font-bold text-rose-700 uppercase block">Nợ các buổi trước:</span>
-                <span className="text-lg sm:text-xl font-black text-rose-700 font-mono">
-                  {formattedTotalPreviousDebt}
+
+              <div className="grid grid-cols-2 gap-2 bg-white/80 p-2 rounded-xl border border-amber-300/80">
+                <div>
+                  <span className="text-[10px] font-bold text-amber-800 uppercase block">Phạt buổi này:</span>
+                  <span className="text-lg sm:text-xl font-black text-amber-900 font-mono">
+                    {formattedTotalPenaltyFee}
+                  </span>
+                </div>
+                <div className="border-l border-amber-200 pl-2">
+                  <span className="text-[10px] font-bold text-rose-700 uppercase block">Nợ các buổi trước:</span>
+                  <span className="text-lg sm:text-xl font-black text-rose-700 font-mono">
+                    {formattedTotalPreviousDebt}
+                  </span>
+                </div>
+              </div>
+
+              {grandTotalReceivable > 0 && (
+                <div className="flex items-center justify-between bg-amber-200/60 px-2.5 py-1 rounded-lg border border-amber-400">
+                  <span className="text-xs font-black text-amber-950">👉 TỔNG TIỀN PHẢI THU CẢ LỚP:</span>
+                  <span className="text-sm font-black text-amber-950 font-mono">{formattedGrandTotalReceivable}</span>
+                </div>
+              )}
+
+              {/* Ghi chú to ở phiếu gửi phụ huynh ngay cạnh ô nộp phạt */}
+              <div className="p-2.5 bg-rose-50 border-2 border-rose-300 rounded-xl text-rose-900 text-xs font-black flex items-start gap-2 shadow-2xs leading-snug">
+                <span className="text-base shrink-0">⚠️</span>
+                <span>
+                  Lưu ý: PH/HS chuyển khoản nộp phạt vào STK cá nhân của trợ lý, không chuyển khoản tiền nộp phạt vào STK công ty.
                 </span>
               </div>
             </div>
-
-            {grandTotalReceivable > 0 && (
-              <div className="flex items-center justify-between bg-amber-200/60 px-2.5 py-1 rounded-lg border border-amber-400">
-                <span className="text-xs font-black text-amber-950">👉 TỔNG TIỀN PHẢI THU CẢ LỚP:</span>
-                <span className="text-sm font-black text-amber-950 font-mono">{formattedGrandTotalReceivable}</span>
-              </div>
-            )}
-
-            {/* Ghi chú to ở phiếu gửi phụ huynh ngay cạnh ô nộp phạt */}
-            <div className="p-2.5 bg-rose-50 border-2 border-rose-300 rounded-xl text-rose-900 text-xs font-black flex items-start gap-2 shadow-2xs leading-snug">
-              <span className="text-base shrink-0">⚠️</span>
-              <span>
-                Lưu ý: PH/HS chuyển khoản nộp phạt vào STK cá nhân của trợ lý, không chuyển khoản tiền nộp phạt vào STK công ty.
-              </span>
-            </div>
           </div>
-        </div>
+        )}
 
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -1217,17 +1219,17 @@ ${penaltyNotes}${teacherFeedbackSection}━━━━━━━━━━━━━�
               <span className="text-slate-400 font-medium">Gợi ý:</span>
               <button
                 type="button"
-                onClick={() => setPresetSkills(['Ôn tập'])}
-                className="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg font-bold flex items-center gap-1"
+                onClick={() => setPresetSkills(['Từ vựng', 'Nghe'])}
+                className="px-2.5 py-0.5 bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 rounded-lg font-black flex items-center gap-1 shadow-2xs"
               >
-                <span>🔄 Ôn tập</span>
+                <span>🎧 📝 Nghe + Từ vựng (Mặc định)</span>
               </button>
               <button
                 type="button"
-                onClick={() => setPresetSkills(['Từ vựng', 'Nghe', 'Đọc'])}
-                className="px-2 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-bold"
+                onClick={() => setPresetSkills(['Từ vựng', 'Đọc'])}
+                className="px-2.5 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-950 border border-blue-300 rounded-lg font-black flex items-center gap-1 shadow-2xs"
               >
-                Từ vựng + Nghe + Đọc
+                <span>📖 📝 Đọc + Từ vựng (Mặc định)</span>
               </button>
               <button
                 type="button"
@@ -1235,6 +1237,13 @@ ${penaltyNotes}${teacherFeedbackSection}━━━━━━━━━━━━━�
                 className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold"
               >
                 Nghe + Đọc
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetSkills(['Từ vựng', 'Nghe', 'Đọc'])}
+                className="px-2 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-bold"
+              >
+                Từ vựng + Nghe + Đọc
               </button>
               <button
                 type="button"
@@ -1281,81 +1290,94 @@ ${penaltyNotes}${teacherFeedbackSection}━━━━━━━━━━━━━�
         </div>
 
         {/* Multi-Homework Selection Bar (Like Skills Selection) */}
-        <div className="pt-3 border-t border-slate-100 space-y-2">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <ListChecks className="w-3.5 h-3.5 text-amber-600" />
-              <span>8. Chọn bài tập (BTVN) cần kiểm tra buổi này ({homeworkItems.length} mục):</span>
-            </span>
-            <div className="flex flex-wrap items-center gap-1 text-[11px]">
-              <span className="text-slate-400 font-medium">Gợi ý nhanh:</span>
-              <button
-                type="button"
-                onClick={() => {
-                  const items = ['Nghe', 'Viết'];
-                  setHomeworkItems(items);
-                  localStorage.setItem('idv_homework_items', JSON.stringify(items));
-                }}
-                className="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg font-bold"
-              >
-                Nghe + Viết
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const items = ['Nghe', 'Nói', 'Đọc', 'Viết'];
-                  setHomeworkItems(items);
-                  localStorage.setItem('idv_homework_items', JSON.stringify(items));
-                }}
-                className="px-2 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-bold"
-              >
-                4 Kỹ năng
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const items = DEFAULT_HOMEWORK_ITEMS;
-                  setHomeworkItems(items);
-                  localStorage.setItem('idv_homework_items', JSON.stringify(items));
-                }}
-                className="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-bold"
-              >
-                Tất cả (6)
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 pt-1">
-            {['Nghe', 'Nói', 'Đọc', 'Viết', 'Từ vựng', 'Chép phạt', 'Chữa bài'].map((item) => {
-              const isSelected = homeworkItems.includes(item);
-              return (
+        {!isTeacher && (
+          <div className="pt-3 border-t border-slate-100 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <ListChecks className="w-3.5 h-3.5 text-amber-600" />
+                <span>8. Chọn bài tập (BTVN) cần kiểm tra buổi này ({homeworkItems.length} mục):</span>
+              </span>
+              <div className="flex flex-wrap items-center gap-1 text-[11px]">
+                <span className="text-slate-400 font-medium">Gợi ý nhanh:</span>
                 <button
-                  key={item}
                   type="button"
                   onClick={() => {
-                    let next: string[];
-                    if (isSelected) {
-                      next = homeworkItems.filter((h) => h !== item);
-                    } else {
-                      next = [...homeworkItems, item];
-                    }
-                    setHomeworkItems(next);
-                    localStorage.setItem('idv_homework_items', JSON.stringify(next));
+                    const items = ['Nghe', 'Viết', 'Nói'];
+                    setHomeworkItems(items);
+                    localStorage.setItem('idv_homework_items', JSON.stringify(items));
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                    isSelected
-                      ? 'bg-amber-500 text-amber-950 shadow-xs ring-2 ring-amber-300 font-extrabold'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className="px-2 py-0.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg font-black flex items-center gap-1 shadow-2xs"
                 >
-                  <span className="text-xs">{isSelected ? '☑' : '☐'}</span>
-                  <span>{item}</span>
-                  {isSelected && <Check className="w-3 h-3 ml-0.5 text-amber-950 stroke-[3]" />}
+                  <span>🎧 Cụm Nghe - Viết - Nói</span>
                 </button>
-              );
-            })}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const items = ['Đọc', 'Viết', 'Nói'];
+                    setHomeworkItems(items);
+                    localStorage.setItem('idv_homework_items', JSON.stringify(items));
+                  }}
+                  className="px-2 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-900 border border-blue-300 rounded-lg font-black flex items-center gap-1 shadow-2xs"
+                >
+                  <span>📖 Cụm Đọc - Viết - Nói</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const items = ['Nghe', 'Nói', 'Đọc', 'Viết'];
+                    setHomeworkItems(items);
+                    localStorage.setItem('idv_homework_items', JSON.stringify(items));
+                  }}
+                  className="px-2 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-bold"
+                >
+                  4 Kỹ năng
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const items = DEFAULT_HOMEWORK_ITEMS;
+                    setHomeworkItems(items);
+                    localStorage.setItem('idv_homework_items', JSON.stringify(items));
+                  }}
+                  className="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-bold"
+                >
+                  Tất cả (6)
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-1">
+              {['Nghe', 'Nói', 'Đọc', 'Viết', 'Từ vựng', 'Chép phạt', 'Chữa bài'].map((item) => {
+                const isSelected = homeworkItems.includes(item);
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => {
+                      let next: string[];
+                      if (isSelected) {
+                        next = homeworkItems.filter((h) => h !== item);
+                      } else {
+                        next = [...homeworkItems, item];
+                      }
+                      setHomeworkItems(next);
+                      localStorage.setItem('idv_homework_items', JSON.stringify(next));
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-amber-500 text-amber-950 shadow-xs ring-2 ring-amber-300 font-extrabold'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <span className="text-xs">{isSelected ? '☑' : '☐'}</span>
+                    <span>{item}</span>
+                    {isSelected && <Check className="w-3 h-3 ml-0.5 text-amber-950 stroke-[3]" />}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Notice for Writing Skill with Penalty Repetitions */}
         {hasWritingSkill && (
